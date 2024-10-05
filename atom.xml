@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://hanaeternum.github.io</id>
+    <title>Han&apos;s 大吴疆土</title>
+    <updated>2024-10-05T03:48:06.945Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://hanaeternum.github.io"/>
+    <link rel="self" href="https://hanaeternum.github.io/atom.xml"/>
+    <subtitle>为颜如玉，为黄金屋，为名满天下，为功利千秋</subtitle>
+    <logo>https://hanaeternum.github.io/images/avatar.png</logo>
+    <icon>https://hanaeternum.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2024, Han&apos;s 大吴疆土</rights>
+    <entry>
+        <title type="html"><![CDATA[反转链表]]></title>
+        <id>https://hanaeternum.github.io/post/fan-zhuan-lian-biao/</id>
+        <link href="https://hanaeternum.github.io/post/fan-zhuan-lian-biao/">
+        </link>
+        <updated>2024-10-05T03:46:29.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目：反转一个单链表</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/image.png" alt="" loading="lazy"></figure>
+<p>最容易想到的可能是我们重新定义一个新的链表，便很容易实现链表反转，但队内存空间是一个浪费；我们可以采用双指针的方法：首先定义一个cur指针，指向头结点，再定义一个pre指针，初始化为null，由于我们需要操作cur的指向，所以将cur-&gt;next 节点用tmp指针保存一下，之后就是继续移动pre和cur指针</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">ListNode* reverseList(ListNode* head) {
+        ListNode* temp; // 保存cur的下一个节点
+        ListNode* cur = head;
+        ListNode* pre = NULL;
+        while(cur) {
+            temp = cur-&gt;next;  // 保存一下 cur的下一个节点，因为接下来要改变cur-&gt;next
+            cur-&gt;next = pre; // 翻转操作
+            // 更新pre 和 cur指针
+            pre = cur;
+            cur = temp;
+        }
+        return pre;
+    }
+</code></pre>
+<p>需要注意的是cur和pre的初值，pre是cur指向的前一位(反转前)，除此以外，还有while中的条件，因为当我们反转链表的时候，只需要操作到原链表尾结点，不需要操作到尾结点之后，所以是cur，而不是cur→next</p>
+<h1 id="总结">总结</h1>
+<p>还有一种扩展解法是递归法，虽然抽象一些，但是其实和双指针法是一样的逻辑，同样是当cur为空的时候循环结束，不断将cur指向pre的过程</p>
+<pre><code class="language-cpp">ListNode* reverse(ListNode* pre,ListNode* cur){
+        if(cur == NULL) return pre;
+        ListNode* temp = cur-&gt;next;
+        cur-&gt;next = pre;
+        // 可以和双指针法的代码进行对比，如下递归的写法，其实就是做了这两步
+        // pre = cur;
+        // cur = temp;
+        return reverse(cur,temp);
+    }
+    ListNode* reverseList(ListNode* head) {
+        // 和双指针法初始化是一样的逻辑
+        // ListNode* cur = head;
+        // ListNode* pre = NULL;
+        return reverse(NULL, head);
+    }
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[栈和队列]]></title>
+        <id>https://hanaeternum.github.io/post/zhan-he-dui-lie/</id>
+        <link href="https://hanaeternum.github.io/post/zhan-he-dui-lie/">
+        </link>
+        <updated>2024-10-04T08:45:24.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E6%A0%88">栈</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96">初始化</a></li>
+<li><a href="#%E5%85%A5%E6%A0%88">入栈</a></li>
+<li><a href="#%E5%87%BA%E6%A0%88">出栈</a></li>
+<li><a href="#%E5%8F%96%E6%A0%88%E9%A1%B6%E5%85%83%E7%B4%A0">取栈顶元素</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%98%9F%E5%88%97">队列</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA-2">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C-2">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96-2">初始化</a></li>
+<li><a href="#%E6%B1%82%E9%98%9F%E5%88%97%E9%95%BF%E5%BA%A6">求队列长度</a></li>
+<li><a href="#%E5%85%A5%E9%98%9F">入队</a></li>
+<li><a href="#%E5%87%BA%E9%98%9F">出队</a></li>
+<li><a href="#%E5%8F%96%E9%98%9F%E5%A4%B4%E5%85%83%E7%B4%A0">取队头元素</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%98%9F%E5%88%97">双向队列</a></li>
+</ul>
+</li>
+<li><a href="#%E5%B0%8F%E7%BB%93">小结</a></li>
+</ul>
+</p>
+<h1 id="栈">栈</h1>
+<br />
+<h2 id="定义和基础理论">定义和基础理论</h2>
+<p>栈是一种限制插入和删除操作只能在一个位置进行的列表，栈遵循后进先出（LIFO—Last In First Out）的原则，在栈中，每当新元素被添加，它就被放置在栈顶。当元素被移除时，栈顶的元素被取出</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image.png" alt="" loading="lazy"></figure>
+<p>以下是常用的应用场景</p>
+<ul>
+<li>子程序的调用：在跳往子程序前，会先将下个指令的地址存到堆栈中，直到子程序执行完后再将地址取出，以回到原来的程序中</li>
+<li>递归的调用：可以用来在函数调用的时候存储断点，储存下一个指令的地址外，也将参数、区域变量等数据存入栈中</li>
+<li>表达式的转换[中缀表达式转后缀表达式]与求值</li>
+<li>二叉树的遍历</li>
+<li>图形的深度优先搜索法</li>
+</ul>
+<p>定义分为两种栈的定义，一种是顺序栈，一种是链栈</p>
+<pre><code class="language-cpp">#define MAXSIZE 100
+typedef struct
+{
+	SElemType *base;
+	SElemType *top;
+	int stacksize;
+}SqStack;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image1.png" alt="" loading="lazy"></figure>
+<p>base为栈底指针，初始化完成后，栈底指针base始终指向栈底的位置，若base的值为NULL，则表明栈结构不存在。top为栈顶指针，甚初值指向栈底。每当插入新的栈顶元素时，指针top增1；删除栈顶元素时，指针top减1。因此，栈空时，top和base的值相等，都指向栈底；栈非空时，top始终指向栈顶元素的上一个位置；stacksize 指示栈可使用的最大容量，后面算法3.1的初始化操作为顺序栈动态分配MAXSIZE大小的数组空间，将stacksize置为MAXSIZE</p>
+<pre><code class="language-cpp">typedef struct StackNode
+{
+	ElemType data;
+	struct StackNode *next;
+}StackNode, *LinkStack;
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image2.png" alt="" loading="lazy"></figure>
+<p>链栈一般选用单链表来表示；由于栈的主要操作是在栈顶插入删除，显然以链表头部是最方便的，因为在链表那节讲过，链表插入时间消耗在找点上，如果是第一个就不需要消耗大量时间，当然，我们为了操作方便一般不需要设置头结点</p>
+<h2 id="基础操作">基础操作</h2>
+<h3 id="初始化">初始化</h3>
+<p>顺序栈的初始化是为顺序栈动态分配一个预定义大小的数组空间</p>
+<pre><code class="language-cpp">Status InitStack(SqStack &amp;S)
+{
+	S.base = new SElemType[MAXSIZE];
+	if (!S.base) exit (OVERFLOW);
+	S.top = S.base;
+	S.stacksize = MAXSIZE;
+	return OK;
+}
+</code></pre>
+<p>链栈初始化操作是构造一个空栈，因为没有头结点，所以直接将栈顶指针置空即可</p>
+<pre><code class="language-cpp">Status InitStack(LinkStack &amp;S)
+{
+	S = NULL;	
+	return OK;
+}
+</code></pre>
+<h3 id="入栈">入栈</h3>
+<p>出栈对于两种栈来说并没有需要额外注意的，都是在栈顶插入一个新的元素</p>
+<pre><code class="language-cpp">Status Push(SqStack &amp;S, SElemType e)
+{
+	if (S.top - S.base == S.stacksize) return ERROR;
+	*S.top++ = e;
+	return OK;
+}
+</code></pre>
+<pre><code class="language-cpp">Status Push(LinkStack &amp;S, SElemType e)
+{
+	p = new StackNode;
+	p-&gt;data = e;
+	p-&gt;next = S;
+	S = q;
+	return OK;
+}
+</code></pre>
+<h3 id="出栈">出栈</h3>
+<p>出栈就是将栈顶元素删除，两者有所不同主要存在与资源的释放</p>
+<pre><code class="language-cpp">Status Pop(SqStack &amp;S, SElemType &amp;e)
+{
+	if (S.top == S.base) return ERROR;
+	e = *--S.top;
+	return OK;
+}
+</code></pre>
+<pre><code class="language-cpp">Status Pop(LinkStack &amp;S, SElemType &amp;e)
+{
+	if (S == NULL) return ERROR;
+	e = S-&gt;data;
+	p = S;
+	S = S-&gt;next;
+	delete p;
+	return OK;
+}
+</code></pre>
+<h3 id="取栈顶元素">取栈顶元素</h3>
+<p>栈非空的时候，此操作返回当前栈顶元素的值，栈顶指针保证不变</p>
+<pre><code class="language-cpp">SElemType GetTop()
+{
+	if (S.top != S.base)
+		return *(S.top - 1);
+}
+</code></pre>
+<pre><code class="language-cpp">SElemType GetTop()
+{
+	if (S != NULL)
+		return S-&gt;data;
+}
+</code></pre>
+<h1 id="队列">队列</h1>
+<br />
+<h2 id="定义和基础理论-2">定义和基础理论</h2>
+<p>队列的操作跟栈的操作类似，不同的是，删除是在表的头部(即队头进行)；队列遵循的是后进先出（FIFO—First In First Out）</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image3.png" alt="" loading="lazy"></figure>
+<p>队列也有两种存储表示，顺序表示和链式表示；、</p>
+<p>但是当我们使用顺序存储的时候，常会因在最大空间的位置插入新的队尾元素导致数组越界，但实际可用空间并未占满，这种现象被称为”假溢出”；为解决这个问题，把顺序队列变为了一个环状的空间，被称为循环队列；但同时也会引出一个问题，如何区别队列空满的情况，有两种处理情况，一种是少用一个元素空间，队空的条件是Q.front == Q.rear，队满的条件(Q.rear + 1) % MAXQSIZE == Q.front，另外一种是设置一个标志位区别</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image4.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">#define MAXQSIZE 100
+typedef struct 
+{
+	QElemType *base;
+	int front;
+	int rear;
+}sqQueue;
+</code></pre>
+<p>链队基本和链栈一样，只不过为了操作方便会给链队添加一个头结点</p>
+<pre><code class="language-cpp">typedef struct QNode
+{
+	QElemType data;
+	struct QNode *next;
+}QNode, *QueuePtr;
+typedef struct
+{
+	QueuePtr front;
+	QueuePtr rear;
+}LinkQueue;
+</code></pre>
+<h2 id="基础操作-2">基础操作</h2>
+<h3 id="初始化-2">初始化</h3>
+<p>循环队列的初始化就是动态分配一个预定义大小为MAXQSIZE的数组空间</p>
+<pre><code class="language-cpp">Status InitQueue(SqQueue &amp;Q)
+{
+	Q.base = new QElemType[MAXQSIZE];
+	if (!Q.base) exit (OVERFLOW);
+	Q.front = Q.rear;
+	Q.rear = 0;
+	return OK;
+}
+</code></pre>
+<p>链队初始化操作是构造一个只有头结点的空队</p>
+<pre><code class="language-cpp">Status InitQueue(LinkQueue &amp;Q)
+{
+	Q.front = Q.rear = new QNode;
+	Q.front-&gt;next = NULL;
+	return OK;
+}
+</code></pre>
+<h3 id="求队列长度">求队列长度</h3>
+<p>对于非循环队列，尾指针和头指针的差值就是队列长度，但对于循环队列，差值可能为负数，所以最后插值还需要加MAXQSIZE，在求余</p>
+<pre><code class="language-cpp">int QueueLength (SqQueue Q)
+{
+	return (Q.rear - Q.front + MAXQSIZE) % MAXQSIZE;
+}
+</code></pre>
+<h3 id="入队">入队</h3>
+<p>入队是在队尾插入一个新的元素</p>
+<pre><code class="language-cpp">Status EnQueue (SqQueue &amp;Q, QElemType e)
+{
+	if ((Q.rear + 1) % MAXQSIZE == Q.front) return ERROR;
+	Q.base[Q.rear] = e;
+	Q.rear = (Q.rear + 1) % MAXQSIZE;
+	return OK;
+}
+</code></pre>
+<p>和循环队列不同的是，链队在入队之前不需要判断是否满，需要为入队元素动态分配一个空间</p>
+<pre><code class="language-cpp">Status EnQueue (LinkQueue &amp;Q, QElemType e)
+{
+	p = new QNode;
+	p-&gt;data = e;
+	p-&gt;next = NULL;
+	Q.rear-&gt;next = p;
+	Q.rear = p;
+	return OK;
+}
+</code></pre>
+<h3 id="出队">出队</h3>
+<p>出队操作是将队头元素删除</p>
+<pre><code class="language-cpp">Status DeQueue (SqQueue &amp;Q, QElemType &amp;e)
+{
+	if (Q.front == Q.rear) return ERROR;
+	e = Q.base[Q.front];
+	Q.front = (Q.front + 1) % MAXQSIZE;
+	return OK;
+}
+</code></pre>
+<p>和入队类似，我们并不需要判断队列是否为空，不同的是，链队在出队后需要释放队头元素所占的空间；需要注意的是出队操作的时候还需要考虑当队列最后一个元素被删除后，队列尾指针也丢失了，因此需要对队尾指针重新赋值</p>
+<pre><code class="language-cpp">Status DeQueue (LinkQueue &amp;Q, QElemType &amp;e)
+{
+	if(Q.front == Q.rear) return ERROR;
+	p = Q.front-&gt;next;
+	e = p-&gt;data;
+	Q.front-&gt;next = p-&gt;next;
+	if (Q.rear == p) Q.rear = Q.front;
+	delete p;
+	return OK;
+}
+</code></pre>
+<h3 id="取队头元素">取队头元素</h3>
+<p>当队列非空的时候，取出头元素会返回头元素的值，队头指针保持不变</p>
+<pre><code class="language-cpp">QElemType GetHead (SqQueue Q)
+{
+	if (Q.front != Q.rear) return Q.base[Q.front];
+}
+</code></pre>
+<pre><code class="language-cpp">QElemType GetHead(LinkQueue Q)
+{
+	if (Q.front != Q.rear) return Q.front-&gt;next-&gt;data;
+}
+</code></pre>
+<h2 id="双向队列">双向队列</h2>
+<p>在队列中，我们仅能删除头部元素或在尾部添加元素；双向队列（double-ended queue）提供了更高的灵活性，允许在头部和尾部执行元素的添加或删除操作</p>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image5.png" alt="" loading="lazy"></figure>
+<p>双向队列的实现与队列类似，可以选择链表或数组作为底层数据结构</p>
+<h1 id="小结">小结</h1>
+<ul>
+<li>浏览器的前进后退功能本质上是“栈”的体现。当用户访问一个新页面时，该页面会被添加到栈顶；当用户点击后退按钮时，该页面会从栈顶弹出</li>
+<li>撤销（undo）和反撤销（redo）的实现：使用两个栈，栈 A 用于撤销，栈 B 用于反撤销。 每当用户执行一个操作，将这个操作压入栈 A ，并清空栈 B 。 当用户执行“撤销”时，从栈 A 中弹出最近的操作，并将其压入栈 B 。 当用户执行“反撤销”时，从栈 B 中弹出最近的操作，并将其压入栈 A</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[删除链表元素]]></title>
+        <id>https://hanaeternum.github.io/post/shan-chu-lian-biao-yuan-su/</id>
+        <link href="https://hanaeternum.github.io/post/shan-chu-lian-biao-yuan-su/">
+        </link>
+        <updated>2024-10-03T13:09:12.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目：删除链表中等于给定值 val 的所有节点</p>
+<p>对于这道题，有两种解法，一种比较偏向暴力但很容易想到，另外一种是至少在我学习链表会提到的虚拟头结点(按我阅读的数据结构来看，似乎这个是叫头结点，而存储数据的叫首元结点)；第一种方法，直接使用原来的链表来进行移除结点的操作，因为我们对于非头结点的操作不一样，所以第一步是确定真正的头结点，然后才是删除定值元素；第二种方法，设置一个虚拟头结点，这样原链表的所有节点就都可以按照统一的方式进行移除了</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">ListNode* removeElements(ListNode* head, int val) {
+        // 删除头结点
+        while (head != NULL &amp;&amp; head-&gt;val == val) { // 注意这里不是if
+            ListNode* tmp = head;
+            head = head-&gt;next;
+            delete tmp;
+        }
+        // 删除非头结点
+        ListNode* cur = head;
+        while (cur != NULL &amp;&amp; cur-&gt;next!= NULL) {
+            if (cur-&gt;next-&gt;val == val) {
+                ListNode* tmp = cur-&gt;next;
+                cur-&gt;next = cur-&gt;next-&gt;next;
+                delete tmp;
+            } else {
+                cur = cur-&gt;next;
+            }
+        }
+        return head;
+    }
+</code></pre>
+<p>首先需要注意的是，在删除头结点的时候，我们使用的while而不是if，因为在我们确定了头结点是需要删除的时候，如果下一个也是我们要删除，我们仍然需要执行删除，而不是只执行一次；除此以外，我们可以看到在删除非头结点的时候，我们是从head开始，这需要我们理解删除的原理，删除结点是将这个结点的上一个结点的指针修改为这个结点的下一个结点，如果从head开始，那么就不需要作记录</p>
+<pre><code class="language-cpp">ListNode* removeElements(ListNode* head, int val) {
+        ListNode* dummyHead = new ListNode(0); // 设置一个虚拟头结点
+        dummyHead-&gt;next = head; // 将虚拟头结点指向head，这样方便后面做删除操作
+        ListNode* cur = dummyHead;
+        while (cur-&gt;next != NULL) {
+            if(cur-&gt;next-&gt;val == val) {
+                ListNode* tmp = cur-&gt;next;
+                cur-&gt;next = cur-&gt;next-&gt;next;
+                delete tmp;
+            } else {
+                cur = cur-&gt;next;
+            }
+        }
+        head = dummyHead-&gt;next;
+        delete dummyHead;
+        return head;
+    }
+</code></pre>
+<p>当我们创建一个虚拟头结点的时候，操作其实就跟前一种方法中删除非头结点类似了；需要注意的是，我们返回的时候，是返回虚拟头结点的下一个，而不是传入的head，因为他可能被删除了</p>
+<h1 id="总结">总结</h1>
+<p>其实上述两种方法，在时间复杂度上大差不差，精髓是在于整合逻辑，能把两种情况整合为一种情况；除此以外，while中判断也是很讲究的，除了是遍历的条件，他也是一种安全保护，防止操作空指针</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[螺旋数组]]></title>
+        <id>https://hanaeternum.github.io/post/luo-xuan-shu-zu/</id>
+        <link href="https://hanaeternum.github.io/post/luo-xuan-shu-zu/">
+        </link>
+        <updated>2024-10-02T13:23:36.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目：给定一个正整数 n，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵</p>
+<p>这题跟二分查找一样，使用了循环不变量</p>
+<p>模拟顺时针画矩阵的过程：</p>
+<ul>
+<li>填充上行从左到右</li>
+<li>填充右列从上到下</li>
+<li>填充下行从右到左</li>
+<li>填充左列从下到上</li>
+</ul>
+<p>由外向内一圈一圈这么画下去；然后发现对于奇数偶数是不一样的，虽然圈数都是n / 2向下取整，但是最后奇数会组成一个额外的数</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E8%9E%BA%E6%97%8B%E6%95%B0%E7%BB%84/image.png" alt="" loading="lazy"></figure>
+<p>同时对于循环不变量，我们坚持左闭右开的原则</p>
+<p>大致逻辑是，从四个方向绘制边框，然后压缩边框长度以及更改起始再次绘制，直到圈数到达目标值</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">vector&lt;vector&lt;int&gt;&gt; generateMatrix(int n) {
+        vector&lt;vector&lt;int&gt;&gt; res(n, vector&lt;int&gt;(n, 0)); // 使用vector定义一个二维数组
+        int startx = 0, starty = 0; // 定义每循环一个圈的起始位置
+        int loop = n / 2; // 每个圈循环几次，例如n为奇数3，那么loop = 1 只是循环一圈，矩阵中间的值需要单独处理
+        int mid = n / 2; // 矩阵中间的位置，例如：n为3， 中间的位置就是(1，1)，n为5，中间位置为(2, 2)
+        int count = 1; // 用来给矩阵中每一个空格赋值
+        int offset = 1; // 需要控制每一条边遍历的长度，每次循环右边界收缩一位
+        int i,j;
+        while (loop --) {
+            i = startx;
+            j = starty;
+            // 下面开始的四个for就是模拟转了一圈
+            // 模拟填充上行从左到右(左闭右开)
+            for (j; j &lt; n - offset; j++) {
+                res[i][j] = count++;
+            }
+            // 模拟填充右列从上到下(左闭右开)
+            for (i; i &lt; n - offset; i++) {
+                res[i][j] = count++;
+            }
+            // 模拟填充下行从右到左(左闭右开)
+            for (; j &gt; starty; j--) {
+                res[i][j] = count++;
+            }
+            // 模拟填充左列从下到上(左闭右开)
+            for (; i &gt; startx; i--) {
+                res[i][j] = count++;
+            }
+            // 第二圈开始的时候，起始位置要各自加1， 例如：第一圈起始位置是(0, 0)，第二圈起始位置是(1, 1)
+            startx++;
+            starty++;
+            // offset 控制每一圈里每一条边遍历的长度
+            offset += 1;
+        }
+        // 如果n为奇数的话，需要单独给矩阵最中间的位置赋值
+        if (n % 2) {
+            res[mid][mid] = count;
+        }
+        return res;
+    }
+</code></pre>
+<p>代码重难点在于怎么绘制边框，需要理解的是，我们是将最终结果存储到容器中，所以最小值是0，最大值是n - 1，但是我们是左闭右开的区间，不会取到n - 1，所以在循环体里面是不会取等号</p>
+<h1 id="总结">总结</h1>
+<p>对于这种执行类似操作的时候，找出循环不变量是我们重点考虑的地方，同时在边界问题比较多的时候，我们也可以考虑是否可以合并边界条件</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[滑动窗口]]></title>
+        <id>https://hanaeternum.github.io/post/hua-dong-chuang-kou/</id>
+        <link href="https://hanaeternum.github.io/post/hua-dong-chuang-kou/">
+        </link>
+        <updated>2024-10-02T13:22:58.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目：给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和≥ s的长度最小的连续子数组，并返回其长度。如果不存在符合条件的子数组，返回 0</p>
+<p>这道题也不难暴力解，解法是两个for，一个for控制起始位置，一个for控制终止位置，也就是把这个数组中所以符合条件的遍历出来，最后比较即可</p>
+<p>较好的解法是滑动窗口；所谓滑动窗口，就是不断的调节子序列的起始位置和终止位置，从而得出我们要想的结果，滑动窗口利用了双指针中的快慢指针技巧，我们可以将滑动窗口看做是快慢指针两个指针中间的区间，也可以将滑动窗口看做是快慢指针的一种特殊形式</p>
+<p>大致逻辑就是终止位置不断更新，直到满足条件(sum ≥ s)停止，然后就是起始位置不断更新，直到不满足条件停止，以此类推，直到终止位置遍历完结束</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">int minSubArrayLen(int s, vector&lt;int&gt;&amp; nums) {
+        int result = INT32_MAX;
+        int sum = 0; // 滑动窗口数值之和
+        int i = 0; // 滑动窗口起始位置
+        int subLength = 0; // 滑动窗口的长度
+        for (int j = 0; j &lt; nums.size(); j++) {
+            sum += nums[j];
+            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
+            while (sum &gt;= s) {
+                subLength = (j - i + 1); // 取子序列的长度
+                result = result &lt; subLength ? result : subLength;
+                sum -= nums[i++]; // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
+            }
+        }
+        // 如果result没有被赋值的话，就返回0，说明没有符合条件的子序列
+        return result == INT32_MAX ? 0 : result;
+    }
+</code></pre>
+<p>有几点需要注意</p>
+<ul>
+<li>result是最小值，需要在初始化的时候被赋予最大值</li>
+<li>更新起始位置使用的是while，而不是if，因为可能不只更新一次</li>
+</ul>
+<h1 id="总结">总结</h1>
+<p>相比暴力解，优化了太多不满足条件的组合，滑动窗口的精妙之处在于根据当前子序列和大小的情况，不断调节子序列的起始位置。从而将O(n^2)暴力解法降为O(n)，主要是看每一个元素被操作的次数，每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × n 也就是O(n)</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[顺序表和链表]]></title>
+        <id>https://hanaeternum.github.io/post/shun-xu-biao-he-lian-biao/</id>
+        <link href="https://hanaeternum.github.io/post/shun-xu-biao-he-lian-biao/">
+        </link>
+        <updated>2024-10-02T09:01:55.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8">顺序表</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96">初始化</a></li>
+<li><a href="#%E5%8F%96%E5%80%BC">取值</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE">查找</a></li>
+<li><a href="#%E6%8F%92%E5%85%A5">插入</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4">删除</a></li>
+</ul>
+</li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</li>
+<li><a href="#%E9%93%BE%E8%A1%A8">链表</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA-2">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C-2">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96-2">初始化</a></li>
+<li><a href="#%E5%8F%96%E5%80%BC-2">取值</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE-2">查找</a></li>
+<li><a href="#%E6%8F%92%E5%85%A5-2">插入</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4-2">删除</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA">创建</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BE%AA%E7%8E%AF%E9%93%BE%E8%A1%A8">循环链表</a></li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8">双向链表</a></li>
+</ul>
+</li>
+<li><a href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8%E7%9A%84%E6%AF%94%E8%BE%83">顺序表和链表的比较</a>
+<ul>
+<li><a href="#%E7%A9%BA%E9%97%B4%E6%80%A7%E8%83%BD">空间性能</a></li>
+<li><a href="#%E6%97%B6%E9%97%B4%E6%80%A7%E8%83%BD">时间性能</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="顺序表">顺序表</h1>
+<br />
+<h2 id="定义和基础理论">定义和基础理论</h2>
+<p>顺序表是在计算机内存中以数组的形式保存的线性表，可见，数组是一种顺序表，但是不能说顺序表是数组；并且顺序表是一种<strong>随机存取</strong>(只要确定存储线性表的起始位置，线性表中任一数据都可随机存取)的存储结构</p>
+<p>一般定义如下，其中ElemType是自定义类型：</p>
+<pre><code class="language-cpp">#define MAXSIZE 100
+typedef struct
+{
+	ElemType *elem;
+	int length;
+}sqList;
+</code></pre>
+<p>初始化完成后，elem指向顺序表的基地址；length则是表示顺序表中当前数据元素的个数</p>
+<h2 id="基础操作">基础操作</h2>
+<h3 id="初始化">初始化</h3>
+<p>本质就是构建一个空的顺序表</p>
+<pre><code class="language-cpp">Status InitList(sqList &amp;L)
+{
+	L.elem = new ElemType[MAXSIZE];
+	if (!L.elem) exit(OVERFLOW);
+	L.length = 0;
+	return OK;
+}
+</code></pre>
+<p>此处是动态创建线性表的存储区域，这种可以有效的利用系统的资源，当不需要的时候可以销毁并释放资源</p>
+<h3 id="取值">取值</h3>
+<p>根据位置序号i，获取顺序表中第i个数据元素的值；由于顺序结构具有随机存取的特点，可以直接通过数组下标定位得到</p>
+<pre><code class="language-cpp">Status GetElem(sqList L, int i, Elemtype &amp;e)
+{
+	if (i &lt; 1 || i &gt; L.length) return ERROR;
+	e = L.elem[i - 1];
+	return OK;
+}
+</code></pre>
+<p>先是判断序号i是否合理，然后直接取出赋值即可；时间复杂度为O(1)</p>
+<h3 id="查找">查找</h3>
+<p>根据指定的元素值e，查找顺序表中第1个与e相等的元素，找到则返回，否则返回0</p>
+<pre><code class="language-cpp">int LocateElem(sqList L, ElemType e)
+{
+	for (i = 0; i &lt; L.length; i++)
+		if (L.elem[i] == e) return i + 1;
+	return 0;
+}
+</code></pre>
+<p>进行查找操作的时候，时间消耗主要在数据的比较上，比较次数决定于被查找元素在顺序表中的位置；时间复杂度为O(n)</p>
+<h3 id="插入">插入</h3>
+<p>在表的第i个位置插入一个新的元素e，使长度为n的线性表变成长度为n + 1的线性表；不难看出，在顺序表中的存储结构发生了变化，这使得i后面的元素都需要往后移动一位</p>
+<pre><code class="language-cpp">Status ListInsert(sqList &amp;L, int i, Elemtype e)
+{
+	if (i &lt; 1 || i &gt; L.length + 1) return ERROR;
+	if (L.length == MAXSIZE) return ERROR;
+	for (j = L.length - 1; j &gt;= i - 1; j--)
+		L.elem[j + 1] = L.elem[j];
+	L.elem[i - 1] = e;
+	++L.length;
+	return OK;
+}
+</code></pre>
+<p>插入操作时间消耗主要是在移动元素上，移动元素的个数取决于插入元素的位置；时间复杂度为O(n)</p>
+<h3 id="删除">删除</h3>
+<p>将表的第i个元素删去，将长度为n的顺序表变为长度为n - 1；也就是，将第i + 1到n的元素全部往前移动一个位置</p>
+<pre><code class="language-cpp">Status ListDelete(sqList &amp;L, int i)
+{
+	if (i &lt; 1 || i &gt; L.length) return ERROR;
+	for (j = i; j &lt;= L.length -1; j++)
+		L.elem[j - 1] = L.elem[j];
+	--L.length;
+	return OK;
+}
+</code></pre>
+<p>跟插入类似，时间消耗主要在移动元素上，个数也取决于删除元素的位置；时间复杂度为O(n)</p>
+<h2 id="总结">总结</h2>
+<p>顺序表可以随机存取表中任一元素，其存储位置可用一个简单、直观的公式表示；但也会有缺点，在做插入删除的时候会移动大量元素，如果元素个数较多，操作会更复杂</p>
+<h1 id="链表">链表</h1>
+<br />
+<h2 id="定义和基础理论-2">定义和基础理论</h2>
+<p>链表不同于顺序表(数组)它的结构像一条链一样链接成一个线性结构，而链表中每一个结点都存在不同的地址中，链表你可以理解为它存储了指向结点(区域)的地址，能够通过这个指针找到对应结点；链表包括两个域</p>
+<ul>
+<li>数据域：存储数据元素信息</li>
+<li>指针域：存储直接后继存储位置</li>
+</ul>
+<p>如果每个结点只包含一个指针域，那么即是线性链表或单链表；根据链表结点所含指针个数、指针指向、指针连接方式，可以将链表分为单链表、循环链表、双向链表等</p>
+<pre><code class="language-cpp">typedef struct LNode
+{
+	ElemType data;//数据域
+	struct LNode *next;//指针域
+}LNode, *LinkList;
+</code></pre>
+<p>LNode和*LinkList本质是一样的，只是为了提高程序的可读性；习惯上使用LinkList定义单链表，强调定义的是单链表的头指针，使用LNode *定义单链表中结点的指针变量；需要强调的是，指针变量和结点变量是两个不同的概念，若定义LinkList p或LNode <em>p，p为指向某结点的指针变量，表示该结点的地址，而</em>p为对应的结点变量，表示该结点的名称</p>
+<p>关于链表，一个很重要的知识点就是头结点问题，为了方便处理，一般是选用带头结点的链表，主要是为了<strong>首元节点</strong>(链表中存储第一个数据元素的结点)和判断非空的处理</p>
+<p>链表与顺序表不同的是，链表采用的是顺序存取的存取结构</p>
+<h2 id="基础操作-2">基础操作</h2>
+<h3 id="初始化-2">初始化</h3>
+<p>构造一个空表</p>
+<pre><code class="language-cpp">Status InitList(LinkList &amp;L)
+{
+	L = new LNode;
+	L-&gt;next = NULL;
+	return OK;
+}
+</code></pre>
+<p>生成新结点作为头结点，用头指针L指向头结点</p>
+<h3 id="取值-2">取值</h3>
+<p>与顺序表不同，由于链表中逻辑相邻的结点并没有存储在物理相邻的单元中 ，所以在链表中获取结点的值不能向顺序表那样随机访问，只能通过链域逐个结点向下访问</p>
+<pre><code class="language-cpp">Status GetElem(LinkList L, int i, Elemtype &amp;e)
+{
+	p = L-&gt;next;
+	j = 1;
+	while(p &amp;&amp;j &lt; i)
+	{
+		p = p-&gt;next;
+		++j;
+	}
+	if (!p || j &gt; i) return ERROR;
+	e = p-&gt;data;
+	return OK;
+}
+</code></pre>
+<p>由于存取结构不一样，所以会比顺序表在时间复杂度会更高，为O(n)</p>
+<h3 id="查找-2">查找</h3>
+<p>从链表的首元结点出发，依次将结点值和给定值e比较，返回查找结果</p>
+<pre><code class="language-cpp">LNode *LocateElem(LinkList L, ElemType e)
+{
+	p = L-&gt;next;
+	while(p &amp;&amp; p-&gt;data != e)
+		p = p-&gt;next;
+	return p;
+}
+</code></pre>
+<p>执行时间与待查找的值e有关，时间复杂度为O(n)</p>
+<h3 id="插入-2">插入</h3>
+<p>将值为e的新结点插入到表的第i个结点的位置上</p>
+<p>插入步骤大概是，先生成一个结点p，将其数据域Data4置为e，然后将p结点指针域指向<strong>Data2的指针域</strong>(这里为了方便理解和匹配下图，实际怎么称呼是不合理的)，最后将Data1的指针域指向p结点的指针域</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">Status ListInsert(LinkList)
+{
+	p = L;
+	j = 0;
+	while(p &amp;&amp; (j &lt; i - 1))
+	{
+		p = p-&gt;next;
+		++j;
+	}
+	if (!p || j &gt; i - 1) return ERROR;
+	s = new LNode;
+	s-&gt;data = e;
+	s-&gt;next = p-&gt;next;
+	p-&gt;next = s;
+	return OK;
+}
+</code></pre>
+<p>和顺序表一样，如果表中有n个结点，则插入操作中合法的插入位置有n + 1个，当i= n + 1时，新结点则插在链表尾部；虽然不需要想顺序表的插入那么大量移动元素，但是平均时间复杂度仍然为O(n)，这是因为想在i处插入，就必须找到i - 1个结点</p>
+<h3 id="删除-2">删除</h3>
+<p>删除单链表中指定位置的元素，同插入元素一样，首先应该找到该位置的前驱结点；</p>
+<p>大致步骤是，首先是查找第i - 1个结点，找到之后保存一下，以便释放，然后改变指针域，也就是直接跳过即可，最后释放资源</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image1.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">Status ListDelete(LinkList &amp;L, int i)
+{
+	p = L;
+	j = 0;
+	while((p-&gt;next) &amp;&amp; (j &lt; i - 1))
+	{
+		p = p-&gt;next;
+		++j;
+	}
+	if (!(p-&gt;next) || (j &gt; i - 1)) return ERROR;
+	q = p-&gt;next;
+	p-&gt;next = q-&gt;next;
+	delete q;
+	return OK;
+}
+</code></pre>
+<p>和顺序表一样，删除中合法位置有n个；类似插入算法，时间复杂度为O(n)</p>
+<h3 id="创建">创建</h3>
+<p>创建链表按照位置分为前插法和后插法</p>
+<p>前插法是通过将新结点逐个插入链表的头部来创建链表，每次申请一个新结点，读入相应的数据元素值，然后将新结点插入到新结点之后</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image2.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">void CreateLiist (LinkList &amp;L, int n)
+{
+	L = new LNode;
+	L-&gt;next = NULL;
+	for (i = 0; i &lt; n;  ++i)
+	{
+		p = new LNode;
+		cin&gt;&gt;p-&gt;data;
+		p-&gt;next=L-&gt;next;
+		l-&gt;next=p;
+	}
+}
+</code></pre>
+<p>后插法是通过将新结点逐个插入到链表的尾部俩创建链表；与前插法相同的是，每次申请一个新结点，读入相应的数据元素值；不同的是，为了新结点能够插入到表尾，需要增加一个尾指针r指向链表的尾结点</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image3.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">void CreateList_R(LinkList &amp;L, int n)
+{
+	L = new LNode;
+	L-&gt;next = NULL;
+	r = L;
+	for (i = 0; i &lt; n; ++i)
+	{
+		p = new LNode;
+		cin&gt;&gt;p-&gt;data;
+		p-&gt;next = NULL;
+		r-&gt;next = p;
+		r = p;
+	}
+}
+</code></pre>
+<p><strong>头插法：</strong></p>
+<ul>
+<li>插入速度快（不需要遍历旧链表）</li>
+<li>头结点每次插入都会变化，头结点永远是最新的元素</li>
+<li>遍历时是按照插入相反的顺序进行</li>
+<li>由于头结点不断在变化，所以需要额外的维护头结点的引用，否则找不到头结点，链表就废了</li>
+</ul>
+<p><strong>尾插法：</strong></p>
+<ul>
+<li>插入速度慢（需要遍历旧链表到最后一个元素）</li>
+<li>头结点永远固定不变</li>
+<li>遍历时是按照插入相同的顺序进行</li>
+</ul>
+<h2 id="循环链表">循环链表</h2>
+<p>循环链表是一种链式的存储结构，与单链表不同的是，循环链表的最后一个结点的指针是指向该循环链表的第一个结点或者头结点，从而构成一个环形的链</p>
+<p>循环链表的运算与单链表的运算基本一致，所不同的有以下几点：</p>
+<ul>
+<li>在建立一个循环链表时，必须使其最后一个结点的指针指向表头结点，而不是像单链表那样置为NULL。此种情况还使用于在最后一个结点后插入一个新的结点</li>
+<li>在判断是否到表尾时，是判断该结点指针域的值是否是表头结点，当指针域等于表头指针时，说明已到表尾。而非像单链表那样判断链域值是否为NULL</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image4.png" alt="" loading="lazy"></figure>
+<h2 id="双向链表">双向链表</h2>
+<p>双向链表也叫双链表，它的每个数据结点都有两个指针，分别指向前驱结点和后继节点，同时有一个数据域来保存数据</p>
+<ul>
+<li>链表节点(list_node)带有<strong>prev</strong>和<strong>next</strong>两个指针，这意味着，可以从表头到表尾或表尾到表头两个方向遍历或迭代链表</li>
+<li>链表本身(list)和队列(queue)类似，维护<strong>head</strong>和<strong>tail</strong>两个指针，这意味着，在表头或者表尾的插入的复杂度为O(1)，而单链表在表尾执行插入操作时，需要从表头遍历到表尾后插入，复杂度为O(n)</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image5.png" alt="" loading="lazy"></figure>
+<h1 id="顺序表和链表的比较">顺序表和链表的比较</h1>
+<br />
+<h2 id="空间性能">空间性能</h2>
+<p>顺序表的存储空间必须预先分配，元素个数扩充受限制，容易造成存储空间浪费或空间溢出，而链表不需要为其预先分配空间，即只要空间允许，链表元素个数可以无限制</p>
+<p>除了存储空间，其次就是<strong>存储密度(<strong>数据元素本身占用存储量/结点结果占用存储量</strong>)</strong>；链表的每个结点除了设置数据域用来存储数据元素外，还要额外设置指针域，用来存储指示元素之后逻辑关系的指针，即链表存储密度小于1，而顺序表存储密度等于1</p>
+<h2 id="时间性能">时间性能</h2>
+<p>顺序表是由数组实现的，它是一种随机存取结构，指定任意一个位置序号i，都可以在O(1)时间内直接存取该位置上的元素，即取值操作的效率高；而链表是一种顺序存取结构，按位置访问链表中第i个元素时，只能从表头开始依次向后遍历链表，直到找到第i个位置上的元素，时间复杂度为0(n)，即取值操作的效率低。基于此，若线性表的主要操作是和元素位置紧密相关的这类取值操作，很少做插入或删除时，宜采用顺序表作为存储结构<br>
+对于链表，在确定插入或删除的位置后，插入或删除操作无需移动数据，只需要修改指针，时间复杂度为0(1)。而对于顺序表，进行插入或删除时，平均要移动表中近一半的结点，时间复杂度为0(n)。尤其是当每个结点的信息量较大时，移动结点的时间开销就相当可观。基于此，对于频繁进行插入或删除操作的线性表，宜采用链表作为存储结构</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[有序数组平方]]></title>
+        <id>https://hanaeternum.github.io/post/you-xu-shu-zu-ping-fang/</id>
+        <link href="https://hanaeternum.github.io/post/you-xu-shu-zu-ping-fang/">
+        </link>
+        <updated>2024-10-02T02:55:06.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>给你一个按非递减顺序排序的整数数组 nums，返回每个数字的平方组成的新数组，要求也按非递减顺序排序；这种在审题的时候我们需要考虑负数的情况，这个时候可以敏锐的观察到最大值只可能出现在两边，所以就想到了双指针法，左右各一个指针，i指向起始位置，j指向终止位置，然后平方比较，大的那方就继续移动；当然也可以使用暴力破解，思路比较简单，大致是先平方，后排序</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">vector&lt;int&gt; sortedSquares(vector&lt;int&gt;&amp; A) {
+        int k = A.size() - 1;
+        vector&lt;int&gt; result(A.size(), 0);
+        for (int i = 0, j = A.size() - 1; i &lt;= j;) {
+            if (A[i] * A[i] &lt; A[j] * A[j])  {
+                result[k--] = A[j] * A[j];
+                j--;
+            }
+            else {
+                result[k--] = A[i] * A[i];
+                i++;
+            }
+        }
+        return result;
+    }
+</code></pre>
+<p>需要注意的分为两个点</p>
+<ul>
+<li>i ≤ j 而不是 i &lt; j，后者会漏掉最后一组数据</li>
+<li>并不是i，j都是一直增加，只有满足平方值比较情况才会进行相应的操作；除此以外，else中是将大于和等于的情况合并了，因为等于这种情况中无论在值上或是在i，j操作上都是等效的</li>
+</ul>
+<h1 id="总结">总结</h1>
+<p>不难看出，双指针的时间复杂度和暴力成了鲜明的对比；这其实跟上一节移除元素类似，都是双指针的一种分支，移除元素是快慢指针，这是对撞指针，本质都是利用了数组单调性，实现优化算法，可以将时间复杂度降低至O(n)</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[移除元素]]></title>
+        <id>https://hanaeternum.github.io/post/yi-chu-yuan-su/</id>
+        <link href="https://hanaeternum.github.io/post/yi-chu-yuan-su/">
+        </link>
+        <updated>2024-09-30T14:37:08.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目大致是：给你一个数组 nums 和一个值 val，你需要 原地 移除所有数值等于 val 的元素，并返回移除后数组的新长度。不要使用额外的数组空间，你必须仅使用 O(1) 额外空间并原地修改输入数组</p>
+<p>当然，如果没有不要使用额外的数组空间，题目就会变得很简单（其实使用暴力破解也不难）；首先我们需要了解的这里移除的概念，移除并不是将他从内存中抹去，因为数组元素在内存地址中是连续的，不能单独删除数组中的某个元素，只能覆盖</p>
+<p>总共有两种方法，一种是暴力破解法，一种是快慢指针法；暴力破解法就是两层for循环，一个用于遍历查找，一个用于更新新数组；快慢指针法是通过一个快指针和慢指针在一个for循环下完成两个for循环的工作，快指针是寻找新数组的元素 ，新数组就是不含有目标元素的数组，慢指针是用于指向更新新数组下标的位置，大致逻辑就是快指针一直遍历数组，同时慢指针也在同时加加，找到删除元素慢指针就停止加加一次，覆盖快指针的数据，也就是说慢指针才是处理后的数组</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-bash">int removeElement(vector&lt;int&gt;&amp; nums, int val) {
+        int slowIndex = 0;
+        for (int fastIndex = 0; fastIndex &lt; nums.size(); fastIndex++) {
+            if (val != nums[fastIndex]) {
+                nums[slowIndex++] = nums[fastIndex];
+            }
+        }
+        return slowIndex;
+    }
+</code></pre>
+<p>逻辑跟上述描述原理大差不差，如果不是删除元素，慢指针先是获取快指针数据，然后加加，如若不是，那么就跳过，同时也不会加，需要理解的是快指针是一直处于加加状态，最后返回慢指针；虽然这里只是返回了一个int，但实际数组已经被我们所改变了，所以得到慢指针后，从0开始到慢指针处遍历即是我们需要的数组</p>
+<h1 id="总结">总结</h1>
+<p>需要强调的是，快指针是一直加加的，但慢指针不是，在是删除元素的时候会停止，以及这些指针并不是指针类型，而是一种泛称，是指向元素的意思，最后返回的值的意义也是重点，由于数组已经被我们修改了，所以通过慢指针处就是我们所求数组最后一个</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[二分查找]]></title>
+        <id>https://hanaeternum.github.io/post/er-fen-cha-zhao/</id>
+        <link href="https://hanaeternum.github.io/post/er-fen-cha-zhao/">
+        </link>
+        <updated>2024-09-24T14:11:31.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>对于二分查找，它有两个前提要求，总结起来就是单调递增</p>
+<p>二分查找最典型的问题就是边界问题，主要有两个点，一个是while(left &lt; right) 还是 while(left &lt;= right)，一个是right = middle呢，还是要right = middle - 1，亦或是left = middle呢，还是要left = middle + 1</p>
+<p>上述问题需要考虑到区间的问题，区间的定义就是不变量，区间按照边界的开闭可以分为四种，一种是左闭右闭，左开右开，左闭右开，左开右闭</p>
+<p>第一个问题，while里面是否取等：</p>
+<ul>
+<li>当且仅当左闭右闭的情况，才会取等；因为只有这个区间left == right是有意义的</li>
+</ul>
+<p>第二个问题，下标赋值问题：</p>
+<ul>
+<li>当右闭的时候，当前这个nums[middle]一定不是target，那么就是right = middle - 1，否则是right = middle ；同理可得，左闭是left = middle + 1，否则是left = middle，需要注意的是，左边是+1，并非-1</li>
+</ul>
+<h1 id="代码">代码</h1>
+<pre><code class="language-c">int search(const std::vector&lt;int&gt;&amp; nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    int middle = 0;
+
+    while (left &lt;= right)
+    {
+        middle = left + (right - left) / 2;
+        if (nums[middle] &gt; target)
+        {
+            right = middle - 1;
+        }
+        else if (nums[middle] &lt; target)
+        {
+            left = middle + 1;
+        }
+        else
+        {
+            return middle;
+        }
+    }
+    return -1;
+}
+</code></pre>
+<p>上述是左闭右闭的二分查找，代码实现并不难，使用while一直切这个数组，不断缩小范围，里面就是对范围的判定，中值大于目标就在左边，赋值右边界；中值小于目标就在右边，赋值左边界，等于当然就返回即可</p>
+<pre><code class="language-c">middle = left + ((right - left) &gt;&gt; 1)
+</code></pre>
+<p>有趣的是上段代码，这是防止直接相加越界的防范措施；等于middle = left + ((right - left) / 2)，当然在不越界的情况下，等于middle = (left + right)/2</p>
+<h1 id="总结">总结</h1>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>while取等</th>
+<th>下标赋值-right</th>
+<th>下标赋值-left</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>左闭右闭</td>
+<td>取等</td>
+<td>middle + 1</td>
+<td>middle - 1</td>
+</tr>
+<tr>
+<td>左开右开</td>
+<td>不取等</td>
+<td>middle</td>
+<td>middle</td>
+</tr>
+<tr>
+<td>左闭右开</td>
+<td>不取等</td>
+<td>middle + 1</td>
+<td>middle</td>
+</tr>
+<tr>
+<td>左开右闭</td>
+<td>不取等</td>
+<td>middle</td>
+<td>middle - 1</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[map文件浅析]]></title>
+        <id>https://hanaeternum.github.io/post/map-wen-jian-qian-xi/</id>
+        <link href="https://hanaeternum.github.io/post/map-wen-jian-qian-xi/">
+        </link>
+        <updated>2024-09-24T11:39:41.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#map%E6%96%87%E4%BB%B6%E7%AE%80%E4%BB%8B">map文件简介</a>
+<ul>
+<li><a href="#%E5%86%85%E5%AE%B9">内容</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
+<li><a href="#%E6%A6%82%E5%BF%B5">概念</a></li>
+</ul>
+</li>
+<li><a href="#map%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E8%AF%A6%E8%A7%A3">map文件内容详解</a>
+<ul>
+<li><a href="#section-cross-references%E6%A8%A1%E5%9D%97-%E6%AE%B5%E5%85%A5%E5%8F%A3%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8">Section Cross References—模块、段(入口)交叉引用</a></li>
+<li><a href="#removing-unused-input-sections-from-the-image%E7%A7%BB%E9%99%A4%E6%9C%AA%E8%B0%83%E7%94%A8%E6%A8%A1%E5%9D%97">Removing Unused input sections from the image—移除未调用模块</a></li>
+<li><a href="#image-symbol-table%E6%98%A0%E5%B0%84%E7%AC%A6%E5%8F%B7%E8%A1%A8">Image Symbol Table—映射符号表</a></li>
+<li><a href="#memory-map-of-the-image%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E5%88%86%E5%B8%83">Memory Map of the image—内存（映射）分布</a></li>
+<li><a href="#image-component-sizes%E5%AD%98%E5%82%A8%E7%BB%84%E6%88%90%E5%A4%A7%E5%B0%8F">Image component sizes—存储组成大小</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="map文件简介">map文件简介</h1>
+<br />
+<h2 id="内容">内容</h2>
+<p>首先我们需要了解map文件是什么，map文件是通过编译器编译之后，集程序、数据及IO空间的一种映射文件；一般出现内存越界或溢出，又或者是代码优化的情况，首先想到的就是分析map文件，通过map文件可以知道函数大小，入口地址等一些重要信息，总共分为五大类</p>
+<ul>
+<li>Section Cross References：模块、段(入口)交叉引用</li>
+<li>Removing Unused input sections from the image：移除未调用模块</li>
+<li>Image Symbol Table：映射符号表</li>
+<li>Memory Map of the image：内存（映射）分布</li>
+<li>Image component sizes：存储组成大小</li>
+</ul>
+<h2 id="配置">配置</h2>
+<p>其次就是配置，由于笔者这里大多数是使用keil，所有就展示的keil的配置（虽然大概率就是已经配置好的）；路径是先点击魔法棒，然后Listing选项卡中，最后在Linker Listing：map.map勾选即可</p>
+<ul>
+<li>Memory Map：内存映射</li>
+<li>Callgraph：图像映射</li>
+<li>Symbols：符号</li>
+<li>Cross Reference：交叉引用</li>
+<li>Size Info：大小信息</li>
+<li>Totals Info：统计信息</li>
+<li>Unused Section Info：未调用模块信息</li>
+<li>Veneers Info：装饰信息</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178211830.png" alt="" loading="lazy"></figure>
+<p>最后的map文件可以在~\xxx\MDK-ARM\xxx中找到</p>
+<h2 id="概念">概念</h2>
+<p>最后是关于map文件基本概念</p>
+<ul>
+<li>段（section）：描述映像文件的代码和数据块</li>
+<li>RO：Read-Only的缩写，包括RO-data（只读数据）和RO-code（代码）</li>
+<li>RW：Read-Write的缩写，主要是RW-data，RW-data由程序初始化初始值</li>
+<li>ZI：Zero-initialized的缩写，主要是ZI-data，由编译器初始化为0</li>
+<li>.text：与RO-code同义</li>
+<li>.constdata：与RO-data同义</li>
+<li>.bss：与ZI-data同义</li>
+<li>.data：与RW-data同义</li>
+</ul>
+<h1 id="map文件内容详解">map文件内容详解</h1>
+<br />
+<h2 id="section-cross-references模块-段入口交叉引用">Section Cross References—模块、段(入口)交叉引用</h2>
+<p>当我们打开map文件的时候，第一大块就是Section Cross References，主要内容是是各个源文件生成的模块、段（定义的入口）之间相互引用的关系</p>
+<p>例如： main.o(i.SystemClock_Config) refers to stm32f1xx_hal_rcc.o(i.HAL_RCC_OscConfig) for HAL_RCC_OscConfig，意思是main模块中SystemClock_Config引用了 stm32f1xx_hal_rcc模块中HAL_RCC_OscConfig函数</p>
+<p>需要注意的是，在map文件中i指的是静态变量</p>
+<h2 id="removing-unused-input-sections-from-the-image移除未调用模块">Removing Unused input sections from the image—移除未调用模块</h2>
+<p>在代码中没有被调用的模块会在map文件生成列表，最后会在这部分显现出来</p>
+<p>例如：Removing stm32f1xx_hal_rcc_ex.o(i.HAL_RCCEx_GetPeriphCLKConfig), (44 bytes).，意思是删除了stm32f1xx_hal_rcc_ex模块的HAL_RCCEx_GetPeriphCLKConfig函数，大小是44字节</p>
+<p>除此以外，最后会有一个汇总，删除了180个模块，共计7710字节</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178225036.png" alt="" loading="lazy"></figure>
+<h2 id="image-symbol-table映射符号表">Image Symbol Table—映射符号表</h2>
+<p>这部分分为两块，一块是Local Symbols，主要静态函数，变量以及常量；另外一块是Global Symbols，主要是外部函数和全局变量</p>
+<ul>
+<li>Symbol Name：符号的名称以及路径</li>
+<li>Value：地址</li>
+<li>Type：符号的类型，常见的大概是四种
+<ul>
+<li>Number</li>
+<li>Section</li>
+<li>Thumb Code</li>
+<li>Data</li>
+</ul>
+</li>
+<li>Size：大小，单位是字节</li>
+<li>Object(Section)：表示符号所在的目标文件及其对应的段</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178244939.png" alt="" loading="lazy"></figure>
+<h2 id="memory-map-of-the-image内存映射分布">Memory Map of the image—内存（映射）分布</h2>
+<p>在执行映像之前，必须将已初始化的RW数据从ROM中复制到RAM中的执行地址并创建ZI Section(初始化为0的变量区)</p>
+<p>这里引用rtthread文档中的内存分布图</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178253126.png" alt="" loading="lazy"></figure>
+<p>STM32 在上电启动之后默认从 Flash 启动，启动之后会将 RW 段中的 RW-data（初始化的全局变量）搬运到 RAM 中，但不会搬运 RO 段，即 CPU 的执行代码从 Flash 中读取，另外根据编译器给出的 ZI 地址和大小分配出 ZI 段，并将这块 RAM 区域清零</p>
+<ul>
+<li>Exec Addr：执行地址，即当程序运行时，该段在内存中将被加载到的地址</li>
+<li>Load Addr：加载地址，即当程序从存储器（如 Flash）加载到内存时，该段最初加载到的地址，由上图可以知道，启动之后RO是不会变的，但RW是会移动到RAM里面，所以在RO中Exec Addr和Load Addr是一致的，但RW会不一样且Load Addr比Exec Addr大</li>
+<li>Size：段的大小，以字节为单位</li>
+<li>Type：段的类型
+<ul>
+<li><strong>Code</strong>：表示可执行代码</li>
+<li><strong>Data</strong>：表示数据段，包括已初始化的全局变量等</li>
+<li><strong>RO Data</strong>：只读数据，如常量、字符串字面值等</li>
+</ul>
+</li>
+<li>Attr：段的属性，在RO中Attr都是RO，在RW中Attr都是RW</li>
+<li>Idx：索引号，表示该段在符号表中的索引位置，通常用于区分符号表中的不同段</li>
+<li>E Section Name：段的名称</li>
+<li>Object：目标文件</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178266676.png" alt="" loading="lazy"></figure>
+<h2 id="image-component-sizes存储组成大小">Image component sizes—存储组成大小</h2>
+<ul>
+<li>Code (inc. data)：代码部分（即可执行指令）及其包含的任何初始化数据的总大小，包括.text段和任何被标记为只读的初始化数据（如.rodata段）</li>
+<li>RO Data：只读数据的总大小。这部分通常包括常量字符串、枚举、常量数组等，存储在.rodata段中</li>
+<li>RW Data：可读可写数据的总大小。这部分包含已初始化的全局变量和静态变量，存储在.data段中</li>
+<li>ZI Data：零初始化数据的总大小。这部分通常包含未初始化的全局变量和静态变量，存储在.bss段中</li>
+<li>Debug：表示与调试相关的数据占用空间，包括调试符号、调试信息</li>
+<li>Object Name：目标文件的名称</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178294122.png" alt="" loading="lazy"></figure>
+<p>RAM=RW=1.62KB</p>
+<p>ROM=ROM = 2.44KB</p>
+<figure data-type="image" tabindex="7"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178282500.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+</feed>
