@@ -1,0 +1,247 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>螺旋数组 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1732524101758">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/suan-fa-ri-zhi" class="menu gt-a-link">
+                            算法
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1732524101758" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    螺旋数组
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-10-02 ·
+                    </time>
+                    
+                        <a href="https://hanaeternum.github.io/tag/suan-fa/" class="post-tags">
+                            # 算法
+                        </a>
+                    
+                        <a href="https://hanaeternum.github.io/tag/c-yu-yan/" class="post-tags">
+                            # C语言
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目：给定一个正整数 n，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵</p>
+<p>这题跟二分查找一样，使用了循环不变量</p>
+<p>模拟顺时针画矩阵的过程：</p>
+<ul>
+<li>填充上行从左到右</li>
+<li>填充右列从上到下</li>
+<li>填充下行从右到左</li>
+<li>填充左列从下到上</li>
+</ul>
+<p>由外向内一圈一圈这么画下去；然后发现对于奇数偶数是不一样的，虽然圈数都是n / 2向下取整，但是最后奇数会组成一个额外的数</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E8%9E%BA%E6%97%8B%E6%95%B0%E7%BB%84/image.png" alt="" loading="lazy"></figure>
+<p>同时对于循环不变量，我们坚持左闭右开的原则</p>
+<p>大致逻辑是，从四个方向绘制边框，然后压缩边框长度以及更改起始再次绘制，直到圈数到达目标值</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">vector&lt;vector&lt;int&gt;&gt; generateMatrix(int n) {
+        vector&lt;vector&lt;int&gt;&gt; res(n, vector&lt;int&gt;(n, 0)); // 使用vector定义一个二维数组
+        int startx = 0, starty = 0; // 定义每循环一个圈的起始位置
+        int loop = n / 2; // 每个圈循环几次，例如n为奇数3，那么loop = 1 只是循环一圈，矩阵中间的值需要单独处理
+        int mid = n / 2; // 矩阵中间的位置，例如：n为3， 中间的位置就是(1，1)，n为5，中间位置为(2, 2)
+        int count = 1; // 用来给矩阵中每一个空格赋值
+        int offset = 1; // 需要控制每一条边遍历的长度，每次循环右边界收缩一位
+        int i,j;
+        while (loop --) {
+            i = startx;
+            j = starty;
+            // 下面开始的四个for就是模拟转了一圈
+            // 模拟填充上行从左到右(左闭右开)
+            for (j; j &lt; n - offset; j++) {
+                res[i][j] = count++;
+            }
+            // 模拟填充右列从上到下(左闭右开)
+            for (i; i &lt; n - offset; i++) {
+                res[i][j] = count++;
+            }
+            // 模拟填充下行从右到左(左闭右开)
+            for (; j &gt; starty; j--) {
+                res[i][j] = count++;
+            }
+            // 模拟填充左列从下到上(左闭右开)
+            for (; i &gt; startx; i--) {
+                res[i][j] = count++;
+            }
+            // 第二圈开始的时候，起始位置要各自加1， 例如：第一圈起始位置是(0, 0)，第二圈起始位置是(1, 1)
+            startx++;
+            starty++;
+            // offset 控制每一圈里每一条边遍历的长度
+            offset += 1;
+        }
+        // 如果n为奇数的话，需要单独给矩阵最中间的位置赋值
+        if (n % 2) {
+            res[mid][mid] = count;
+        }
+        return res;
+    }
+</code></pre>
+<p>代码重难点在于怎么绘制边框，需要理解的是，我们是将最终结果存储到容器中，所以最小值是0，最大值是n - 1，但是我们是左闭右开的区间，不会取到n - 1，所以在循环体里面是不会取等号</p>
+<h1 id="总结">总结</h1>
+<p>对于这种执行类似操作的时候，找出循环不变量是我们重点考虑的地方，同时在边界问题比较多的时候，我们也可以考虑是否可以合并边界条件</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://hanaeternum.github.io/post/hua-dong-chuang-kou/" class="post-title gt-a-link">
+                    滑动窗口
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
