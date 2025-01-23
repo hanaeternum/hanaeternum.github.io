@@ -1,0 +1,219 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>滑动窗口 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1737649603522">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/suan-fa-ri-zhi" class="menu gt-a-link">
+                            算法
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1737649603522" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    滑动窗口
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-10-02 ·
+                    </time>
+                    
+                        <a href="https://hanaeternum.github.io/tag/suan-fa/" class="post-tags">
+                            # 算法
+                        </a>
+                    
+                        <a href="https://hanaeternum.github.io/tag/c-yu-yan/" class="post-tags">
+                            # C语言
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E7%90%86%E8%AE%BA">理论</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81">代码</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</p>
+<h1 id="理论">理论</h1>
+<p>题目：给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和≥ s的长度最小的连续子数组，并返回其长度。如果不存在符合条件的子数组，返回 0</p>
+<p>这道题也不难暴力解，解法是两个for，一个for控制起始位置，一个for控制终止位置，也就是把这个数组中所以符合条件的遍历出来，最后比较即可</p>
+<p>较好的解法是滑动窗口；所谓滑动窗口，就是不断的调节子序列的起始位置和终止位置，从而得出我们要想的结果，滑动窗口利用了双指针中的快慢指针技巧，我们可以将滑动窗口看做是快慢指针两个指针中间的区间，也可以将滑动窗口看做是快慢指针的一种特殊形式</p>
+<p>大致逻辑就是终止位置不断更新，直到满足条件(sum ≥ s)停止，然后就是起始位置不断更新，直到不满足条件停止，以此类推，直到终止位置遍历完结束</p>
+<h1 id="代码">代码</h1>
+<pre><code class="language-cpp">int minSubArrayLen(int s, vector&lt;int&gt;&amp; nums) {
+        int result = INT32_MAX;
+        int sum = 0; // 滑动窗口数值之和
+        int i = 0; // 滑动窗口起始位置
+        int subLength = 0; // 滑动窗口的长度
+        for (int j = 0; j &lt; nums.size(); j++) {
+            sum += nums[j];
+            // 注意这里使用while，每次更新 i（起始位置），并不断比较子序列是否符合条件
+            while (sum &gt;= s) {
+                subLength = (j - i + 1); // 取子序列的长度
+                result = result &lt; subLength ? result : subLength;
+                sum -= nums[i++]; // 这里体现出滑动窗口的精髓之处，不断变更i（子序列的起始位置）
+            }
+        }
+        // 如果result没有被赋值的话，就返回0，说明没有符合条件的子序列
+        return result == INT32_MAX ? 0 : result;
+    }
+</code></pre>
+<p>有几点需要注意</p>
+<ul>
+<li>result是最小值，需要在初始化的时候被赋予最大值</li>
+<li>更新起始位置使用的是while，而不是if，因为可能不只更新一次</li>
+</ul>
+<h1 id="总结">总结</h1>
+<p>相比暴力解，优化了太多不满足条件的组合，滑动窗口的精妙之处在于根据当前子序列和大小的情况，不断调节子序列的起始位置。从而将O(n^2)暴力解法降为O(n)，主要是看每一个元素被操作的次数，每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × n 也就是O(n)</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://hanaeternum.github.io/post/shun-xu-biao-he-lian-biao/" class="post-title gt-a-link">
+                    顺序表和链表
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
