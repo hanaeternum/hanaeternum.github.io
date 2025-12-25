@@ -1,0 +1,2271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://hanaeternum.github.io</id>
+    <title>Han&apos;s 大吴疆土</title>
+    <updated>2025-12-25T15:41:35.809Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://hanaeternum.github.io"/>
+    <link rel="self" href="https://hanaeternum.github.io/atom.xml"/>
+    <subtitle>为颜如玉，为黄金屋，为名满天下，为功利千秋</subtitle>
+    <logo>https://hanaeternum.github.io/images/avatar.png</logo>
+    <icon>https://hanaeternum.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2025, Han&apos;s 大吴疆土</rights>
+    <entry>
+        <title type="html"><![CDATA[性能测量]]></title>
+        <id>https://hanaeternum.github.io/post/xing-neng-ce-liang/</id>
+        <link href="https://hanaeternum.github.io/post/xing-neng-ce-liang/">
+        </link>
+        <updated>2025-12-25T15:38:18.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E5%A0%86%E6%A0%88%E4%BD%BF%E7%94%A8%E6%B5%8B%E9%87%8F">堆栈使用测量</a></li>
+<li><a href="#cpu%E4%BD%BF%E7%94%A8%E7%99%BE%E5%88%86%E6%AF%94%E6%B5%8B%E9%87%8F">CPU使用百分比测量</a></li>
+</ul>
+</p>
+<h1 id="堆栈使用测量">堆栈使用测量</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E6%80%A7%E8%83%BD%E6%B5%8B%E9%87%8F/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E6%80%A7%E8%83%BD%E6%B5%8B%E9%87%8F/1.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E6%80%A7%E8%83%BD%E6%B5%8B%E9%87%8F/2.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E6%80%A7%E8%83%BD%E6%B5%8B%E9%87%8F/3.png" alt="" loading="lazy"></figure>
+<p>关于堆栈的统计，他的应用主要是确保任务堆栈不会栈溢出，而导致影响其他任务或内核资源，但是有为了对资源的良好利用，进而引出了堆栈测量</p>
+<p>堆栈统计的方法，大致是把堆栈初始化全部为0，遍历找出为0的，就是未使用的空间；当然，这种方法需要这个任务运行长时间进而运行完所有的情况，因为可能在某个情况下，它开辟了空间，这么统计的就不准确了</p>
+<pre><code class="language-c">    info-&gt;stackFree = 0;
+    stackEnd = task-&gt;stackBase;
+    while ((*stackEnd++ == 0) &amp;&amp; (stackEnd &lt;= task-&gt;stackBase + task-&gt;stackSize / sizeof(tTaskStack)))
+    {
+        info-&gt;stackFree++;
+    }
+    // 转换成字节数
+    info-&gt;stackFree *= sizeof(tTaskStack);
+</code></pre>
+<p>在tTaskGetInfo新增以上内容，逻辑是从栈顶往下遍历出0的数量—也需要保证遍历范围不超过栈的大小，最后乘上单位即可，这里的单位也就是定义栈的数据类型</p>
+<h1 id="cpu使用百分比测量">CPU使用百分比测量</h1>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E6%80%A7%E8%83%BD%E6%B5%8B%E9%87%8F/4.png" alt="" loading="lazy"></figure>
+<p>采用的方法是先执行一段程序，时间自定义，单独运行这个代码块获取到计数，定义为Max；后面通过实际运行同样获取到计数，定义为Cnt；大致可以算出来百分比=100 * (1 - Cnt/Max)；这里执行特殊代码块就是空闲任务</p>
+<pre><code class="language-c">static float cpuUsage;                      // cpu使用率统计
+static uint32_t enableCpuUsageStat;         // 是否使能cpu统计
+static void initCpuUsageStat (void)
+{
+    idleCount = 0;
+    idleMaxCount = 0;
+    cpuUsage = 0;
+    enableCpuUsageStat = 0;
+}
+static void checkCpuUsage (void)
+{
+    // 与空闲任务的cpu统计同步
+    if (enableCpuUsageStat == 0)
+    {
+        enableCpuUsageStat = 1;
+        tickCount = 0;
+        return;
+    }
+    if (tickCount == TICKS_PER_SEC)
+    {
+        // 统计最初1s内的最大计数值
+        idleMaxCount = idleCount;
+        idleCount = 0;
+        // 计数完毕，开启调度器，允许切换到其它任务
+        tTaskSchedEnable();
+    }
+    else if (tickCount % TICKS_PER_SEC == 0)
+    {
+        // 之后每隔1s统计一次，同时计算cpu利用率
+        cpuUsage = 100 - (idleCount * 100.0 / idleMaxCount);
+        idleCount = 0;
+    }
+}
+static void cpuUsageSyncWithSysTick (void)
+{
+    // 等待与时钟节拍同步
+    while (enableCpuUsageStat == 0)
+    {
+        ;;
+    }
+}
+float tCpuUsageGet (void)
+{
+    float usage = 0;
+    uint32_t status = tTaskEnterCritical();
+    usage = cpuUsage;
+    tTaskExitCritical(status);
+    return usage;
+}
+// 用于空闲任务的任务结构和堆栈空间
+tTask tTaskIdle;
+tTaskStack idleTaskEnv[TINYOS_IDLETASK_STACK_SIZE];
+void idleTaskEntry (void * param) {
+    // 禁止调度，防止后面在创建任务时切换到其它任务中去
+    tTaskSchedDisable();
+    // 初始化App相关配置
+    tInitApp();
+    // 初始化定时器任务
+    tTimerInitTask();
+    // 启动系统时钟节拍
+    tSetSysTickPeriod(TINYOS_SYSTICK_MS);
+    // 等待与时钟同步
+    cpuUsageSyncWithSysTick();
+    for (;;)
+    {
+        uint32_t status = tTaskEnterCritical();
+        idleCount++;
+        tTaskExitCritical(status);
+    }
+}
+</code></pre>
+<p>这其中最重要的是checkCpuUsage函数，功能是检查CPU使用率，然后通过调用tCpuUsageGet即可查询使用率；首先是与空闲任务的同步，这步是提高精度然后就是分为了两种情况，一种是只执行空闲任务，一种是都执行；最后计算即可</p>
+<p>需要注意的是，必须要在滴答定时器中添加以下内容</p>
+<pre><code class="language-c">    // 节拍计数增加
+    tickCount++;
+    // 检查cpu使用率
+    checkCpuUsage();
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[软件定时器]]></title>
+        <id>https://hanaeternum.github.io/post/ruan-jian-ding-shi-qi/</id>
+        <link href="https://hanaeternum.github.io/post/ruan-jian-ding-shi-qi/">
+        </link>
+        <updated>2025-12-25T15:29:28.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">软件定时器的原理和创建</a></li>
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2">软件定时器的启动和停止</a></li>
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">软件定时器的删除和状态查询</a></li>
+</ul>
+</p>
+<h1 id="软件定时器的原理和创建">软件定时器的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8/0.png" alt="" loading="lazy"></figure>
+<p>由于硬件定时器资源有限，所以引出软件定时器</p>
+<p>实现方式分为两种，一种是通过任务实现，一种是直接搭载在系统时钟节拍上</p>
+<p>这里需要注意的是在软件定时器中因实现方式不同，分为了软件定时器和硬件定时器，前者是通过任务实现，后者是在时钟节拍上运行即硬件定时器</p>
+<pre><code class="language-c">typedef struct _tTimer
+{
+    // 链表结点
+    tNode linkNode;
+    // 初次启动延后的ticks数
+    uint32_t startDelayTicks;
+    // 周期定时时的周期tick数
+    uint32_t durationTicks;
+    // 当前定时递减计数值
+    uint32_t delayTicks;
+    // 定时回调函数
+    void (*timerFunc) (void * arg);
+    // 传递给回调函数的参数
+    void * arg;
+    // 定时器配置参数
+    uint32_t config;
+    // 定时器状态
+    tTimerState state;
+}tTimer;
+
+void tTimerInit (tTimer * timer, uint32_t delayTicks, uint32_t durationTicks,
+                 void (*timerFunc) (void * arg), void * arg, uint32_t config)
+{
+    tNodeInit(&amp;timer-&gt;linkNode);
+    timer-&gt;startDelayTicks = delayTicks;
+    timer-&gt;durationTicks = durationTicks;
+    timer-&gt;timerFunc = timerFunc;
+    timer-&gt;arg = arg;
+    timer-&gt;config = config;
+    // 如果初始启动延时为0，则使用周期值
+    if (delayTicks == 0)
+    {
+        timer-&gt;delayTicks = durationTicks;
+    }
+    else
+    {
+        timer-&gt;delayTicks = timer-&gt;startDelayTicks;
+    }
+    timer-&gt;state = tTimerCreated;
+}
+</code></pre>
+<p>这里的定时器支持设置初始值和周期，这两个可以不一样</p>
+<h1 id="软件定时器的启动和停止">软件定时器的启动和停止</h1>
+<pre><code class="language-c">static tList tTimerHardList;
+// &quot;软&quot;定时器列表
+static tList tTimerSoftList;
+// 用于访问软定时器列表的信号量
+static tSem tTimerProtectSem;
+// 用于软定时器任务与中断同步的计数信号量
+static tSem tTimerTickSem;
+void tTimerStart (tTimer * timer)
+{
+    switch (timer-&gt;state)
+    {
+        case tTimerCreated:
+        case tTimerStopped:
+            timer-&gt;delayTicks = timer-&gt;startDelayTicks ? timer-&gt;startDelayTicks : timer-&gt;durationTicks;
+            timer-&gt;state = tTimerStarted;
+            // 根据定时器类型加入相应的定时器列表
+            if (timer-&gt;config &amp; TIMER_CONFIG_TYPE_HARD)
+            {
+                // 硬定时器，在时钟节拍中断中处理，所以使用critical来防护
+                uint32_t status = tTaskEnterCritical();
+                // 加入硬定时器列表
+                tListAddLast(&amp;tTimerHardList, &amp;timer-&gt;linkNode);
+                tTaskExitCritical(status);
+            }
+            else
+            {
+                // 软定时器，先获取信号量。以处理此时定时器任务此时同时在访问软定时器列表导致的冲突问题
+                tSemWait(&amp;tTimerProtectSem, 0);
+                tListAddLast(&amp;tTimerSoftList, &amp;timer-&gt;linkNode);
+                tSemNotify(&amp;tTimerProtectSem);
+            }
+            break;
+        default:
+            break;
+    }
+}
+void tTimerStop (tTimer * timer)
+{
+    switch (timer-&gt;state)
+    {
+        case tTimerStarted:
+        case tTimerRunning:
+            // 如果已经启动，判断定时器类型，然后从相应的延时列表中移除
+            if (timer-&gt;config &amp; TIMER_CONFIG_TYPE_HARD)
+            {
+                // 硬定时器，在时钟节拍中断中处理，所以使用critical来防护
+                uint32_t status = tTaskEnterCritical();
+                // 从硬定时器列表中移除
+                tListRemove(&amp;tTimerHardList, &amp;timer-&gt;linkNode);
+                tTaskExitCritical(status);
+            }
+            else
+            {
+                // 软定时器，先获取信号量。以处理此时定时器任务此时同时在访问软定时器列表导致的冲突问题
+                tSemWait(&amp;tTimerProtectSem, 0);
+                tListRemove(&amp;tTimerSoftList, &amp;timer-&gt;linkNode);
+                tSemNotify(&amp;tTimerProtectSem);
+            }
+            timer-&gt;state = tTimerStopped;
+            break;
+        default:
+            break;
+    }
+}
+</code></pre>
+<p>这些全局变量前两个是列表的创建，后面是为了保护定时器所以创建了信号量，这里需要注意的是为什么软件定时器需要信号量，主要是因为工作环境不一样</p>
+<ul>
+<li>硬件定时器：在中断上下文中运行，操作的定时器列表不会与其他任务并发访问，因此只需要</li>
+</ul>
+<p>界区保护，不需要信号量</p>
+<ul>
+<li>软件定时器：在任务上下文中运行，可能与其他任务并发访问定时器列表，因此需要使用信号量</li>
+</ul>
+<p>来保证对列表的互斥访问，防止竞争条件。</p>
+<p>tTimerStart和tTimerStop逻辑大致一样，这里使用case语句的原因是因为后期如果想在TimerCreated的时候修改比较方便；逻辑就是先赋值信息，然后根据定时器类型操作，如果是硬件定时器就使用关中断的方式插入列表，如果是软件定时器，使用信号量的方式插入列表；停止的话，就是把插入改为移除</p>
+<pre><code class="language-c">static void tTimerCallFuncList (tList * timerList)
+{
+    tNode * node;   
+    // 检查所有任务的delayTicks数，如果不0的话，减1。
+    for (node = timerList-&gt;headNode.nextNode; node != &amp;(timerList-&gt;headNode); node = node-&gt;nextNode)
+    {
+        tTimer * timer = tNodeParent(node, tTimer, linkNode);
+        // 如果延时已到，则调用定时器处理函数
+        if ((timer-&gt;delayTicks == 0) || (--timer-&gt;delayTicks == 0))
+        {
+            // 切换为正在运行状态
+            timer-&gt;state = tTimerRunning;
+            // 调用定时器处理函数
+            timer-&gt;timerFunc(timer-&gt;arg);
+            // 切换为已经启动状态
+            timer-&gt;state = tTimerStarted;
+            if (timer-&gt;durationTicks &gt; 0)
+            {
+                // 如果是周期性的，则重复延时计数值
+                timer-&gt;delayTicks = timer-&gt;durationTicks;
+            }
+            else
+            {
+                // 否则，是一次性计数器，中止定时器
+                tListRemove(timerList, &amp;timer-&gt;linkNode);
+                timer-&gt;state = tTimerStopped;
+            }
+        }
+    }
+}
+static tTask tTimeTask;
+static tTaskStack tTimerTaskStack[TINYOS_TIMERTASK_STACK_SIZE];
+static void tTimerSoftTask (void * param)
+{
+    for (;;)
+    {
+        // 等待系统节拍发送的中断事件信号
+        tSemWait(&amp;tTimerTickSem, 0);
+        // 获取软定时器列表的访问权限
+        tSemWait(&amp;tTimerProtectSem, 0);
+        // 处理软定时器列表
+        tTimerCallFuncList(&amp;tTimerSoftList);
+        // 释放定时器列表访问权限
+        tSemNotify(&amp;tTimerProtectSem);
+    }
+}
+void tTimerModuleTickNotify (void)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 处理硬定时器列表
+    tTimerCallFuncList(&amp;tTimerHardList);
+    tTaskExitCritical(status);
+    // 通知软定时器节拍变化
+    tSemNotify(&amp;tTimerTickSem);
+}
+void tTimerModuleInit (void)
+{
+    tListInit(&amp;tTimerHardList);
+    tListInit(&amp;tTimerSoftList);
+    tSemInit(&amp;tTimerProtectSem, 1, 1);
+    tSemInit(&amp;tTimerTickSem, 0, 0);
+#if TINYOS_TIMERTASK_PRIO &gt;= (TINYOS_PRO_COUNT - 1)
+    #error &quot;The proprity of timer task must be greater then (TINYOS_PRO_COUNT - 1)&quot;
+#endif
+    tTaskInit(&amp;tTimeTask, tTimerSoftTask, (void *)0,
+        TINYOS_TIMERTASK_PRIO, &amp;tTimerTaskStack[TINYOS_TIMERTASK_STACK_SIZE]);
+}
+</code></pre>
+<p>tTimerCallFuncList是一个辅助函数，可以看到函数那里有一个static—只允许本文件调用，主要功能是遍历指定的定时器列表，调用各个定时器处理函数，主要逻辑是遍历，然后调用处理函数，赋值相关信息等</p>
+<p>tTimerSoftTask是软件定时器的任务，里面也使用了信号量进行安全操作，需要注意的是，这里的信号量是wait了tTimerTickSem和tTimerProtectSem，前者是保护tTimerModuleTickNotify，后者是保护这个任务</p>
+<p>tTimerModuleTickNotify中对软件定时器和硬件定时器分别进行通知调用</p>
+<p>tTimerModuleInit就是对模块的初始化，包括初始化信号量和任务</p>
+<h1 id="软件定时器的删除和状态查询">软件定时器的删除和状态查询</h1>
+<pre><code class="language-c">typedef struct _tTimerInfo
+{
+    // 初次启动延后的ticks数
+    uint32_t startDelayTicks;
+    // 周期定时时的周期tick数
+    uint32_t durationTicks;
+    // 定时回调函数
+    void (*timerFunc) (void * arg);
+    // 传递给回调函数的参数
+    void * arg;
+    // 定时器配置参数
+    uint32_t config;
+    // 定时器状态
+    tTimerState state;
+}tTimerInfo;
+
+void tTimerDestroy (tTimer * timer)
+{
+    tTimerStop(timer);
+    timer-&gt;state = tTimerDestroyed;
+}
+
+void tTimerGetInfo (tTimer * timer, tTimerInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    info-&gt;startDelayTicks = timer-&gt;startDelayTicks;
+    info-&gt;durationTicks = timer-&gt;durationTicks;
+    info-&gt;timerFunc = timer-&gt;timerFunc;
+    info-&gt;arg = timer-&gt;arg;
+    info-&gt;config = timer-&gt;config;
+    info-&gt;state = timer-&gt;state;
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>新增tTimerInfo信息查询结构体，使用tTimerGetInfo把相关信息赋值</p>
+<p>删除比较简单，就使用tTimerStop即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[互斥信号量]]></title>
+        <id>https://hanaeternum.github.io/post/hu-chi-xin-hao-liang/</id>
+        <link href="https://hanaeternum.github.io/post/hu-chi-xin-hao-liang/">
+        </link>
+        <updated>2025-12-25T15:17:24.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">互斥信号量的原理和创建</a></li>
+<li><a href="#%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E7%AD%89%E5%BE%85%E5%92%8C%E9%80%9A%E7%9F%A5">互斥信号量的等待和通知</a></li>
+<li><a href="#%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">互斥信号量的删除和状态查询</a></li>
+</ul>
+</p>
+<h1 id="互斥信号量的原理和创建">互斥信号量的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/1.png" alt="" loading="lazy"></figure>
+<p>对于解决多任务共享资源冲突的问题，大致有三种解决办法，一种是关中断，这种一般冲突的是中断；第二种是调度锁，缺点和第一种一样，如果资源占用时间太长的话，会影响实时性；第三种是计数信号量，如上图，如果在嵌套的时候，同时使用了信号量并且与该信号量一样，那会被卡死，同样如果任何任务都能notify，那么安全性就会大大降低，对线程管理还说，也会有优先级反转的问题</p>
+<p>下图是优先级反转的框图，大致是低优先级占有资源，高优先级意图访问资源，但是中间有中优先级任务，这就导致了优先级最高的任务，反而最后运行</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/2.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/3.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/4.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/5.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">typedef struct  _tMutex
+{
+    // 事件控制块
+    tEvent event;
+    // 已被锁定的次数
+    uint32_t lockedCount;
+    // 拥有者
+    tTask * owner;
+    // 拥有者原始的优先级
+    uint32_t ownerOriginalPrio;
+}tMutex;
+</code></pre>
+<p>对于互斥量的构造来说，比较复杂，相比信号量来说，多了owner和ownerOriginalPrio，分别用于确定拥有者和优先级继承的</p>
+<pre><code class="language-c">void tMutexInit (tMutex * mutex)
+{
+    tEventInit(&amp;mutex-&gt;event, tEventTypeMutex);
+    mutex-&gt;lockedCount = 0;
+    mutex-&gt;owner = (tTask *)0;
+    mutex-&gt;ownerOriginalPrio = TINYOS_PRO_COUNT;
+}
+</code></pre>
+<p>初始化比较简单，对每个构造进行初始化信息即可</p>
+<h1 id="互斥信号量的等待和通知">互斥信号量的等待和通知</h1>
+<figure data-type="image" tabindex="7"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/6.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="8"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/7.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="9"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/8.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="10"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/9.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">uint32_t tMutexWait (tMutex * mutex, uint32_t waitTicks)
+{
+    uint32_t status = tTaskEnterCritical();
+    if (mutex-&gt;lockedCount &lt;= 0)
+    {
+        // 如果没有锁定，则使用当前任务锁定
+        mutex-&gt;owner = currentTask;
+        mutex-&gt;ownerOriginalPrio = currentTask-&gt;prio;
+        mutex-&gt;lockedCount++;
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    else
+    {
+        // 信号量已经被锁定
+        if (mutex-&gt;owner == currentTask)
+        {
+            // 如果是信号量的拥有者再次wait，简单增加计数
+            mutex-&gt;lockedCount++;
+            tTaskExitCritical(status);
+            return tErrorNoError;
+        }
+        else
+        {
+            // 如果是信号量拥有者之外的任务wait，则要检查下是否需要使用
+            // 优先级继承方式处理
+            if (currentTask-&gt;prio &lt; mutex-&gt;owner-&gt;prio)
+            {
+                tTask * owner = mutex-&gt;owner;
+                // 如果当前任务的优先级比拥有者优先级更高，则使用优先级继承
+                // 提升原拥有者的优先
+                if (owner-&gt;state == TINYOS_TASK_STATE_RDY)
+                {
+                    // 任务处于就绪状态时，更改任务在就绪表中的位置
+                    tTaskSchedUnRdy(owner);
+                    owner-&gt;prio = currentTask-&gt;prio;
+                    tTaskSchedRdy(owner);
+                }
+                else
+                {
+                    // 其它状态，只需要修改优先级
+                    owner-&gt;prio = currentTask-&gt;prio;
+                }
+            }
+            // 当前任务进入等待队列中
+            tEventWait(&amp;mutex-&gt;event, currentTask, (void *)0, tEventTypeMutex, waitTicks);
+            tTaskExitCritical(status);
+            // 执行调度， 切换至其它任务
+            tTaskSched();
+            return currentTask-&gt;waitEventResult;
+        }
+    }
+}
+uint32_t tMutexNoWaitGet (tMutex * mutex)
+{
+    uint32_t status = tTaskEnterCritical();
+
+    if (mutex-&gt;lockedCount &lt;= 0)
+    {
+        // 如果没有锁定，则使用当前任务锁定
+        mutex-&gt;owner = currentTask;
+        mutex-&gt;ownerOriginalPrio = currentTask-&gt;prio;
+        mutex-&gt;lockedCount++;
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    else
+    {
+        // 信号量已经被锁定
+        if (mutex-&gt;owner == currentTask)
+        {
+            // 如果是信号量的拥有者再次wait，简单增加计数
+            mutex-&gt;lockedCount++;
+            tTaskExitCritical(status);
+            return tErrorNoError;
+        }
+        tTaskExitCritical(status);
+        return tErrorResourceUnavaliable;
+    }
+}
+uint32_t tMutexNotify (tMutex * mutex)
+{
+    uint32_t status = tTaskEnterCritical();
+
+    if (mutex-&gt;lockedCount &lt;= 0)
+    {
+        // 锁定计数为0，信号量未被锁定，直接退出
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    if (mutex-&gt;owner != currentTask)
+    {
+        // 不是拥有者释放，认为是非法
+        tTaskExitCritical(status);
+        return tErrorOwner;
+    }
+    if (--mutex-&gt;lockedCount &gt; 0)
+    {
+        // 减1后计数仍不为0, 直接退出，不需要唤醒等待的任务
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    // 是否有发生优先级继承
+    if (mutex-&gt;ownerOriginalPrio != mutex-&gt;owner-&gt;prio)
+    {
+        // 有发生优先级继承，恢复拥有者的优先级
+        if (mutex-&gt;owner-&gt;state == TINYOS_TASK_STATE_RDY)
+        {
+            // 任务处于就绪状态时，更改任务在就绪表中的位置
+            tTaskSchedUnRdy(mutex-&gt;owner);
+            currentTask-&gt;prio = mutex-&gt;ownerOriginalPrio;
+            tTaskSchedRdy(mutex-&gt;owner);
+        }
+        else
+        {
+            // 其它状态，只需要修改优先级
+            currentTask-&gt;prio = mutex-&gt;ownerOriginalPrio;
+        }
+    }
+
+    // 检查是否有任务等待
+    if (tEventWaitCount(&amp;mutex-&gt;event) &gt; 0)
+    {
+        // 如果有的话，则直接唤醒位于队列首部（最先等待）的任务
+        tTask * task = tEventWakeUp(&amp;mutex-&gt;event, (void *)0, tErrorNoError);
+        mutex-&gt;owner = task;
+        mutex-&gt;ownerOriginalPrio = task-&gt;prio;
+        mutex-&gt;lockedCount++;
+        // 如果这个任务的优先级更高，就执行调度，切换过去
+        if (task-&gt;prio &lt; currentTask-&gt;prio)
+        {
+            tTaskSched();
+        }
+    }
+    tTaskExitCritical(status);
+    return tErrorNoError;
+}
+
+</code></pre>
+<p>tMutexWait中，大致逻辑是先对计数判断，非正即未锁定，那么就使用当前任务锁定，如果已经被锁定了那么就执行下一步判断，也就是当前任务是信号量的拥有者还是其他，是信号量的拥有者的话就简单加加一下，是其它任务的话，就需要当前任务的优先级比拥有者优先级更高，则使用优先级继承，插入等待队列中，这里有一个细节，<strong>由于我们修改了拥有者的优先级，那么如果拥有者处于就绪态，我们就需要更改其位置</strong></p>
+<p>tMutexNoWaitGet中，与tMutexWait类似，不同的是，tMutexNoWaitGet并没有相关等待队列的功能，当然也不会有优先级继承</p>
+<p>tMutexNotify中，前面是一些判断，主要是合法判断，比如计数为0即未锁定，则直接退出，以及只能通过拥有者释放等，后面就是优先级继承的操作，先是恢复优先级，仿照tMutexWait中，处于就绪态就更改位置，方便运行；最后就是取出任务运行</p>
+<h1 id="互斥信号量的删除和状态查询">互斥信号量的删除和状态查询</h1>
+<pre><code class="language-c">typedef struct  _tMutexInfo
+{
+    // 等待的任务数量
+    uint32_t taskCount;
+    // 拥有者任务的优先级
+    uint32_t ownerPrio;
+    // 继承优先级
+    uint32_t inheritedPrio;
+    // 当前信号量的拥有者
+    tTask * owner;
+    // 锁定次数
+    uint32_t lockedCount;
+}tMutexInfo;
+
+uint32_t tMutexDestroy (tMutex * mutex)
+{
+    uint32_t count = 0;
+    uint32_t status = tTaskEnterCritical();
+    // 信号量是否已经被锁定，未锁定时没有任务等待，不必处理
+    if (mutex-&gt;lockedCount &gt; 0)
+    {
+        // 是否有发生优先级继承?如果发生，需要恢复拥有者的原优先级
+        if (mutex-&gt;ownerOriginalPrio != mutex-&gt;owner-&gt;prio)
+        {
+            // 有发生优先级继承，恢复拥有者的优先级
+            if (mutex-&gt;owner-&gt;state == TINYOS_TASK_STATE_RDY)
+            {
+                // 任务处于就绪状态时，更改任务在就绪表中的位置
+                tTaskSchedUnRdy(mutex-&gt;owner);
+                mutex-&gt;owner-&gt;prio = mutex-&gt;ownerOriginalPrio;
+                tTaskSchedRdy(mutex-&gt;owner);
+            }
+            else
+            {
+                // 其它状态，只需要修改优先级
+                mutex-&gt;owner-&gt;prio = mutex-&gt;ownerOriginalPrio;
+            }
+        }
+        // 然后，清空事件控制块中的任务
+        count = tEventRemoveAll(&amp;mutex-&gt;event, (void *)0, tErrorDel);
+        // 清空过程中可能有任务就绪，执行一次调度
+        if (count &gt; 0)
+        {
+            tTaskSched();
+        }
+    }
+
+    tTaskExitCritical(status);
+    return count;
+}
+void tMutexGetInfo (tMutex * mutex, tMutexInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 拷贝需要的信息
+    info-&gt;taskCount = tEventWaitCount(&amp;mutex-&gt;event);
+    info-&gt;ownerPrio = mutex-&gt;ownerOriginalPrio;
+    if (mutex-&gt;owner != (tTask *)0)
+    {
+        info-&gt;inheritedPrio = mutex-&gt;owner-&gt;prio;
+    }
+    else
+    {
+        info-&gt;inheritedPrio = TINYOS_PRO_COUNT;
+    }
+    info-&gt;owner = mutex-&gt;owner;
+    info-&gt;lockedCount = mutex-&gt;lockedCount;
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>新增tMutexInfo结构体，在tMutexGetInfo获取想要的信息，例如等待任务数量，原本优先级和继承优先级等</p>
+<p>删除函数tMutexDestroy比起其他会更复杂一些，因为删除的内容不止是等待列表，还有互斥量的持有者，也需要考虑优先级继承的问题</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[事件标志组]]></title>
+        <id>https://hanaeternum.github.io/post/shi-jian-biao-zhi-zu/</id>
+        <link href="https://hanaeternum.github.io/post/shi-jian-biao-zhi-zu/">
+        </link>
+        <updated>2025-12-25T15:12:30.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">事件标志组的原理和创建</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84%E7%9A%84%E7%AD%89%E5%BE%85%E5%92%8C%E9%80%9A%E7%9F%A5">事件标志组的等待和通知</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E6%9F%A5%E8%AF%A2">事件标志组的删除和查询</a></li>
+</ul>
+</p>
+<h1 id="事件标志组的原理和创建">事件标志组的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/1.png" alt="" loading="lazy"></figure>
+<p>事件标志组主要是用于中断ISR和任务之间传递多个标志，当然这些标志可以有很多操作，例如基础的与或非，然后触发相应的任务</p>
+<pre><code class="language-c">typedef struct _tFlagGroup
+{
+	// 事件控制块
+    tEvent event;
+    // 当前事件标志
+    uint32_t flags;
+}tFlagGroup;
+
+void tFlagGroupInit (tFlagGroup * flagGroup, uint32_t flags)
+{
+	tEventInit(&amp;flagGroup-&gt;event, tEventTypeFlagGroup);
+	flagGroup-&gt;flags = flags;
+}
+</code></pre>
+<p>新增事件控制块结构体，如上图，里面有一个事件控制块和事件标志—32位的</p>
+<p>初始化也只初始化这两个部分，一个是事件标志，一个是事件控制块</p>
+<h1 id="事件标志组的等待和通知">事件标志组的等待和通知</h1>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/2.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/3.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/4.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/5.png" alt="" loading="lazy"></figure>
+<p>对于等待来说，任务去比较事件标志，即任务是因，如果匹配就清除继续执行，否则就插入等待队列</p>
+<p>对于通知来说，由于事件标志我们可能会对它进行操作，所以会有通知操作，逻辑就是遍历等待队列，找出符合的任务，取出开启调度</p>
+<pre><code class="language-c">#define	TFLAGGROUP_CLEAR		(0x0 &lt;&lt; 0)
+#define	TFLAGGROUP_SET			(0x1 &lt;&lt; 0)
+#define	TFLAGGROUP_ANY			(0x0 &lt;&lt; 1)
+#define	TFLAGGROUP_ALL			(0x1 &lt;&lt; 1)
+
+#define TFLAGGROUP_SET_ALL		(TFLAGGROUP_SET | TFLAGGROUP_ALL)
+#define	TFLAGGROUP_SET_ANY		(TFLAGGROUP_SET | TFLAGGROUP_ANY)
+#define TFLAGGROUP_CLEAR_ALL	(TFLAGGROUP_CLEAR | TFLAGGROUP_ALL)
+#define TFLAGGROUP_CLEAR_ANY	(TFLAGGROUP_CLEAR | TFLAGGROUP_ANY)
+
+static uint32_t tFlagGroupCheckAndConsume (tFlagGroup * flagGroup, uint32_t type, uint32_t * flags)
+{
+  uint32_t srcFlags = *flags;
+	uint32_t isSet = type &amp; TFLAGGROUP_SET;
+	uint32_t isAll = type &amp; TFLAGGROUP_ALL;
+	uint32_t isConsume = type &amp; TFLAGGROUP_CONSUME;
+	// 有哪些类型的标志位出现
+	// flagGroup-&gt;flags &amp; flags：计算出哪些位为1
+	// ~flagGroup-&gt;flags &amp; flags:计算出哪位为0
+	uint32_t calcFlag = isSet ? (flagGroup-&gt;flags &amp; srcFlags) : (~flagGroup-&gt;flags &amp; srcFlags);
+	// 所有标志位出现, 或者做任意标志位出现，满足条件
+	if (((isAll != 0) &amp;&amp; (calcFlag == srcFlags)) || ((isAll == 0) &amp;&amp; (calcFlag != 0)))
+	{
+		// 是否消耗掉标志位
+		if (isConsume)
+		{
+			if (isSet)
+			{
+				// 清除为1的标志位，变成0
+				flagGroup-&gt;flags &amp;= ~srcFlags;
+			}
+			else 
+			{
+				// 清除为0的标志位，变成1
+				flagGroup-&gt;flags |= srcFlags;
+			}
+		}
+		*flags = calcFlag;
+		return tErrorNoError;
+	}
+	*flags = calcFlag;
+	return tErrorResourceUnavaliable;
+}
+</code></pre>
+<p>在宏定义中，我们需要注意的是CLEAR和SET，ANY和ALL是一组的，所以不必在意CLEAR和ANY的值是一样的</p>
+<p>tFlagGroupCheckAndConsume函数是一个中间过渡函数，主要是用于检查并消耗掉事件标志；大致逻辑是先是对标志的判断，例如是否消耗，是任意触发还是全部触发等，然后对其进行相应的操作，在操作的时候我们需要理解isSet，它会对我们的事件标志作出更改，也就是置0或置1，最后返回值，匹配返回tErrorNoError，否则返回tErrorResourceUnavaliable</p>
+<pre><code class="language-c">uint32_t tFlagGroupWait (tFlagGroup * flagGroup, uint32_t waitType, uint32_t requestFlag,
+						uint32_t * resultFlag, uint32_t waitTicks)
+{
+    uint32_t result;
+    uint32_t flags = requestFlag;
+    uint32_t status = tTaskEnterCritical();
+    result = tFlagGroupCheckAndConsume(flagGroup, waitType, &amp;flags);
+    if (result != tErrorNoError)
+    {
+	    // 如果事件标志不满足条件，则插入到等待队列中
+			currentTask-&gt;waitFlagsType = waitType;
+			currentTask-&gt;eventFlags = requestFlag;
+			tEventWait(&amp;flagGroup-&gt;event, currentTask, (void *)0,  tEventTypeFlagGroup, waitTicks);
+      tTaskExitCritical(status);
+		// 再执行一次事件调度，以便于切换到其它任务
+			tTaskSched();
+      *resultFlag = currentTask-&gt;eventFlags;
+      result = currentTask-&gt;waitEventResult;
+	}
+    else
+    {
+        *resultFlag = flags;
+        tTaskExitCritical(status);
+    }
+
+	return result;
+}
+uint32_t tFlagGroupNoWaitGet (tFlagGroup * flagGroup, uint32_t waitType, uint32_t requestFlag, uint32_t * resultFlag)
+{
+    uint32_t flags = requestFlag;
+    uint32_t status = tTaskEnterCritical();
+    uint32_t result = tFlagGroupCheckAndConsume(flagGroup, waitType, &amp;flags);
+		tTaskExitCritical(status);
+		*resultFlag = flags;
+		return status;
+}
+void tFlagGroupNotify (tFlagGroup * flagGroup, uint8_t isSet, uint32_t flags)
+{
+    tList *waitList;
+    tNode * node;
+    tNode * nextNode;
+    uint8_t sched = 0;
+    uint32_t status = tTaskEnterCritical();
+    if (isSet) {
+        flagGroup-&gt;flags |= flags;     // 置1事件
+    } else {
+        flagGroup-&gt;flags &amp;= ~flags;    // 清0事件
+    }
+    // 遍历所有的等待任务, 获取满足条件的任务，加入到待移除列表中
+    waitList = &amp;flagGroup-&gt;event.waitList;
+    for (node = waitList-&gt;headNode.nextNode; node != &amp;(waitList-&gt;headNode); node = nextNode) {
+        uint32_t result;
+        tTask *task = tNodeParent(node, tTask, linkNode);
+        uint32_t flags = task-&gt;eventFlags;
+        nextNode = node-&gt;nextNode;
+        // 检查标志
+        result = tFlagGroupCheckAndConsume(flagGroup, task-&gt;waitFlagsType, &amp;flags);
+        if (result == tErrorNoError) {
+            // 唤醒任务
+            task-&gt;eventFlags = flags;
+            tEventWakeUpTask(&amp;flagGroup-&gt;event, task, (void *)0, tErrorNoError);
+            sched = 1;
+        }
+    }
+    // 如果有任务就绪，则执行一次调度
+    if (sched)
+    {
+        tTaskSched();
+    }
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>tFlagGroupWait中，首先是用tFlagGroupCheckAndConsume进行了判断，如果符合，那么就给requestFlag附上处理后的值—因为根据需求可能会作出清除处理，如果不符合，那么插入等待队列中，开启调度</p>
+<p>tFlagGroupNoWaitGet是一个查询函数，也可以理解为不阻塞的requestFlag</p>
+<p>tFlagGroupNotify中，首先是对我们的事件标志作出修改，也就是上文提到的置0或置1，然后就是遍历，找到相应的任务，取出并开启调度</p>
+<p>这里需要优化的是遍历这部分，试试能不能找出更快的算法</p>
+<h1 id="事件标志组的删除和查询">事件标志组的删除和查询</h1>
+<pre><code class="language-c">typedef struct _tFlagGroupInfo
+{
+    // 当前的事件标志
+    uint32_t flags;
+    // 当前等待的任务计数
+    uint32_t taskCount;
+}tFlagGroupInfo;
+
+void tFlagGroupGetInfo (tFlagGroup * flagGroup, tFlagGroupInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 拷贝需要的信息
+    info-&gt;flags = flagGroup-&gt;flags;
+    info-&gt;taskCount = tEventWaitCount(&amp;flagGroup-&gt;event);
+    tTaskExitCritical(status);
+}
+
+uint32_t tFlagGroupDestroy (tFlagGroup * flagGroup)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 清空事件控制块中的任务
+    uint32_t count = tEventRemoveAll(&amp;flagGroup-&gt;event, (void *)0, tErrorDel);
+    tTaskExitCritical(status);
+    // 清空过程中可能有任务就绪，执行一次调度
+    if (count &gt; 0)
+    {
+        tTaskSched();
+    }
+    return count;
+}
+</code></pre>
+<p>新增一个tFlagGroupInfo查询状态的结构体，我们需要的信息就只有事件标志和等待任务数量</p>
+<p>在tFlagGroupDestroy中我们同样也只需要取出等待队列并调度即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[存储块]]></title>
+        <id>https://hanaeternum.github.io/post/cun-chu-kuai/</id>
+        <link href="https://hanaeternum.github.io/post/cun-chu-kuai/">
+        </link>
+        <updated>2025-12-25T15:09:37.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E5%AD%98%E5%82%A8%E5%9D%97%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">存储块的原理和创建</a></li>
+<li><a href="#%E5%AD%98%E5%82%A8%E5%9D%97%E7%9A%84%E8%8E%B7%E5%8F%96%E5%92%8C%E9%87%8A%E6%94%BE">存储块的获取和释放</a></li>
+<li><a href="#%E5%AD%98%E5%82%A8%E5%9D%97%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">存储块的删除和状态查询</a></li>
+</ul>
+</p>
+<h1 id="存储块的原理和创建">存储块的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%AD%98%E5%82%A8%E5%9D%97/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E5%AD%98%E5%82%A8%E5%9D%97/1.png" alt="" loading="lazy"></figure>
+<p>对于RTOS的内存管理，可能会想到malloc和free这种，但是这种不契合RTOS</p>
+<ul>
+<li>动态内存分配的时间不确定</li>
+<li>内存碎片化</li>
+<li>内存管理难度大</li>
+</ul>
+<p>所以引入了内存池机制</p>
+<p>但是内存池也有缺点，一种是不同类型不共享，例如int的内存池，char不能使用；一种是也会存在内部碎片，但是可以回收</p>
+<pre><code class="language-c">typedef struct _tMemBlock
+{
+	// 事件控制块
+    tEvent event;
+    // 存储块的首地址
+    void * memStart;
+    // 每个存储块的大小
+    uint32_t blockSize;
+    // 总的存储块的个数
+    uint32_t maxCount;
+    // 存储块列表
+    tList blockList;
+}tMemBlock;
+
+void tMemBlockInit (tMemBlock * memBlock, uint8_t * memStart, uint32_t blockSize, uint32_t blockCnt)
+{
+	uint8_t * memBlockStart = (uint8_t *)memStart;
+	uint8_t * memBlockEnd = memBlockStart + blockSize * blockCnt;
+	// 每个存储块需要来放置链接指针，所以空间至少要比tNode大
+	// 即便如此，实际用户可用的空间并没有少
+	if (blockSize &lt; sizeof(tNode))
+	{
+		return;
+	}
+	tEventInit(&amp;memBlock-&gt;event, tEventTypeMemBlock);
+	memBlock-&gt;memStart = memStart;
+	memBlock-&gt;blockSize = blockSize;
+	memBlock-&gt;maxCount = blockCnt;
+	tListInit(&amp;memBlock-&gt;blockList);
+	while (memBlockStart &lt; memBlockEnd)
+	{
+		tNodeInit((tNode *)memBlockStart);
+		tListAddLast(&amp;memBlock-&gt;blockList, (tNode *)memBlockStart);
+		memBlockStart += blockSize;
+	}
+}
+</code></pre>
+<p>新增tMemBlock用于控制存储块，同样里面有一个事件控制块，用于获取内存失败挂起任务</p>
+<p>tMemBlockInit中，先确定好我们的大小，当然，由于空间至少要比tNode大，所以还需要判断；之后就是初始化信息，然后每隔blockSize开辟结点</p>
+<h1 id="存储块的获取和释放">存储块的获取和释放</h1>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E5%AD%98%E5%82%A8%E5%9D%97/2.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E5%AD%98%E5%82%A8%E5%9D%97/3.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">uint32_t tMemBlockWait (tMemBlock * memBlock, uint8_t ** mem, uint32_t waitTicks)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 首先检查是否有空闲的存储块
+    if (tListCount(&amp;memBlock-&gt;blockList) &gt; 0)
+    {
+    	// 如果有的话，取出一个
+        *mem = (uint8_t *)tListRemoveFirst(&amp;memBlock-&gt;blockList);
+	    	tTaskExitCritical(status);
+	    	return tErrorNoError;
+    }
+    else
+    {
+         // 然后将任务插入事件队列中
+        tEventWait(&amp;memBlock-&gt;event, currentTask, (void *)0,  tEventTypeMemBlock, waitTicks);
+        tTaskExitCritical(status);
+        // 最后再执行一次事件调度，以便于切换到其它任务
+        tTaskSched();
+        // 当切换回来时，从tTask中取出获得的消息
+        *mem = currentTask-&gt;eventMsg;
+        // 取出等待结果
+        return currentTask-&gt;waitEventResult;
+    }
+}
+
+uint32_t tMemBlockNoWaitGet (tMemBlock * memBlock, void ** mem)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 首先检查是否有空闲的存储块
+    if (tListCount(&amp;memBlock-&gt;blockList) &gt; 0)
+    {
+    	// 如果有的话，取出一个
+        *mem = (uint8_t *)tListRemoveFirst(&amp;memBlock-&gt;blockList);
+    	tTaskExitCritical(status);
+    	return tErrorNoError;
+    }
+    else
+    {
+     	// 否则，返回资源不可用
+        tTaskExitCritical(status);
+	    	return tErrorResourceUnavaliable;
+    }
+}
+
+void tMemBlockNotify (tMemBlock * memBlock, uint8_t * mem)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 检查是否有任务等待
+    if (tEventWaitCount(&amp;memBlock-&gt;event) &gt; 0)
+    {
+    	// 如果有的话，则直接唤醒位于队列首部（最先等待）的任务
+        tTask * task = tEventWakeUp(&amp;memBlock-&gt;event, (void *)mem, tErrorNoError);
+        // 如果这个任务的优先级更高，就执行调度，切换过去
+        if (task-&gt;prio &lt; currentTask-&gt;prio)
+        {
+            tTaskSched();
+	    	}
+    }
+    else
+    {
+    	// 如果没有任务等待的话，将存储块插入到队列中
+    	tListAddLast(&amp;memBlock-&gt;blockList, (tNode *)mem);
+   	}
+	tTaskExitCritical(status);
+}
+</code></pre>
+<p>其实邮箱与存储块基本一致，一个是对消息进行处理，一个是对存储块进行处理，这里的存储块肯定是比消息的构造复杂很多，但思路大差不差；但是对于通知来说，存储块的复杂度就低了许多，因为这里并没有区分插入头还是尾</p>
+<p>而对于存储块的操作，可以借鉴以下代码</p>
+<pre><code class="language-c">tMemBlockInit(&amp;memBlock1, (uint8_t *)mem1, 100, 20);
+for (i = 0; i &lt; 20; i++)
+{
+		tMemBlockWait(&amp;memBlock1, (uint8_t **)&amp;block[i], 0);
+}
+</code></pre>
+<h1 id="存储块的删除和状态查询">存储块的删除和状态查询</h1>
+<pre><code class="language-c">typedef struct _tMemBlockInfo
+{
+	// 当前存储块的计数
+    uint32_t count;
+    // 允许的最大计数
+    uint32_t maxCount;
+    // 每个存储块的大小
+    uint32_t blockSize;
+    // 当前等待的任务计数
+    uint32_t taskCount;
+}tMemBlockInfo;
+
+void tMemBlockGetInfo (tMemBlock * memBlock, tMemBlockInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 拷贝需要的信息
+    info-&gt;count = tListCount(&amp;memBlock-&gt;blockList);
+    info-&gt;maxCount = memBlock-&gt;maxCount;
+    info-&gt;blockSize = memBlock-&gt;blockSize;
+    info-&gt;taskCount = tEventWaitCount(&amp;memBlock-&gt;event);
+    tTaskExitCritical(status);
+}
+uint32_t tMemBlockDestroy (tMemBlock * memBlock)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 清空事件控制块中的任务
+    uint32_t count = tEventRemoveAll(&amp;memBlock-&gt;event, (void *)0, tErrorDel);
+    tTaskExitCritical(status);
+    // 清空过程中可能有任务就绪，执行一次调度
+    if (count &gt; 0)
+    {
+        tTaskSched();
+    }
+    return count;
+}
+</code></pre>
+<p>对于删除，我们只需要清空并调度任务即可</p>
+<p>在销毁存储控制块时，存储块列表本身已经是固定的，内存块的管理是通过链表或者数组来完成的；当销毁控制块时，通常不需要对这些内存块做进一步处理，它们仍然是有效的内存区域，只不过没有了控制块的统一管理。这种方式允许系统在不破坏存储块数据的前提下，继续使用这些内存，或者在某些情况下可以复用它们。如果需要重新初始化该内存块列表，后续的初始化操作可以重新将这些内存块放入新的存储控制块中</p>
+<p>状态查询不多赘述</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[邮箱]]></title>
+        <id>https://hanaeternum.github.io/post/you-xiang/</id>
+        <link href="https://hanaeternum.github.io/post/you-xiang/">
+        </link>
+        <updated>2025-12-25T15:05:39.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E9%82%AE%E7%AE%B1%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">邮箱原理和创建</a>
+<ul>
+<li><a href="#%E9%82%AE%E7%AE%B1%E5%8E%9F%E7%90%86">邮箱原理</a></li>
+<li><a href="#%E9%82%AE%E7%AE%B1%E5%88%9B%E5%BB%BA">邮箱创建</a></li>
+</ul>
+</li>
+<li><a href="#%E9%82%AE%E7%AE%B1%E7%9A%84%E8%8E%B7%E5%8F%96%E5%92%8C%E9%87%8A%E6%94%BE">邮箱的获取和释放</a></li>
+<li><a href="#%E9%82%AE%E7%AE%B1%E7%9A%84%E6%B8%85%E7%A9%BA%E5%92%8C%E5%88%A0%E9%99%A4">邮箱的清空和删除</a></li>
+<li><a href="#%E9%82%AE%E7%AE%B1%E7%9A%84%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">邮箱的状态查询</a></li>
+</ul>
+</p>
+<h1 id="邮箱原理和创建">邮箱原理和创建</h1>
+<h2 id="邮箱原理">邮箱原理</h2>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E9%82%AE%E7%AE%B1/0.png" alt="" loading="lazy"></figure>
+<p>以上是邮箱的大致思路，使用了两个队列，一个用于作为信息缓存—当然是有长度的，一个用于存放等待任务，我们还需要理解这两个队列运行逻辑，<strong>两个任务任何一个为空的时候，另外一个必定为非空</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E9%82%AE%E7%AE%B1/1.png" alt="" loading="lazy"></figure>
+<p>对于消息的缓存，采用了读和写索引，有消息进入的时候，通过写索引写入，有消息读出的时候，通过读索引读出</p>
+<p>可以看到是一个环形缓冲区，但如下我们创建的是一个数组，我们加入写索引和读索引来实现环形缓冲的功能，除此以外，我们还想在缓冲区中有优先级高消息写入，那实现方法大体是读索引往前移动，写入到读索引上，而写索引往后移动</p>
+<h2 id="邮箱创建">邮箱创建</h2>
+<pre><code class="language-cpp">typedef struct _tMbox
+{
+	// 事件控制块
+	// 该结构被特意放到起始处，以实现tSem同时是一个tEvent的目的
+	tEvent event;
+	// 当前的消息数量
+  uint32_t count;
+  // 读取消息的索引
+  uint32_t read;
+  // 写消息的索引
+  uint32_t write;
+  // 最大允许容纳的消息数量
+  uint32_t maxCount;
+  // 消息存储缓冲区
+  void ** msgBuffer;
+}tMbox;
+</code></pre>
+<p>这里的重点是msgBuffer，他是一个指向指针的指针，可以理解为数组指针</p>
+<ul>
+<li>void * 可以表示任意类型的指针</li>
+<li>void ** 则是一个指向指针的指针，表示一个可以存储多个指针的数组</li>
+</ul>
+<pre><code class="language-cpp">void tMboxInit (tMbox * mbox, void ** msgBuffer, uint32_t maxCount) 
+{
+	tEventInit(&amp;mbox-&gt;event, tEventTypeMbox);
+	mbox-&gt;msgBuffer = msgBuffer;
+	mbox-&gt;maxCount = maxCount;
+	mbox-&gt;read = 0;
+	mbox-&gt;write = 0;
+	mbox-&gt;count = 0;
+}
+</code></pre>
+<p>由于邮箱在功能上也有等待，所以底层也有计数信号量，其余无需赘述</p>
+<h1 id="邮箱的获取和释放">邮箱的获取和释放</h1>
+<pre><code class="language-c">uint32_t tMboxWait (tMbox * mbox, void **msg, uint32_t waitTicks) 
+{
+    uint32_t status = tTaskEnterCritical();
+
+    // 首先检查消息计数是否大于0
+    if (mbox-&gt;count &gt; 0)
+    {
+    	// 如果大于0的话，取出一个
+        --mbox-&gt;count;
+			// 取出消息
+        *msg = mbox-&gt;msgBuffer[mbox-&gt;read++];
+        // 同时读取索引前移，如果超出边界则回绕
+        if (mbox-&gt;read &gt;= mbox-&gt;maxCount) 
+        {
+        	mbox-&gt;read = 0;
+        }
+    	tTaskExitCritical(status); 
+    	return tErrorNoError;
+    }
+    else                                                                
+    { 
+         // 然后将任务插入事件队列中
+        tEventWait(&amp;mbox-&gt;event, currentTask, (void *)0,  tEventTypeMbox, waitTicks);
+        tTaskExitCritical(status);
+        // 最后再执行一次事件调度，以便于切换到其它任务
+        tTaskSched();
+        // 当切换回来时，从tTask中取出获得的消息
+        *msg = currentTask-&gt;eventMsg;
+        // 取出等待结果
+        return currentTask-&gt;waitEventResult;
+    }
+}
+uint32_t tMboxNoWaitGet (tMbox * mbox, void **msg)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 首先检查消息计数是否大于0
+    if (mbox-&gt;count &gt; 0)
+    {
+    	// 如果大于0的话，取出一个
+        --mbox-&gt;count;
+        *msg = mbox-&gt;msgBuffer[mbox-&gt;read++];
+        // 同时读取索引前移，如果超出边界则回绕
+        if (mbox-&gt;read &gt;= mbox-&gt;maxCount) 
+        {
+        	mbox-&gt;read = 0;
+        }
+    	tTaskExitCritical(status); 
+    	return tErrorNoError;
+    }
+    else                                                                
+    {
+     	// 否则，返回资源不可用
+        tTaskExitCritical(status);
+    	return tErrorResourceUnavaliable;
+    }    
+}
+uint32_t tMboxNotify (tMbox * mbox, void * msg, uint32_t notifyOption)
+{
+    uint32_t status = tTaskEnterCritical();        
+    // 检查是否有任务等待
+    if (tEventWaitCount(&amp;mbox-&gt;event) &gt; 0)
+    {
+    	// 如果有的话，则直接唤醒位于队列首部（最先等待）的任务
+        tTask * task = tEventWakeUp(&amp;mbox-&gt;event, (void *)msg, tErrorNoError ) 
+        // 如果这个任务的优先级更高，就执行调度，切换过去
+        if (task-&gt;prio &lt; currentTask-&gt;prio)
+        {
+            tTaskSched(); 
+				}
+    }
+    else
+    {
+    	// 如果没有任务等待的话，将消息插入到缓冲区中
+    	if (mbox-&gt;count &gt;= mbox-&gt;maxCount) 
+    	{
+		    tTaskExitCritical(status);
+		    return tErrorResourceFull;
+    	}
+		// 可以选择将消息插入到头，这样后面任务获取的消息的时候，优先获取该消息
+		if (notifyOption &amp; tMBOXSendFront)
+		{
+			if (mbox-&gt;read &lt;= 0) 
+			{
+				mbox-&gt;read = mbox-&gt;maxCount - 1;
+			} 
+			else 
+			{
+				--mbox-&gt;read;
+			}
+			mbox-&gt;msgBuffer[mbox-&gt;read] = msg;
+		}
+		else 
+		{
+			mbox-&gt;msgBuffer[mbox-&gt;write++] = msg;
+			if (mbox-&gt;write &gt;= mbox-&gt;maxCount)
+			{
+				mbox-&gt;write = 0;
+			}
+		}
+		// 增加消息计数
+		mbox-&gt;count++;
+   	}
+	tTaskExitCritical(status);
+	return tErrorNoError;
+}
+</code></pre>
+<p>tMboxWait中，首先检查消息计数是否大于0—邮箱里面是否有邮件，有的话就将消息取出来—赋值给msg，并对计数减减；否则将任务插入事件队列中，但也会对msg操作</p>
+<p>tMboxNoWaitGet与tMboxWait大同小异，唯一区别就是不需要对任务进行操作</p>
+<p>tMboxNotify中，对判断的对象就改为了任务，有的话就唤醒并调度；否则将消息插入缓冲区中</p>
+<p>但是在tMboxNotify不同的是，消息可以选择插入到头还是尾，方便优先获得该消息</p>
+<h1 id="邮箱的清空和删除">邮箱的清空和删除</h1>
+<pre><code class="language-c">void tMboxFlush (tMbox * mbox)
+{
+    uint32_t status = tTaskEnterCritical();        
+    // 如果队列中有任务等待，说明邮箱已经是空的了，不需要再清空
+    if (tEventWaitCount(&amp;mbox-&gt;event) == 0) 
+    {
+        mbox-&gt;read = 0;
+        mbox-&gt;write = 0;
+        mbox-&gt;count = 0;
+    }
+    tTaskExitCritical(status);
+}
+uint32_t tMboxDestroy (tMbox * mbox)
+{       
+    uint32_t status = tTaskEnterCritical(); 
+    // 清空事件控制块中的任务
+    uint32_t count = tEventRemoveAll(&amp;mbox-&gt;event, (void *)0, tErrorDel);  
+    tTaskExitCritical(status);
+    // 清空过程中可能有任务就绪，执行一次调度
+    if (count &gt; 0) 
+    {
+        tTaskSched();
+    } 
+    return count;  
+}
+</code></pre>
+<p>tMboxFlush中，对于清空，我们只需要把邮箱中的消息清空</p>
+<p>tMboxDestroy中，对于销毁，我们需要把邮箱等待队列中的任务取出，并调度</p>
+<h1 id="邮箱的状态查询">邮箱的状态查询</h1>
+<pre><code class="language-c">typedef struct _tMboxInfo {
+	// 当前的消息数量
+    uint32_t count;
+    // 最大允许容纳的消息数量
+    uint32_t maxCount;
+    // 当前等待的任务计数
+    uint32_t taskCount;
+}tMboxInfo;
+
+void tMboxGetInfo (tMbox * mbox, tMboxInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 拷贝需要的信息
+    info-&gt;count = mbox-&gt;count;
+    info-&gt;maxCount = mbox-&gt;maxCount;
+    info-&gt;taskCount = tEventWaitCount(&amp;mbox-&gt;event);
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>新增tMboxInfo结构体，以及tMboxGetInfo ，用于状态获取</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[计数信号量]]></title>
+        <id>https://hanaeternum.github.io/post/ji-shu-xin-hao-liang/</id>
+        <link href="https://hanaeternum.github.io/post/ji-shu-xin-hao-liang/">
+        </link>
+        <updated>2025-12-25T15:03:04.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%88%9B%E5%BB%BA">计数信号量的原理与创建</a>
+<ul>
+<li><a href="#%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%8E%9F%E7%90%86">计数信号量原理</a></li>
+<li><a href="#%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%88%9B%E5%BB%BA">计数信号量创建</a></li>
+</ul>
+</li>
+<li><a href="#%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E8%8E%B7%E5%8F%96%E5%92%8C%E9%87%8A%E6%94%BE">计数信号量的获取和释放</a></li>
+<li><a href="#%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E6%9F%A5%E8%AF%A2">计数信号量的删除和查询</a>
+<ul>
+<li><a href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%88%A0%E9%99%A4">信号量删除</a></li>
+<li><a href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%E6%9F%A5%E8%AF%A2">信号量查询</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="计数信号量的原理与创建">计数信号量的原理与创建</h1>
+<h2 id="计数信号量原理">计数信号量原理</h2>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F/1.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">typedef struct _tSem 
+{
+	// 事件控制块
+	// 该结构被特意放到起始处，以实现tSem同时是一个tEvent的目的
+	tEvent event;
+	// 当前的计数
+	uint32_t count;
+	// 最大计数
+	uint32_t maxCount;
+}tSem;
+</code></pre>
+<p>计数信号量是一个结构体，包含计数部分（当前计数和最大计数）和事件控制块</p>
+<h2 id="计数信号量创建">计数信号量创建</h2>
+<pre><code class="language-c">void tSemInit (tSem * sem, uint32_t startCount, uint32_t maxCount) 
+{
+	tEventInit(&amp;sem-&gt;event, tEventTypeSem);
+
+	sem-&gt;maxCount = maxCount;
+	if (maxCount == 0)
+	{
+		sem-&gt;count = startCount;
+	} 
+	else 
+	{
+		sem-&gt;count = (startCount &gt; maxCount) ? maxCount : startCount;
+	}
+}
+</code></pre>
+<p>先对事件控制块初始化，然后根据maxCount限制startCount</p>
+<h1 id="计数信号量的获取和释放">计数信号量的获取和释放</h1>
+<pre><code class="language-cpp">uint32_t tSemWait (tSem * sem, uint32_t waitTicks)
+{
+    uint32_t status = tTaskEnterCritical();
+
+    // 首先检查信号量计数是否大于0
+    if (sem-&gt;count &gt; 0)
+    {
+    	// 如果大于0的话，消耗掉一个，然后正常退出
+        --sem-&gt;count;
+    	tTaskExitCritical(status); 
+    	return tErrorNoError;
+    }
+    else                                                                
+    { 
+        // 然后将任务插入事件队列中
+        tEventWait(&amp;sem-&gt;event, currentTask, (void *)0,  tEventTypeSem, waitTicks);                                                                                                                                                
+        tTaskExitCritical(status);      
+        // 最后再执行一次事件调度，以便于切换到其它任务
+        tTaskSched();
+        // 当由于等待超时或者计数可用时，执行会返回到这里，然后取出等待结构
+        return currentTask-&gt;waitEventResult;
+    }
+}
+uint32_t tSemNoWaitGet (tSem * sem)
+{
+    uint32_t status = tTaskEnterCritical();
+    
+	// 首先检查信号量计数是否大于0
+	if (sem-&gt;count &gt; 0) 
+    {              
+		// 如果大于0的话，消耗掉一个，然后正常退出
+		--sem-&gt;count; 
+        tTaskExitCritical(status);
+    	return tErrorNoError;
+    } else {
+    	// 否则，返回资源不可用
+        tTaskExitCritical(status);
+    	return tErrorResourceUnavaliable;
+    }    
+}
+void tSemNotify (tSem * sem)
+{
+    uint32_t status = tTaskEnterCritical();        
+    
+    // 检查是否有任务等待
+    if (tEventWaitCount(&amp;sem-&gt;event) &gt; 0)
+    {
+    	// 如果有的话，则直接唤醒位于队列首部（最先等待）的任务
+        tTask * task = tEventWakeUp(&amp;sem-&gt;event, (void *)0, tErrorNoError );
+
+        // 如果这个任务的优先级更高，就执行调度，切换过去
+        if (task-&gt;prio &lt; currentTask-&gt;prio)
+        {
+            tTaskSched(); 
+    	}
+    }
+    else
+    {
+    	// 如果没有任务等待的话，增加计数
+    	++sem-&gt;count;
+
+    	// 如果这个计数超过了最大允许的计数，则递减
+    	if ((sem-&gt;maxCount != 0) &amp;&amp; (sem-&gt;count &gt; sem-&gt;maxCount)) 
+    	{	
+    		sem-&gt;count = sem-&gt;maxCount;
+    	}
+    }
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>tSemWait中，waitTicks 当信号量计数为0时，等待的ticks数，为0时表示永远等待，这里的永远等待具体可以查看事件控制块中的tEventWait部分，总体思路是先判断计数是否大于0，是就减一退出，否则把当前任务插入事件队列中，也就是计数量队列</p>
+<p>tSemNoWaitGet是获取信号量-不阻塞，能获取返回，也就是计数大于0返回tErrorNoError，否则返回tErrorResourceUnavaliable</p>
+<p>tSemNotify是通知信号量，有任务因为信号量的原因等待，则唤醒，也就是加入到就绪列表中，如果没有任务等待，那么计数加一</p>
+<h1 id="计数信号量的删除和查询">计数信号量的删除和查询</h1>
+<h2 id="信号量删除">信号量删除</h2>
+<pre><code class="language-cpp">uint32_t tSemDestroy (tSem * sem)
+{       
+    uint32_t status = tTaskEnterCritical(); 
+    // 清空事件控制块中的任务
+    uint32_t count = tEventRemoveAll(&amp;sem-&gt;event, (void *)0, tErrorDel);  
+    sem-&gt;count = 0;
+    tTaskExitCritical(status);
+   
+    // 清空过程中可能有任务就绪，执行一次调度
+    if (count &gt; 0) 
+    {
+        tTaskSched();
+    } 
+    return count;  
+}
+</code></pre>
+<p>由于还没有涉及到内存管理，所以这里的删除比较简单，跟初始化一样，只是比初始化多了清空任务和开启调度而已</p>
+<h2 id="信号量查询">信号量查询</h2>
+<pre><code class="language-cpp">typedef struct _tSemInfo
+{
+	// 当前信号量的计数
+    uint32_t count;
+    // 信号量允许的最大计数
+    uint32_t maxCount;
+    // 当前等待的任务计数
+    uint32_t taskCount;
+}tSemInfo;
+
+void tSemGetInfo (tSem * sem, tSemInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();        
+    // 拷贝需要的信息
+    info-&gt;count = sem-&gt;count;
+    info-&gt;maxCount = sem-&gt;maxCount;
+    info-&gt;taskCount = tEventWaitCount(&amp;sem-&gt;event);
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>新建tSemInfo结构体，用作查询，通过tSemGetInfo函数传入参数即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[事件控制块]]></title>
+        <id>https://hanaeternum.github.io/post/shi-jian-kong-zhi-kuai/</id>
+        <link href="https://hanaeternum.github.io/post/shi-jian-kong-zhi-kuai/">
+        </link>
+        <updated>2025-12-25T14:59:26.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">事件控制块的原理和创建</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85%E4%B8%8E%E9%80%9A%E7%9F%A5">事件等待与通知</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E7%9A%84%E6%B8%85%E7%A9%BA%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">事件控制块的清空和状态查询</a>
+<ul>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E6%B8%85%E7%A9%BA">事件控制块清空</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">事件控制块状态查询</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<p><strong>我们需要了解事件控制块一般是不需要直接使用的，是作为信号量，消息队列等的底层</strong></p>
+<h1 id="事件控制块的原理和创建">事件控制块的原理和创建</h1>
+<pre><code class="language-c">typedef enum  _tEventType {   
+    tEventTypeUnknown   = 0, 				// 未知类型
+ }tEventType;
+// Event控制结构
+typedef struct _tEvent {
+    tEventType type;						// Event类型
+    tList waitList;							// 任务等待列表
+}tEvent;
+</code></pre>
+<p>增加tEvent结构体，目前存放等待列表和Event类型</p>
+<pre><code class="language-c">    // 任务正在等待的事件类型
+    struct _tEvent * waitEvent;
+    // 等待事件的消息存储位置
+    void * eventMsg;
+    // 等待事件的结果
+    uint32_t waitEventResult;
+</code></pre>
+<p>在tTask加入以上内容，用于保存事件内容状态</p>
+<pre><code class="language-c">void tEventInit (tEvent * event, tEventType type)
+{
+	event-&gt;type = type;
+	tListInit(&amp;event-&gt;waitList);
+}
+</code></pre>
+<p>初始化主要是对类型初始化，以及等待列表</p>
+<h1 id="事件等待与通知">事件等待与通知</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97/1.png" alt="" loading="lazy"></figure>
+<p>这里相比之前，又引入了新的任务状态，也就是等待状态，由事件控制块管理</p>
+<pre><code class="language-c">void tEventWait (tEvent * event, tTask * task, void * msg, uint32_t state, uint32_t timeout)
+{
+  // 进入临界区
+   uint32_t status = tTaskEnterCritical();
+  task-&gt;state |= state;         // 标记任务处于等待某种事件的状态
+  task-&gt;waitEvent = event;        // 设置任务等待的事件结构
+  task-&gt;eventMsg = msg;         // 设置任务等待事件的消息存储位置 
+                      // 因有时候需要接受消息，所以需要接受区
+  task-&gt;waitEventResult = tErrorNoError;  // 清空事件的等待结果
+  // 将任务从就绪队列中移除
+  tTaskSchedUnRdy(task);
+  // 将任务插入到等待队列中
+  tListAddLast(&amp;event-&gt;waitList, &amp;task-&gt;linkNode);
+  // 如果发现有设置超时，在同时插入到延时队列中
+  // 当时间到达时，由延时处理机制负责将任务从延时列表中移除，同时从事件列表中移除
+  if (timeout) 
+  {
+    tTimeTaskWait(task, timeout);
+  }
+  // 退出临界区
+    tTaskExitCritical(status); 
+}
+tTask * tEventWakeUp (tEvent * event, void * msg, uint32_t result)
+{
+    tNode  * node;
+    tTask  * task = (tTask * )0;
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 取出等待队列中的第一个结点
+    if((node = tListRemoveFirst(&amp;event-&gt;waitList)) != (tNode *)0)
+    {                        
+      // 转换为相应的任务结构                                          
+        task = (tTask *)tNodeParent(node, tTask, linkNode);
+        // 设置收到的消息、结构，清除相应的等待标志位
+        task-&gt;waitEvent = (tEvent *)0;
+        task-&gt;eventMsg = msg;
+        task-&gt;waitEventResult = result;
+        task-&gt;state &amp;= ~TINYOS_TASK_WAIT_MASK;
+        // 任务申请了超时等待，这里检查下，将其从延时队列中移除
+        if (task-&gt;delayTicks != 0)
+        { 
+            tTimeTaskWakeUp(task);
+        }
+        // 将任务加入就绪队列
+        tTaskSchedRdy(task);        
+    }  
+    // 退出临界区
+    tTaskExitCritical(status); 
+    return task;         
+}
+void tEventRemoveTask (tTask * task, void * msg, uint32_t result)
+{     
+ 	  // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+	 // 将任务从所在的等待队列中移除
+	 // 注意，这里没有检查waitEvent是否为空。既然是从事件中移除，那么认为就不可能为空
+	 tListRemove(&amp;task-&gt;waitEvent-&gt;waitList, &amp;task-&gt;linkNode);
+  	// 设置收到的消息、结构，清除相应的等待标志位
+    task-&gt;waitEvent = (tEvent *)0;
+    task-&gt;eventMsg = msg;
+   	task-&gt;waitEventResult = result;
+	 task-&gt;state &amp;= ~TINYOS_TASK_WAIT_MASK;
+	// 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>分为三个函数，可以通俗的理解为挂起事件控制块，唤醒事件控制块和删除事件</p>
+<p>tEventWait主要内容是先设置状态和传给task参数，然后移除就绪队列，添加进入等待队列中，最后再查看是否有超时参数，有则加入延时队列，至于调度，由于这些是用于底层的，所以以上函数并不会出现调度函数，调度处理主要是在更细致的控制块中</p>
+<p>tEventWakeUp中，首先取出等待列表中的任务，直接移出延时队列，加入就绪队列</p>
+<p>tEventRemoveTask中，删除的是一个任务正在等待的事件，最后再设置标志位等参数</p>
+<h1 id="事件控制块的清空和状态查询">事件控制块的清空和状态查询</h1>
+<h2 id="事件控制块清空">事件控制块清空</h2>
+<pre><code class="language-c">uint32_t tEventRemoveAll (tEvent * event, void * msg, uint32_t result)
+{
+    tNode  * node;
+    uint32_t count;
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 获取等待中的任务数量
+    count = tListCount(&amp;event-&gt;waitList);
+    // 遍历所有等待中的任务
+    while ((node = tListRemoveFirst(&amp;event-&gt;waitList)) != (tNode *)0)
+    {                                                                   
+        // 转换为相应的任务结构                                          
+        tTask * task = (tTask *)tNodeParent(node, tTask, linkNode);
+        // 设置收到的消息、结构，清除相应的等待标志位
+        task-&gt;waitEvent = (tEvent *)0;
+        task-&gt;eventMsg = msg;
+        task-&gt;waitEventResult = result;
+        task-&gt;state &amp;= ~TINYOS_TASK_WAIT_MASK;
+        // 任务申请了超时等待，这里检查下，将其从延时队列中移除
+        if (task-&gt;delayTicks != 0)
+        { 
+            tTimeTaskWakeUp(task);
+        }
+        // 将任务加入就绪队列
+        tTaskSchedRdy(task);        
+    }  
+    // 退出临界区
+    tTaskExitCritical(status); 
+    return  count;
+}
+</code></pre>
+<p>不难看出，tEventRemoveAll相比tEventRemoveTask多了一个while循环，直到event中等待列表删除干净，也就是tListRemoveFirst返回0即可</p>
+<h2 id="事件控制块状态查询">事件控制块状态查询</h2>
+<pre><code class="language-c">uint32_t tEventWaitCount (tEvent * event)
+{  
+    uint32_t count = 0;
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    count = tListCount(&amp;event-&gt;waitList);  
+    // 退出临界区
+    tTaskExitCritical(status);     
+    return count;
+} 
+</code></pre>
+<p>对于事件控制块所需要的只有等待列表中任务数量，所以只需要查询等待列表中任务数量</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[任务管理]]></title>
+        <id>https://hanaeternum.github.io/post/ren-wu-guan-li/</id>
+        <link href="https://hanaeternum.github.io/post/ren-wu-guan-li/">
+        </link>
+        <updated>2025-12-25T14:49:58.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%94%A4%E9%86%92%E4%B8%8E%E6%8C%82%E8%B5%B7">任务的唤醒与挂起</a></li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E5%88%A0%E9%99%A4">任务删除</a>
+<ul>
+<li><a href="#%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4">强制删除</a></li>
+<li><a href="#%E8%AE%BE%E7%BD%AE%E5%88%A0%E9%99%A4%E6%A0%87%E5%BF%97%E8%87%AA%E4%B8%BB%E5%88%A0%E9%99%A4">设置删除标志——自主删除</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81">任务状态</a></li>
+</ul>
+</p>
+<h1 id="任务的唤醒与挂起">任务的唤醒与挂起</h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 连接结点
+    tNode linkNode;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+    // 被挂起的次数
+    uint32_t suspendCount;
+ }tTask;
+</code></pre>
+<p>在tTask中新增挂起次数，用于合理控制挂起和唤醒，具体思路可以见调度锁处</p>
+<pre><code class="language-c">void tTaskSuspend (tTask * task) 
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 不允许对已经进入延时状态的任务挂起
+    if (!(task-&gt;state &amp; TINYOS_TASK_STATE_DELAYED)) 
+    {
+        // 增加挂起计数，仅当该任务被执行第一次挂起操作时，才考虑是否
+        // 要执行任务切换操作
+        if (++task-&gt;suspendCount &lt;= 1)
+        {
+            // 设置挂起标志
+            task-&gt;state |= TINYOS_TASK_STATE_SUSPEND;
+            // 挂起方式很简单，就是将其从就绪队列中移除，这样调度器就不会发现他
+            // 也就没法切换到该任务运行
+            tTaskSchedUnRdy(task);
+            // 当然，这个任务可能是自己，那么就切换到其它任务
+            if (task == currentTask)
+            {
+                tTaskSched();
+            }
+        }
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+void tTaskWakeUp (tTask * task)
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+     // 检查任务是否处于挂起状态
+    if (task-&gt;state &amp; TINYOS_TASK_STATE_SUSPEND)
+    {
+        // 递减挂起计数，如果为0了，则清除挂起标志，同时设置进入就绪状态
+        if (--task-&gt;suspendCount == 0) 
+        {
+            // 清除挂起标志
+            task-&gt;state &amp;= ~TINYOS_TASK_STATE_SUSPEND;
+            // 同时将任务放回就绪队列中
+            tTaskSchedRdy(task);
+            // 唤醒过程中，可能有更高优先级的任务就绪，执行一次任务调度
+            tTaskSched();
+        }
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>tTaskSuspend中，先对任务进行判断是否处于延时，然后对挂起任务的计数加加，第一次挂起的时候会判断当前任务是否是自己，是则切换任务</p>
+<p>tTaskWakeUp中，这个函数比tTaskSuspend思路简单一点，只需要对挂起任务的计数减减，当减到0的时候，将任务加入到任务队列中，再开启调度</p>
+<h1 id="任务删除">任务删除</h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 连接结点
+    tNode linkNode;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+    // 被挂起的次数
+    uint32_t suspendCount;
+    // 任务被删除时调用的清理函数
+    void (*clean) (void * param);
+    // 传递给清理函数的参数
+    void * cleanParam;
+    // 请求删除标志，非0表示请求删除
+    uint8_t requestDeleteFlag;
+ }tTask;
+ void tTaskSetCleanCallFunc (tTask * task, void (*clean)(void * param), void * param) 
+{
+    task-&gt;clean = clean;
+    task-&gt;cleanParam = param;
+}
+</code></pre>
+<p>tTask新增clean清理函数，清理函数的参数和requestDeleteFlag删除标志</p>
+<p>tTaskSetCleanCallFunc中，是设置任务删除调用的清理函数，具体用法如下，其中task1DestroyFunc就是清理函数</p>
+<pre><code class="language-c">tTaskSetCleanCallFunc(currentTask, task1DestroyFunc, (void *)0);
+</code></pre>
+<p>tTaskinit中作出以下修改，clean置0的初始化的目的是我们可以不采用清理函数</p>
+<pre><code class="language-c">    task-&gt;clean = (void(*)(void *))0;                   // 设置清理函数
+    task-&gt;cleanParam = (void *)0;                       // 设置传递给清理函数的参数
+    task-&gt;requestDeleteFlag = 0;                        // 请求删除标记
+</code></pre>
+<p>总共有两种删除方式，一种是强制删除，另外一种是设置删除标志</p>
+<h2 id="强制删除">强制删除</h2>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86/0.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">void tTaskForceDelete (tTask * task) 
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+     // 如果任务处于延时状态，则从延时队列中删除
+    if (task-&gt;state &amp; TINYOS_TASK_STATE_DELAYED) 
+    {
+        tTimeTaskRemove(task);
+    }
+		// 如果任务不处于挂起状态，那么就是就绪态，从就绪表中删除
+    else if (!(task-&gt;state &amp; TINYOS_TASK_STATE_SUSPEND))
+    {
+        tTaskSchedRemove(task);
+    }
+    // 删除时，如果有设置清理函数，则调用清理函数
+    if (task-&gt;clean) 
+    {
+        task-&gt;clean(task-&gt;cleanParam);
+    }
+    // 如果删除的是自己，那么需要切换至另一个任务，所以执行一次任务调度
+    if (currentTask == task) 
+    {
+        tTaskSched();
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>tTaskForceDelete逻辑比较简单，在所有队列中移除，调用清理回调函数，最好再判断切换</p>
+<h2 id="设置删除标志自主删除">设置删除标志——自主删除</h2>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86/1.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">void tTaskRequestDelete (tTask * task)
+{
+   // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 设置清除删除标记
+    task-&gt;requestDeleteFlag = 1;
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+uint8_t tTaskIsRequestedDelete (void)
+{
+    uint8_t delete;
+   // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 获取请求删除标记
+    delete = currentTask-&gt;requestDeleteFlag;
+    // 退出临界区
+    tTaskExitCritical(status); 
+    return delete;
+}
+void tTaskDeleteSelf (void)
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 任务在调用该函数时，必须是处于就绪状态，不可能处于延时或挂起等其它状态
+    // 所以，只需要从就绪队列中移除即可
+    tTaskSchedRemove(currentTask);
+    // 删除时，如果有设置清理函数，则调用清理函数
+    if (currentTask-&gt;clean)
+    {
+        currentTask-&gt;clean(currentTask-&gt;cleanParam);
+    }
+    // 接下来，肯定是切换到其它任务去运行
+    tTaskSched();
+    // 退出临界区
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>tTaskIsRequestedDelete是处于任务或者定时器之类的周期运行中；重点集中在tTaskDeleteSelf上，这个函数是放在任务中，这样状态处于就绪态，操作更为简单，任务也必定需要切换为其他任务</p>
+<h1 id="任务状态">任务状态</h1>
+<pre><code class="language-c">typedef struct _tTaskInfo {
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+    // 被挂起的次数
+    uint32_t suspendCount;
+}tTaskInfo;
+</code></pre>
+<p>新增tTaskInfo结构体，用于储存任务状态</p>
+<pre><code class="language-c">void tTaskGetInfo (tTask * task, tTaskInfo * info)
+{
+   // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    info-&gt;delayTicks = task-&gt;delayTicks;                // 延时信息
+    info-&gt;prio = task-&gt;prio;                            // 任务优先级
+    info-&gt;state = task-&gt;state;                          // 任务状态
+    info-&gt;slice = task-&gt;slice;                          // 剩余时间片
+    info-&gt;suspendCount = task-&gt;suspendCount;            // 被挂起的次数
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>做状态查询的目的是避免过多使用全局变量，这种思路在大多项目都采用</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[内核核心]]></title>
+        <id>https://hanaeternum.github.io/post/nei-he-he-xin/</id>
+        <link href="https://hanaeternum.github.io/post/nei-he-he-xin/">
+        </link>
+        <updated>2025-12-25T14:40:10.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4">临界区保护</a></li>
+<li><a href="#%E8%B0%83%E5%BA%A6%E9%94%81%E4%BF%9D%E6%8A%A4">调度锁保护</a></li>
+<li><a href="#%E4%BD%8D%E5%9B%BE%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">位图数据结构</a></li>
+<li><a href="#%E5%A4%9A%E4%BC%98%E5%85%88%E7%BA%A7%E4%BB%BB%E5%8A%A1">多优先级任务</a></li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><strong>双向链表数据结构</strong></a>
+<ul>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E5%AE%9A%E4%B9%89">链表节点的定义</a></li>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96">链表节点的初始化</a></li>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E5%9F%BA%E7%A1%80%E5%8A%9F%E8%83%BD">链表节点的基础功能</a></li>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E6%8F%92%E5%85%A5%E5%88%A0%E9%99%A4">链表节点的插入删除</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E5%BB%B6%E6%97%B6%E9%98%9F%E5%88%97">任务延时队列</a></li>
+<li><a href="#%E5%90%8C%E4%BC%98%E5%85%88%E7%BA%A7%E6%97%B6%E9%97%B4%E7%89%87%E8%BF%90%E8%A1%8C"><strong>同优先级时间片运行</strong></a></li>
+</ul>
+</p>
+<h1 id="临界区保护">临界区保护</h1>
+<pre><code class="language-c">uint32_t tTaskEnterCritical (void) 
+{
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();        // CPSID I
+    return primask;
+}
+void tTaskExitCritical (uint32_t status) {
+    __set_PRIMASK(status);
+}
+</code></pre>
+<p>关于临界区保护问题，最重要的是PRIMASK寄存器，这些是为了保证我们临界区之内的操作是原子操作</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/0.png" alt="" loading="lazy"></figure>
+<p>进入临界区的时候使用tTaskEnterCritical ，它将返回当前的PRIMASK</p>
+<p>退出临界区的时候使用tTaskExitCritical ，传入的参数即tTaskEnterCritical 的返回值，恢复之前的PRIMASK</p>
+<h1 id="调度锁保护">调度锁保护</h1>
+<pre><code class="language-c">void tTaskSchedInit (void)
+{
+    schedLockCount = 0;
+}
+void tTaskSchedDisable (void) 
+{
+    uint32_t status = tTaskEnterCritical();
+    if (schedLockCount &lt; 255) 
+    {
+        schedLockCount++;
+    }
+    tTaskExitCritical(status);
+}
+void tTaskSchedEnable (void) 
+{
+    uint32_t status = tTaskEnterCritical();
+    if (schedLockCount &gt; 0) 
+    {
+        if (--schedLockCount == 0) 
+        {
+            tTaskSched(); 
+        }
+    }
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>调度锁功能</p>
+<ul>
+<li>上锁时，禁止任务进行切换。无论何种情况。例如时间片用完，也不切换任务</li>
+<li>解锁时，允许任务切换</li>
+</ul>
+<p>调度锁在临界区的基础上加入了调度锁计数变量，这里采用的是uint8而不是简单的bool，是因为调度锁之间会有嵌套，如果简单的使用bool，内层函数的调度会过早开启调度；除此以外，使用计数器可以提供更细粒度的调度控制。例如，在执行多个临界操作时，可以多次禁用调度，然后在所有操作完成后再一次性启用调度</p>
+<p>但此代码任然存在bug，必须严格按照调度锁的使用规范——先禁用后允许，直接使用允许也不会开启任务调度</p>
+<h1 id="位图数据结构">位图数据结构</h1>
+<pre><code class="language-c">void tBitmapInit (tBitmap * bitmap) 
+{
+	bitmap-&gt;bitmap = 0;
+}
+uint32_t tBitmapPosCount (void) 
+{
+	return 32;
+}
+void tBitmapSet (tBitmap * bitmap, uint32_t pos)
+{
+	bitmap-&gt;bitmap |= 1 &lt;&lt; pos;
+}
+void tBitmapClear (tBitmap * bitmap, uint32_t pos)
+{
+	bitmap-&gt;bitmap &amp;= ~(1 &lt;&lt; pos);
+}
+uint32_t tBitmapGetFirstSet (tBitmap * bitmap) 
+{
+	static const uint8_t quickFindTable[] =     
+	{
+	    /* 00 */ 0xff, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 10 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 20 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 30 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 40 */ 6,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 50 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 60 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 70 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 80 */ 7,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 90 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* A0 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* B0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* C0 */ 6,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* D0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* E0 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* F0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+	};
+
+	if (bitmap-&gt;bitmap &amp; 0xff)
+    {
+        return quickFindTable[bitmap-&gt;bitmap &amp; 0xff];         
+    }
+    else if (bitmap-&gt;bitmap &amp; 0xff00)
+    {
+        return quickFindTable[(bitmap-&gt;bitmap &gt;&gt; 8) &amp; 0xff] + 8;        
+    }
+    else if (bitmap-&gt;bitmap &amp; 0xff0000)
+    {
+        return quickFindTable[(bitmap-&gt;bitmap &gt;&gt; 16) &amp; 0xff] + 16;        
+    }
+    else if (bitmap-&gt;bitmap &amp; 0xFF000000)
+    {
+        return quickFindTable[(bitmap-&gt;bitmap &gt;&gt; 24) &amp; 0xFF] + 24;
+    }
+    else
+    {
+        return tBitmapPosCount();
+    }
+}
+</code></pre>
+<p>需要重视的是tBitmapGetFirstSet函数，该函数采用的是<strong>查表算法</strong></p>
+<p>表为quickFindTable，每8位作为一个查询段，查到在这个段里面通过计算锁定到表内，最后得到优先级</p>
+<h1 id="多优先级任务">多优先级任务</h1>
+<pre><code class="language-c">tTask * tTaskHighestReady (void) 
+{
+    uint32_t highestPrio = tBitmapGetFirstSet(&amp;taskPrioBitmap);
+    return taskTable[highestPrio];
+}
+void tTaskSched (void) 
+{   
+    tTask * tempTask;
+    uint32_t status = tTaskEnterCritical();
+    // 如何调度器已经被上锁，则不进行调度，直接退
+    if (schedLockCount &gt; 0) 
+    {
+        tTaskExitCritical(status);
+        return;
+    }
+    // 找到优先级最高的任务，如果其优先级比当前任务的还高，那么就切换到这个任务
+    tempTask = tTaskHighestReady();
+    if (tempTask != currentTask) 
+    {
+        nextTask = tempTask;
+        tTaskSwitch();   
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>修改调度算法，我们创建一个taskTable（优先级为0，就存在数组0号位置）数组保存每个任务优先级，以及在任务初始化的时候，在位图上置1；在调度算法中，我们首先需要判断调度锁是否上锁，然后通过tTaskHighestReady（其实是位图中的查表算法找到首先被置1的位），返回值即是task指针，最后判断是否是当前任务，是则不管，否则就切换最高优先级</p>
+<pre><code class="language-c">void tTaskSchedRdy (tTask * task)
+{
+    taskTable[task-&gt;prio] = task;
+    tBitmapSet(&amp;taskPrioBitmap, task-&gt;prio);
+}
+void tTaskSchedUnRdy (tTask * task)
+{
+    taskTable[task-&gt;prio] = (tTask *)0;
+    tBitmapClear(&amp;taskPrioBitmap, task-&gt;prio);
+}
+</code></pre>
+<p>这两个函数分别是设置就绪任务和移除就绪任务的</p>
+<p>大致思路是有一个bitmap，将我们任务优先级那位设置为1就是就绪，否则就是移除</p>
+<p>这里会存在一个问题——一个优先级只能有一个任务</p>
+<h1 id="双向链表数据结构"><strong>双向链表数据结构</strong></h1>
+<pre><code class="language-c">#define tNodeParent(node, parent, name) (parent *)((uint32_t)node - (uint32_t)&amp;((parent *)0)-&gt;name)
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/1.png" alt="" loading="lazy"></figure>
+<p>这个宏tNodeparent的作用是通过结构体中的一个成员变量（node）的地址，来计算出其所在结构体的起始地址。这样就能通过该成员变量，反向获取包含它的父结构体的指针</p>
+<p>这一部分暂时还没使用到</p>
+<h2 id="链表节点的定义">链表节点的定义</h2>
+<pre><code class="language-c">// tinyOS链表的结点类型
+typedef struct _tNode
+{
+	// 该结点的前一个结点
+    struct _tNode * preNode;
+
+    // 该结点的后一个结点
+    struct _tNode * nextNode;
+}tNode;
+// tinyOS链表类型
+typedef struct _tList
+{   
+	// 该链表的头结点
+    tNode headNode;
+
+    // 该链表中所有结点数量
+    uint32_t nodeCount;
+}tList;
+</code></pre>
+<p>初始化比较简单，链表包含两个成员，一个头结点，一个结点数量；而结点包含前结点和后结点</p>
+<p>总体来说大致是如下结构</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/2.png" alt="" loading="lazy"></figure>
+<h2 id="链表节点的初始化">链表节点的初始化</h2>
+<pre><code class="language-c">#define firstNode   headNode.nextNode
+#define lastNode    headNode.preNode
+void tNodeInit (tNode * node)
+{
+    node-&gt;nextNode = node;
+    node-&gt;preNode = node;
+}
+
+void tListInit (tList * list)
+{
+		list-&gt;firstNode = &amp;(list-&gt;headNode);
+    list-&gt;lastNode = &amp;(list-&gt;headNode);
+    list-&gt;nodeCount = 0;
+}
+</code></pre>
+<p>在tNodeInit中，这种初始化是较为合理的，在没有连接到其他结点时，可以被安全地操作</p>
+<p>在tListInit中，初始化方法基本跟tNodeInit类似，将前结点和后结点的指针都指向自己</p>
+<h2 id="链表节点的基础功能">链表节点的基础功能</h2>
+<pre><code class="language-c">uint32_t tListCount (tList * list)
+{
+	return list-&gt;nodeCount;
+}
+tNode * tListFirst (tList * list)
+{
+    tNode * node = (tNode *)0;
+	
+	if (list-&gt;nodeCount != 0) 
+	{
+		node = list-&gt;firstNode;
+	}    
+    return  node;
+}
+tNode * tListLast (tList * list)
+{
+    tNode * node = (tNode *)0;
+	
+	if (list-&gt;nodeCount != 0) 
+	{
+		node = list-&gt;lastNode;
+	}    
+    return  node;
+}
+tNode * tListPre (tList * list, tNode * node)
+{
+	if (node-&gt;preNode == node) 
+	{
+		return (tNode *)0;
+	} 
+	else 
+	{
+		return node-&gt;preNode;
+	}
+}
+tNode * tListNext (tList * list, tNode * node)
+{
+	if (node-&gt;nextNode == node) 
+	{
+		return (tNode *)0;
+	}
+	else 
+	{
+		return node-&gt;nextNode;
+	}
+}
+</code></pre>
+<h2 id="链表节点的插入删除">链表节点的插入删除</h2>
+<pre><code class="language-c">void tListRemoveAll (tList * list)
+{
+    uint32_t count;
+    tNode * nextNode;
+    // 遍历所有的结点
+	  nextNode = list-&gt;firstNode;
+    for (count = list-&gt;nodeCount; count != 0; count-- )
+    {
+    	// 先纪录下当前结点，和下一个结点
+    	// 必须纪录下一结点位置，因为在后面的代码中当前结点的next会被重置
+        tNode * currentNode = nextNode;
+        nextNode = nextNode-&gt;nextNode;
+        // 重置结点自己的信息
+        currentNode-&gt;nextNode = currentNode;
+        currentNode-&gt;preNode = currentNode;
+    }
+    list-&gt;firstNode = &amp;(list-&gt;headNode);
+    list-&gt;lastNode = &amp;(list-&gt;headNode);
+    list-&gt;nodeCount = 0;
+}
+void tListAddFirst (tList * list, tNode * node)
+{
+    node-&gt;preNode = list-&gt;firstNode-&gt;preNode;
+    node-&gt;nextNode = list-&gt;firstNode;
+    list-&gt;firstNode-&gt;preNode = node;
+    list-&gt;firstNode = node;
+    list-&gt;nodeCount++;
+}
+void tListAddLast (tList * list, tNode * node)
+{
+		node-&gt;nextNode = &amp;(list-&gt;headNode);
+    node-&gt;preNode = list-&gt;lastNode;
+    list-&gt;lastNode-&gt;nextNode = node;
+    list-&gt;lastNode = node;
+    list-&gt;nodeCount++;
+}
+tNode * tListRemoveFirst (tList * list)
+{
+    tNode * node = (tNode *)0;
+	if( list-&gt;nodeCount != 0 )
+    {
+        node = list-&gt;firstNode;
+        node-&gt;nextNode-&gt;preNode = &amp;(list-&gt;headNode);
+        list-&gt;firstNode = node-&gt;nextNode;
+        list-&gt;nodeCount--;
+    }
+    return  node;
+}
+void tListInsertAfter (tList * list, tNode * nodeAfter, tNode * nodeToInsert)
+{
+    nodeToInsert-&gt;preNode = nodeAfter;
+    nodeToInsert-&gt;nextNode = nodeAfter-&gt;nextNode;
+    nodeAfter-&gt;nextNode-&gt;preNode = nodeToInsert;
+    nodeAfter-&gt;nextNode = nodeToInsert;
+    list-&gt;nodeCount++;
+}
+void tListRemove (tList * list, tNode * node)
+{
+    node-&gt;preNode-&gt;nextNode = node-&gt;nextNode;
+    node-&gt;nextNode-&gt;preNode = node-&gt;preNode;
+    list-&gt;nodeCount--;
+}
+</code></pre>
+<h1 id="任务延时队列">任务延时队列</h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+ }tTask;
+</code></pre>
+<p>在tTask结构体中新增state和delayNode</p>
+<p>大致思路如下，每个任务的delayNode都加入在延时列表中</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/3.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">void tTimeTaskWait (tTask * task, uint32_t ticks)
+{
+    task-&gt;delayTicks = ticks;
+    tListAddLast(&amp;tTaskDelayedList, &amp;(task-&gt;delayNode)); 
+    task-&gt;state |= TINYOS_TASK_STATE_DELAYED;
+}
+</code></pre>
+<p>增加tTimeTaskWait ，功能是将任务加入延时队列，采用的是尾插法插入列表，这里不需要考虑基于延时时间大小的顺序问题，在下方tTaskSystemTickHandler中会对所有tick减减，优先级问题会在tick减完之后，开启调度的函数中考虑</p>
+<pre><code class="language-c">void tTaskSystemTickHandler () 
+{
+    tNode * node;
+    // 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改
+    uint32_t status = tTaskEnterCritical();
+    // 检查所有任务的delayTicks数，如果不0的话，减1。
+    for (node = tTaskDelayedList.headNode.nextNode; node != &amp;(tTaskDelayedList.headNode); node = node-&gt;nextNode)
+    {
+        tTask * task = tNodeParent(node, tTask, delayNode);
+        if (--task-&gt;delayTicks == 0) 
+        {
+            // 将任务从延时队列中移除
+            tTimeTaskWakeUp(task);
+            // 将任务恢复到就绪状态
+            tTaskSchedRdy(task);            
+        }
+    }
+     // 退出临界区
+    tTaskExitCritical(status); 
+    // 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度。
+    tTaskSched();
+}
+</code></pre>
+<p>在tTaskSystemTickHandler函数中，将遍历tTaskTable改为遍历tTaskDelayedList，也就是延时队列</p>
+<p>这里需要理解深刻的是，在当前版本是有两个数据表的，一个是延时队列，一个是就绪表，前者会将任务从就绪表里面增删，进而影响后者</p>
+<h1 id="同优先级时间片运行"><strong>同优先级时间片运行</strong></h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 连接结点
+    tNode linkNode;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+ }tTask;
+</code></pre>
+<p>在tTask结构体中新增linkNode和slice</p>
+<p>思路大致如下，对于每一个优先级，我们会维护一个列表，这个列表在源码是taskTable数组</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/4.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">tTask *tTaskHighestReady()
+{
+	uint32_t highestPrio = tBitmapGetFirstSet(&amp;taskPrioBitmap);
+	tNode *node = tListFirst(&amp;taskTable[highestPrio]);
+	return (tTask *)tNodeParent(node, tTask, linkNode);
+}
+void tTaskSchedRdy (tTask * task)
+{
+    tListAddLast(&amp;taskTable[task-&gt;prio], &amp;(task-&gt;linkNode));
+    tBitmapSet(&amp;taskPrioBitmap, task-&gt;prio);
+}
+void tTaskSchedUnRdy (tTask * task)
+{
+    tListRemove(&amp;taskTable[task-&gt;prio], &amp;(task-&gt;linkNode));
+    // 队列中可能存在多个任务。只有当没有任务时，才清除位图标记
+    if (tListCount(&amp;taskTable[task-&gt;prio]) == 0)
+    {
+        tBitmapClear(&amp;taskPrioBitmap, task-&gt;prio);
+    }
+}
+void tTaskSystemTickHandler (void)
+{
+    tNode * node;    
+    // 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改
+    uint32_t status = tTaskEnterCritical();    
+    // 检查所有任务的delayTicks数，如果不0的话，减1。
+    for (node = tTaskDelayedList.headNode.nextNode; node != &amp;(tTaskDelayedList.headNode); node = node-&gt;nextNode)
+    {
+        tTask * task = tNodeParent(node, tTask, delayNode);
+        if (--task-&gt;delayTicks == 0) 
+        {
+            // 将任务从延时队列中移除
+            tTimeTaskWakeUp(task);
+            // 将任务恢复到就绪状态
+            tTaskSchedRdy(task);            
+        }
+    }
+    // 检查下当前任务的时间片是否已经到了
+    if (--currentTask-&gt;slice == 0)
+    {
+        // 如果当前任务中还有其它任务的话，那么切换到下一个任务
+        // 方法是将当前任务从队列的头部移除，插入到尾部
+        // 这样后面执行tTaskSched()时就会从头部取出新的任务取出新的任务作为当前任务运行
+        if (tListCount(&amp;taskTable[currentTask-&gt;prio]) &gt; 0)
+        {
+            tListRemoveFirst(&amp;taskTable[currentTask-&gt;prio]);
+            tListAddLast(&amp;taskTable[currentTask-&gt;prio], &amp;(currentTask-&gt;linkNode));
+            // 重置计数器
+            currentTask-&gt;slice = TINYOS_SLICE_MAX;
+        }
+    }
+     // 退出临界区
+    tTaskExitCritical(status); 
+    // 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度
+    tTaskSched();
+}
+</code></pre>
+<p>在tTaskHighestReady中，相比之前的版本，增加了查列表首结点的函数，在我们的任务队列中，采用的是同一优先级，先进入的先出来</p>
+<p>tTaskSchedRdy和tTaskSchedUnRdy，需要注意的是tTaskSchedUnRdy，它需要判断这个优先级里面</p>
+<p>没有任务，才会去清除bitmap</p>
+<p>在tTaskSystemTickHandler 中，新增任务队列增删，但和延时队列有所不同的是，他并不会将他完全删除，而是先删除后添加，添加到队列末尾</p>
+]]></content>
+    </entry>
+</feed>
