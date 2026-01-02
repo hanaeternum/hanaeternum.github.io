@@ -1,0 +1,400 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>基础任务切换 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    基础任务切换
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-24 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#svc%E5%92%8Cpendsv">SVC和PendSV</a>
+<ul>
+<li><a href="#svc">SVC</a></li>
+<li><a href="#pendsv">PendSV</a></li>
+<li><a href="#%E7%8E%B0%E5%9C%BA%E5%AF%84%E5%AD%98%E5%99%A8">现场寄存器</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2">任务切换</a>
+<ul>
+<li><a href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%E5%88%87%E6%8D%A2%E6%96%B9%E6%B3%95">第一种切换方法</a></li>
+<li><a href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E5%88%87%E6%8D%A2%E6%96%B9%E6%B3%95">第二种切换方法</a></li>
+</ul>
+</li>
+<li><a href="#%E7%A9%BA%E9%97%B2%E4%BB%BB%E5%8A%A1%E4%BB%A5%E5%8F%8A%E4%BB%BB%E5%8A%A1%E5%BB%B6%E6%97%B6">空闲任务以及任务延时</a></li>
+</ul>
+</p>
+<h1 id="svc和pendsv">SVC和PendSV</h1>
+<pre><code class="language-c">#define NVIC_INT_CTRL       0xE000ED04      // 中断控制及状态寄存器
+#define NVIC_PENDSVSET      0x10000000      // 触发软件中断的值
+#define NVIC_SYSPRI2        0xE000ED22      // 系统优先级寄存器
+#define NVIC_PENDSV_PRI     0x000000FF      // 配置优先级
+
+#define MEM32(addr)         *(volatile unsigned long *)(addr)
+#define MEM8(addr)          *(volatile unsigned char *)(addr)
+
+void triggerPendSVC (void) 
+{
+    MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;   // 向NVIC_SYSPRI2写NVIC_PENDSV_PRI，设置其为最低优先级
+    MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;    // 向NVIC_INT_CTRL写NVIC_PENDSVSET，用于PendSV
+}
+</code></pre>
+<p>这两个宏定义对单片机作用比较大，用于向某个地址写入一个值</p>
+<p>当调用triggerPendSVC时，会进入PendSV_Handler 中</p>
+<h2 id="svc">SVC</h2>
+<p>SVC（**Supervisor Call，**系统服务调用，称系统调用），用于产生系统函数的调用请求</p>
+<p>作用：</p>
+<ul>
+<li>它使用户程序无需在特权级下执行，用户程序无需承担因误操作而瘫痪整个系统的风险</li>
+<li>通过 SVC 的机制，还让用户程序变得与硬件无关</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%9F%BA%E7%A1%80%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/1.png" alt="" loading="lazy"></figure>
+<p>SVC 异常通过执行”SVC”指令来产生。该指令需要一个立即数，充当系统调用代号。SVC 异常服务例程稍后会提取出此代号，从而获知本次调用的具体要求，再调用相应的服务函数</p>
+<pre><code class="language-c">SVC vs SWI
+对于其他ARM处理器有一个被称为“软件中断”的指令（SWI）。SVC 的地位与 SWI 是相同的——而且连机器码都相同
+因为在 CM3 中，异常处理模型已经“洗心革面”了，就故意把该指令也重命名，以强调它是在新生的系统中使用的
+让程序员在把 ARM7 代码移植到 CM3 时，能充分注意到这个本质的不同（至少必须得改名，每次改名时都得到警示）
+</code></pre>
+<p><strong>不能在SVC服务中嵌套使用SVC</strong>  同优先级的异常不能抢占自身。这种作法会产生一个用法 fault</p>
+<p>在 NMI服务例程中也不得使用 SVC，否则将触发硬 fault</p>
+<h2 id="pendsv">PendSV</h2>
+<p>PendSV （<strong>Pendable Service Call</strong>可挂起的系统调用）的典型使用场合是在上下文切换时（在不同任务之间切换）</p>
+<p>早期的 OS 大多会检测当前是否有中断在活跃中，只有在无任何中断需要响应时，才执行上下文切换（切换期间无法响应中断）。然而，这种方法的弊端在于，它可以把任务切换动作拖延很久（因为如果抢占了 IRQ，则本次 SysTick 在执行后不得作上下文切换，只能等待下次 SysTick 异常），尤其是当某中断源的频率和 SysTick 异常的频率比较接近时，会发生“共振”，使上下文切换迟迟不能进行</p>
+<p>PendSV 异常会自动延迟上下文切换的请求，直到其它的 ISR 都完成了处理后才放行。为实现这个机制，需要把 PendSV 编程为最低优先级的异常，如果 OS 检测到某 IRQ 正在活动并且被 SysTick 抢占，它将悬起一个 PendSV 异常，以便缓期执行上下文切换</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E5%9F%BA%E7%A1%80%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/2.png" alt="" loading="lazy"></figure>
+<h2 id="现场寄存器">现场寄存器</h2>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E5%9F%BA%E7%A1%80%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/3.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">__asm void PendSV_Handler ()
+{
+		//引入了一个外部变量blockPtr
+    IMPORT  blockPtr
+    // 加载寄存器存储地址
+    LDR     R0, =blockPtr//将blockPtr的地址加载到寄存器R0中
+		LDR     R0, [R0]//解引用blockPtr，将blockPtr指向的内存地址加载到R0中
+    LDR     R0, [R0]//进一步解引用R0，将当前任务上下文存储的地址加载到R0中
+    // 保存寄存器
+    STMDB   R0!, {R4-R11}//将寄存器R4到R11的值按降序存储到堆栈中。!会在存储每个寄存器后，R0会递减，确保所有寄存器的值都被保存
+    // 将最后的地址写入到blockPtr中
+    LDR     R1, =blockPtr//将blockPtr的地址加载到寄存器R1中
+    LDR     R1, [R1]//解引用blockPtr，将blockPtr指向的内存地址加载到R1中
+    STR     R0, [R1]//进一步解引用R0，将当前任务上下文存储的地址加载到R1中
+    // 修改部分寄存器，用于测试
+    ADD R4, R4, #1
+    ADD R5, R5, #1
+    // 恢复寄存器
+    LDMIA   R0!, {R4-R11}//按升序从堆栈中加载寄存器R4到R11的值。在每次加载后，R0会递增，确保所有寄存器的值都被恢复
+    // 异常返回
+    BX      LR
+}
+</code></pre>
+<p>如果我们保存现场，并不是所有的寄存器都需要我们手动保存再写入，PendSV 中断会像普通中断一样会帮我们自动保存当退出时，会帮我们自动恢复这些寄存器</p>
+<p>响应异常的第一个行动，就是自动保存现场的必要部分：依次把 xPSR, PC, LR, R12以及 R3‐R0 由硬件自动压入适当的堆栈中。如果当响应异常时，当前的代码正在使用PSP，则压入 PSP，即使用线程堆栈˗否则压入MSP，使用主堆栈。一进入了服务例程，就将一直使用主堆栈</p>
+<h1 id="任务切换">任务切换</h1>
+<h2 id="第一种切换方法">第一种切换方法</h2>
+<pre><code class="language-c">__asm void PendSV_Handler ()
+{   
+    IMPORT  currentTask               // 使用import导入C文件中声明的全局变量
+    IMPORT  nextTask                  // 类似于在C文文件中使用extern int variable
+    
+    MRS     R0, PSP                   // 获取当前任务的堆栈指针
+    CBZ     R0, PendSVHandler_nosave  // if 这是由tTaskSwitch触发的(此时，PSP肯定不会是0了，0的话必定是tTaskRunFirst)触发
+                                      // 不清楚的话，可以先看tTaskRunFirst和tTaskSwitch的实现
+    STMDB   R0!, {R4-R11}             //     那么，我们需要将除异常自动保存的寄存器这外的其它寄存器自动保存起来{R4, R11}
+                                      //     保存的地址是当前任务的PSP堆栈中，这样就完整的保存了必要的CPU寄存器,便于下次恢复
+    LDR     R1, =currentTask          //     保存好后，将最后的堆栈顶位置，保存到currentTask-&gt;stack处    
+    LDR     R1, [R1]                  //     由于stack处在结构体stack处的开始位置处，显然currentTask和stack在内存中的起始
+    STR     R0, [R1]                  //     地址是一样的，这么做不会有任何问题
+
+PendSVHandler_nosave                  // 无论是tTaskSwitch和tTaskSwitch触发的，最后都要从下一个要运行的任务的堆栈中恢复
+                                      // CPU寄存器，然后切换至该任务中运行
+    LDR     R0, =currentTask          // 好了，准备切换了
+    LDR     R1, =nextTask             
+    LDR     R2, [R1]  
+    STR     R2, [R0]                  // 先将currentTask设置为nextTask，也就是下一任务变成了当前任务
+ 
+    LDR     R0, [R2]                  // 然后，从currentTask中加载stack，这样好知道从哪个位置取出CPU寄存器恢复运行
+    LDMIA   R0!, {R4-R11}             // 恢复{R4, R11}。为什么只恢复了这么点，因为其余在退出PendSV时，硬件自动恢复
+
+    MSR     PSP, R0                   // 最后，恢复真正的堆栈指针到PSP  
+    ORR     LR, LR, #0x04             // 标记下返回标记，指明在退出LR时，切换到PSP堆栈中(PendSV使用的是MSP) 
+    BX      LR                        // 最后返回，此时任务就会从堆栈中取出LR值，恢复到上次运行的位置
+}
+</code></pre>
+<p>当运行tTaskRunFirst会直接跳到PendSVHandler_nosave，tTaskRunFirst主要功能是换到第一个要运行的任务，由于是第一个任务，所以不需要保存上下文</p>
+<p><strong>对于PSP，每个任务是不一样的</strong></p>
+<p>当运行tTaskSwitch会依次往下运行，tTaskSwitch主要功能是系统正常运行中的任务切换，相比tTaskRunFirst情况，切换至nextTask时候保存currentTask的现场</p>
+<h2 id="第二种切换方法">第二种切换方法</h2>
+<pre><code class="language-c">__asm void PendSV_Handler (void) { 
+    IMPORT saveAndLoadStackAddr
+    
+    // 切换第一个任务时,由于设置了PSP=MSP，所以下面的STMDB保存会将R4~R11
+    // 保存到系统启动时默认的堆栈中，而不是某个任务
+    MRS     R0, PSP                 
+    STMDB   R0!, {R4-R11}               // 将R4~R11保存到当前任务栈，也就是PSP指向的堆栈
+    BL      saveAndLoadStackAddr        // 调用函数：参数通过R0传递，返回值也通过R0传递 
+    LDMIA   R0!, {R4-R11}               // 从下一任务的堆栈中，恢复R4~R11
+    MSR     PSP, R0
+    
+    MOV     LR, #0xFFFFFFFD             // 指明返回异常时使用PSP。注意，这时LR不是程序返回地址
+    BX      LR
+}
+
+uint32_t saveAndLoadStackAddr (uint32_t stackAddr) {
+    if (currentTask != (tTask *)0) {                    // 第一次切换时，当前任务为0
+        currentTask-&gt;stack = (uint32_t *)stackAddr;     // 所以不会保存
+    }
+    currentTask = nextTask;                     
+    return (uint32_t)currentTask-&gt;stack;                // 取下一任务堆栈地址
+}
+</code></pre>
+<p>对于saveAndLoadStackAddr参数传递，通常遵循<strong>AAPCS (ARM Architecture Procedure Call Standard)</strong> 调用约定</p>
+<ul>
+<li><strong>前四个参数通过寄存器传递</strong>：具体来说，前四个参数依次使用寄存器R0、R1、R2和R3来传递。如果有更多的参数，它们会被压入堆栈传递</li>
+<li><strong>返回值通过寄存器</strong>R0<strong>传递</strong>：函数的返回值通常会存储在R0中</li>
+</ul>
+<pre><code class="language-c">void tTaskInit (tTask * task, void (*entry)(void *), void *param, uint32_t * stack)
+{
+    // 为了简化代码，tinyOS无论是在启动时切换至第一个任务，还是在运行过程中在不同间任务切换
+    // 所执行的操作都是先保存当前任务的运行环境参数（CPU寄存器值）的堆栈中(如果已经运行运行起来的话)，然后再
+    // 取出从下一个任务的堆栈中取出之前的运行环境参数，然后恢复到CPU寄存器
+    // 对于切换至之前从没有运行过的任务，我们为它配置一个“虚假的”保存现场，然后使用该现场恢复。
+
+    // 注意以下两点：
+    // 1、不需要用到的寄存器，直接填了寄存器号，方便在IDE调试时查看效果；
+    // 2、顺序不能变，要结合PendSV_Handler以及CPU对异常的处理流程来理解
+    *(--stack) = (unsigned long)(1&lt;&lt;24);                // XPSR, 设置了Thumb模式，恢复到Thumb状态而非ARM状态运行
+    *(--stack) = (unsigned long)entry;                  // 程序的入口地址
+    *(--stack) = (unsigned long)0x14;                   // R14(LR), 任务不会通过return xxx结束自己，所以未用
+    *(--stack) = (unsigned long)0x12;                   // R12, 未用
+    *(--stack) = (unsigned long)0x3;                    // R3, 未用
+    *(--stack) = (unsigned long)0x2;                    // R2, 未用
+    *(--stack) = (unsigned long)0x1;                    // R1, 未用
+    *(--stack) = (unsigned long)param;                  // R0 = param, 传给任务的入口函数
+    *(--stack) = (unsigned long)0x11;                   // R11, 未用
+    *(--stack) = (unsigned long)0x10;                   // R10, 未用
+    *(--stack) = (unsigned long)0x9;                    // R9, 未用
+    *(--stack) = (unsigned long)0x8;                    // R8, 未用
+    *(--stack) = (unsigned long)0x7;                    // R7, 未用
+    *(--stack) = (unsigned long)0x6;                    // R6, 未用
+    *(--stack) = (unsigned long)0x5;                    // R5, 未用
+    *(--stack) = (unsigned long)0x4;                    // R4, 未用
+
+    task-&gt;stack = stack;                                // 保存最终的值
+}
+</code></pre>
+<p>目前这一段的功能是初始化任务的现场状态，保证第一个执行的任务有能弹回的现场</p>
+<p>需要注意的是</p>
+<ul>
+<li>entry压入的是PC，也就是程序计数器</li>
+<li>Cortex-M 系列处理器仅支持 Thumb 指令集，而不支持传统的 ARM 指令集。这意味着所有代码都必须以 Thumb 模式运行</li>
+</ul>
+<h1 id="空闲任务以及任务延时">空闲任务以及任务延时</h1>
+<pre><code class="language-c">   // 空闲任务只有在所有其它任务都不是延时状态时才执行
+   // 所以，我们先检查下当前任务是否是空闲任务
+    if (currentTask == idleTask) 
+    {
+        // 如果是的话，那么去执行task1或者task2中的任意一个
+        // 当然，如果某个任务还在延时状态，那么就不应该切换到他。
+        // 如果所有任务都在延时，那么就继续运行空闲任务，不进行任何切换了
+        if (taskTable[0]-&gt;delayTicks == 0) 
+        {
+            nextTask = taskTable[0];
+        }           
+        else if (taskTable[1]-&gt;delayTicks == 0) 
+        {
+            nextTask = taskTable[1];
+        } else 
+        {
+            return;
+        }
+    } 
+    else 
+    {
+        // 如果是task1或者task2的话，检查下另外一个任务
+        // 如果另外的任务不在延时中，就切换到该任务
+        // 否则，判断下当前任务是否应该进入延时状态，如果是的话，就切换到空闲任务。否则就不进行任何切换
+        if (currentTask == taskTable[0]) 
+        {
+            if (taskTable[1]-&gt;delayTicks == 0) 
+            {
+                nextTask = taskTable[1];
+            }
+            else if (currentTask-&gt;delayTicks != 0) 
+            {
+                nextTask = idleTask;
+            } 
+            else 
+            {
+                return;
+            }
+        }
+        else if (currentTask == taskTable[1]) 
+        {
+            if (taskTable[0]-&gt;delayTicks == 0) 
+            {
+                nextTask = taskTable[0];
+            }
+            else if (currentTask-&gt;delayTicks != 0) 
+            {
+                nextTask = idleTask;
+            }
+            else 
+            {
+                return;
+            }
+        }
+    }
+    tTaskSwitch();
+</code></pre>
+<p>空闲任务需要在所有其它任务都不是延时状态时才执行，所以会在进入SystemTickHandler（我把systick当操作系统的中断源）先判断当前任务是否为空闲中断；如果是，那么确定其他任务的延时，在延时那么就切换，否则保持；如果不是，那么判断其他任务是否延时，没有延时就切换，否则再次判断当前任务是否延时，有延时则切换空闲，否则保持当前任务的使用</p>
+<p>SystemTickHandler主要负责任务延时减减以及上述处理</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

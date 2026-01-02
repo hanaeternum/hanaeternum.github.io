@@ -1,0 +1,512 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>高质量编程指南V1.0阅读笔记 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    高质量编程指南V1.0阅读笔记
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-12-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84">文件结构</a>
+<ul>
+<li><a href="#%E5%A3%B0%E6%98%8E%E6%96%87%E4%BB%B6">声明文件</a></li>
+<li><a href="#%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6">定义文件</a></li>
+</ul>
+</li>
+<li><a href="#%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99">命名规则</a></li>
+<li><a href="#%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E8%AF%AD%E5%8F%A5">表达式和基本语句</a>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E5%8F%A5">基本语句</a></li>
+<li><a href="#if%E8%AF%AD%E5%8F%A5">if语句</a></li>
+<li><a href="#for%E5%BE%AA%E7%8E%AF%E5%92%8Cswitch%E8%AF%AD%E5%8F%A5">for循环和switch语句</a>
+<ul>
+<li><a href="#for%E5%BE%AA%E7%8E%AF">for循环</a></li>
+<li><a href="#switch%E8%AF%AD%E5%8F%A5">switch语句</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1">函数设计</a>
+<ul>
+<li><a href="#%E5%8F%82%E6%95%B0">参数</a></li>
+<li><a href="#%E5%86%85%E9%83%A8">内部</a></li>
+<li><a href="#%E5%85%B6%E4%BB%96%E5%BB%BA%E8%AE%AE">其他建议</a></li>
+<li><a href="#%E6%96%AD%E8%A8%80">断言</a></li>
+</ul>
+</li>
+<li><a href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86">内存管理</a>
+<ul>
+<li><a href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%86%85%E5%AD%98%E9%94%99%E8%AF%AF%E5%8F%8A%E5%85%B6%E5%AF%B9%E7%AD%96">常见的内存错误及其对策</a></li>
+<li><a href="#%E6%8C%87%E9%92%88%E4%B8%8E%E6%95%B0%E7%BB%84%E7%9A%84%E5%AF%B9%E6%AF%94">指针与数组的对比</a></li>
+<li><a href="#%E6%8C%87%E9%92%88%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E5%86%85%E5%AD%98">指针参数传递内存</a></li>
+<li><a href="#%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E7%9A%84%E9%87%8A%E6%94%BE">动态内存的释放</a>
+<ul>
+<li><a href="#free%E9%87%8A%E6%94%BE">free释放</a></li>
+<li><a href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E9%87%8A%E6%94%BE">局部变量释放</a></li>
+</ul>
+</li>
+<li><a href="#mallocfree%E4%BD%BF%E7%94%A8">malloc/free使用</a>
+<ul>
+<li><a href="#malloc">malloc</a></li>
+<li><a href="#free">free</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+<p>这本书是林锐老师写的，第一版篇幅比较短，算是我第一个认真阅读的专业性比较强的电子书，内容是讲述一些代码规范以及错误</p>
+<h1 id="文件结构">文件结构</h1>
+<br />
+<h2 id="声明文件">声明文件</h2>
+<p>声明文件由三部分组成：</p>
+<ul>
+<li>版权声明和函数功能说明</li>
+<li>预处理块</li>
+<li>函数和类结构声明（只存放声明，不存放定义）</li>
+</ul>
+<pre><code class="language-c">/*
+ * Copyright (C) 2024 EternalChip Co.£¬Ltd. or its affiliates.
+ *
+ * All Rights Reserved.
+ *
+ * File name: xxxx.h
+ *
+ *  @addtogroup  
+ *  @brief       
+ *
+ *  @{
+ *      @file       xxxx.h
+ *      @brief      
+ *      @details    
+ *
+ */
+#ifndef XXXX_H // 防止 xxxx.h 被重复引用
+#define XXXX_H 
+#include &lt;math.h&gt;
+
+#include &quot;myheader.h&quot; // 引用非标准库的头文件
+
+void Function1( ⋯ ); // 全局函数声明
+
+class Box // 类结构声明
+{
+    ...
+};
+#endif
+</code></pre>
+<p>在#include的时候是有讲究的，标准库使用&lt;&gt;（编译器从标准库目录开始搜索），非标准库使用””（编译器从用户的工作目录开始搜索）</p>
+<p>除此以外，尽量不要在头文件出现extern int x;第一是违背了声明文件的初衷，定义应该出现在源文件或定义文件中；第二是污染命名空间和降低代码可读性</p>
+<h2 id="定义文件">定义文件</h2>
+<p>定义文件由三部分组成：</p>
+<ul>
+<li>版权声明和函数功能说明</li>
+<li>头文件引用：分为三个部分，第一个部分是编译器库，例如stdio，string；第二部分是系统库，例如freertos，rtthread；第三部分是自定义库</li>
+<li>程序的实现体</li>
+</ul>
+<pre><code class="language-c">/*
+ * Copyright (C) 2024 EternalChip Co.£¬Ltd. or its affiliates.
+ *
+ * All Rights Reserved.
+ *
+ * File name: xxxx.h
+ *
+ *  @addtogroup
+ *  @brief
+ *
+ *  @{
+ *      @file       xxxx.c
+ *      @brief
+ *      @details
+ *
+ */
+#include &quot;graphics.h&quot; // 引用头文件
+
+int test = 0;
+
+void Function1() // 函数的实现体
+{
+    ⋯ ⋯
+}
+</code></pre>
+<p>代码的占用尽量是1/3-1/2个屏幕，方便他人查看阅读</p>
+<p>实现的时候，如果有for/switch/while这种大型循环的时候，可以在循环体的结尾补一个end of xxx</p>
+<p>打印的时候，出现多变量，按行打印</p>
+<pre><code class="language-c">printf(&quot;1.%d&quot;
+	   &quot;2.%d&quot;
+		,1
+		,2)
+</code></pre>
+<h1 id="命名规则">命名规则</h1>
+<p>命名规则按照windows和linux分类，主要区别是windows大多用的驼峰式，也就是大小写混合，linux用的是小写+_组合，这本书只讲述了windows命名</p>
+<p>1.命名不要出现仅靠大小写区分的相似的标识符，例如x和X，大写i和小写L等</p>
+<p>2.全局函数的名字应当使用“动词”或者“动词＋名词”；类或结构体的成员函数应当只使用“动词”，被省略掉的名词就是对象本身</p>
+<p>3.根据类型不同，命名结构不同</p>
+<ul>
+<li>类名和函数名用大写字母开头的单词组合而成</li>
+<li>变量和参数用小写字母开头的单词组合而成</li>
+<li>常量全用大写的字母，用下划线分割单词</li>
+<li>静态变量加前缀 s_</li>
+<li>如果不得已需要全局变量，则使全局变量加前缀 g_</li>
+<li>类或结构体的数据成员加前缀 m_ ，这样可以避免数据成员与成员函数的参数同名</li>
+<li>防止某一软件库中的一些标识符和其它软件库中的冲突，可以为各种标识符加上能反映软件性质的前缀；例如三维图形标准 OpenGL 的所有库函数均以的所有库函数均以 gl 开头，所有常量（或宏定义）均以 GL 开头</li>
+</ul>
+<h1 id="表达式和基本语句">表达式和基本语句</h1>
+<br />
+<h2 id="基本语句">基本语句</h2>
+<p>1.需要对外公开的常量放在头文件中，不需要对外公开的常量放在定义文件的头部</p>
+<p>2.运算符过多的时候，尽量使用括号括起来，避免使用默认优先级</p>
+<p>3.不要编写太复杂和多用途的表达式，例如d = (a = b+c)+r ;或i = a &gt;= b &amp;&amp; c &lt; d &amp;&amp; c+f &lt;= g+h ;</p>
+<h2 id="if语句">if语句</h2>
+<p>1.不可将布尔变量直接与 TRUE 、FALSE 或者 1 、0 进行比较；因为不同编译器标准不同，例如 Visual C++ 将 将 TRUE 定义为1 ，而 Visual Basic 则将 TRUE 定义为-1</p>
+<p>2.不同类型if语句编写不同</p>
+<ul>
+<li>整型直接与目标值比较：if (value == 0)</li>
+<li>布尔型无需参考值：if(!bool)</li>
+<li>浮点数由于有精度限制，所以不能使用==或!=：if ((x&gt;=-EPSINON) &amp;&amp; (x&lt;=EPSINON))，EPSINON是允许的误差</li>
+<li>指针类型是与NULL比较：if (value == NULL)</li>
+</ul>
+<p>补充：判断语句中，表达式写为 0  != XXX或0 == XXX，方便判断是否误写为赋值语句=</p>
+<h2 id="for循环和switch语句">for循环和switch语句</h2>
+<br />
+<h3 id="for循环">for循环</h3>
+<p>1.在多重循环中，如果有可能，应当将最长的循环放在最内层，最短的循环放在最外层，以减少CPU跨切循环层的次数</p>
+<p>2.for循环变量按半闭半开区间写法，这样方便确定循环次数，例如：for(i = 0; i &lt; N; i++)，次数为N</p>
+<p>3.如果循环体内存在逻辑判断，并且循环次数很大，宜将逻辑判断移到循环体的外面，具体情况按循环次数分</p>
+<pre><code class="language-c">for (i=0; i&lt;N; i++)//循环次数较少
+{
+	if (condition)
+	{
+		DoSomething();
+	}
+	else
+	{
+		DoOtherthing();
+	}
+}
+
+if (condition)//循环次数较多
+{
+	for (i=0; i&lt;N; i++)
+	{
+		DoSomething();
+	}
+}
+else
+{
+	for (i=0; i&lt;N; i++)
+	{
+		DoOtherthing();
+	}
+}
+</code></pre>
+<h3 id="switch语句">switch语句</h3>
+<p>1.每个 e case 语句的结尾不要忘了加 break，否则将导致多个分支重叠</p>
+<p>2.不要忘记最后那个 t default 分支。即使程序真的不需要 default 处理，也应该保留语句default</p>
+<h1 id="函数设计">函数设计</h1>
+<br />
+<h2 id="参数">参数</h2>
+<p>1.参数传入顺序要合理，一般地，应将目的参数放在前面，源参数放在后面</p>
+<p>2.如果参数是指针，且仅作输入用，则应在类型前加 const，以防止该指针在函数体内被意外修改</p>
+<p>3.如果输入参数以值传递的方式传递对象，则宜改用“const &amp;”方式来传递</p>
+<h2 id="内部">内部</h2>
+<p>1.在函数体的“入口处”，对参数的有效性进行检查</p>
+<p>2.在函数体的“出口处”，对 return 语句的正确性和效率进行检查</p>
+<h2 id="其他建议">其他建议</h2>
+<p>1.函数的功能要单一，不要设计多用途的函数</p>
+<p>2.函数体的规模要小，尽量控制在 50 行代码之内</p>
+<p>3.尽量避免函数带有“记忆”功能</p>
+<p>4.不仅要检查输入参数的有效性，还要检查通过其它途径进入函数体内的变量的有效性，例如全局变量、文件句柄等</p>
+<p>5.用于出错处理的返回值一定要清楚</p>
+<h2 id="断言">断言</h2>
+<p>断言assert是需要#include &lt;assert.h&gt;，用法是assert(x)，如果x为0或不合法，那么会终止程序，如果去#define NDEBUG，断言则会失效</p>
+<p>用断言捕捉不应该发生的非法情况。不要混淆非法情况与错误情况之间的区别，后者是必然存在的并且是一定要作出处理的；一般教科书都鼓励程序员们进行防错设计，但要记住这种编程风格可能会隐瞒错误。当进行防错设计时，如果“不可能发生”的事情的确发生了，则要使用断言进行报警</p>
+<h1 id="内存管理">内存管理</h1>
+<br />
+<h2 id="常见的内存错误及其对策">常见的内存错误及其对策</h2>
+<p>内存分配方式有三种</p>
+<ul>
+<li>从<strong>静态存储区域</strong>分配。内存在程序编译的时候就已经分配好，这块内存在程序的整个运行期间都存在。例如全局变量，static 变量</li>
+<li>在<strong>栈</strong>上创建。在执行函数时，函数内局部变量的存储单元都可以在栈上创建，函数执行结束时这些存储单元自动被释放。栈内存分配运算内置于处理器的指令集中，效率很高，但是分配的内存容量有限</li>
+<li>从<strong>堆</strong>上分配，亦称<strong>动态内存分配</strong>。程序在运行的时候用 malloc 或 或 new 申请任意多少的内存，程序员自己负责在何时用申请任意多少的内存，程序员自己负责在何时用 free 或 或 delete 释放内存。动态内存的生存期由我们决定，使用非常灵活，但问题也最多</li>
+</ul>
+<p>1.内存分配未成功，却使用了它；解决办法是在使用内存之前检查指针是否为NULL</p>
+<p>2.内存分配虽然成功，但是尚未初始化就引用它</p>
+<p>3.内存分配成功并且已经初始化，但操作越过了内存的边界，例如指向局部变量，以及循环中数组误操作</p>
+<p>4.忘记了释放内存，造成内存泄露</p>
+<p>5.释放了内存却继续使用它</p>
+<h2 id="指针与数组的对比">指针与数组的对比</h2>
+<p>数组要么在静态存储区被创建（如全局数组），要么在栈上被创建。数组名对应着（而不是指向）一块内存，其地址与容量在生命期内保持不变，只有数组的内容可以改变</p>
+<p>指针可以随时指向任意类型的内存块，它的特征是“可变”，所以我们常用指针来操作动态内存；指针远比数组灵活，但也更危险</p>
+<p>主要区别分为三个</p>
+<p>一个是修改；</p>
+<pre><code class="language-c">    char a[] = &quot;hello&quot;;
+    a[0] = 'X';
+    char* p = &quot;world&quot;;
+    printf(&quot;%s&quot;, p);
+    char* p = &quot;world&quot;;//p指向的是常量字符串
+    p[0] = 'X'; 
+    printf(&quot;%s&quot;, p);
+</code></pre>
+<p>二是复制；指针可以使用=赋值，而数组得使用库函数string中函数赋值</p>
+<p>三是计算内存容量；指针始终与位数有关，32位就是32/8=4字节，数组是按个数*字节数计算的；除此以外，数组在函数会出现数组退化指针</p>
+<h2 id="指针参数传递内存">指针参数传递内存</h2>
+<p>如果函数的参数是一个指针，不要指望用该指针去申请动态内存</p>
+<p>错误示例：</p>
+<pre><code class="language-c">void Test(void)
+{
+    char* str = NULL;
+    GetMemory(str, 100);
+    strcpy(str, &quot;hello&quot;);
+}
+
+void GetMemory(char* p, int num)//str依旧是NULL
+{
+    p = (char*)malloc(sizeof(char) * num);
+}
+</code></pre>
+<p>正确示例：</p>
+<pre><code class="language-c">void Test(void)
+{
+    char* str = NULL;
+    GetMemory(&amp;str, 100);//参数是&amp;str
+    strcpy(str, &quot;hello&quot;);
+}
+
+void GetMemory2(char** p, int num)
+{
+    *p = (char*)malloc(sizeof(char) * num);
+}
+</code></pre>
+<p>毛病出在函数 y GetMemory 中。编译器总是要为函数的每个参数制作临时副本，指针参数p 的副本是 _p ，编译器使 _p = p 。如果函数体内的程序修改了 _p 的内容，就导致参数 p 的内容作相应的修改。这就是指针可以用作输出参数的原因。在本例中， _p 申请了新的内存，只是把p _p 所指的内存地址改变了，但是 p 丝毫未变</p>
+<p>除此以外还有通过返回值来传递动态内存的</p>
+<p>错误示例：</p>
+<pre><code class="language-c">void Test3(void)
+{
+    char* str = NULL;
+    str = GetString();
+    free(str);
+}
+
+char* GetString(void)
+{
+    char p[] = &quot;hello world&quot;;
+    return p; 
+}
+</code></pre>
+<p>正确示例：</p>
+<pre><code class="language-c">void Test4(void)
+{
+    char* str = NULL;
+    str = GetMemory3(100);
+    strcpy(str, &quot;hello&quot;);
+    free(str);
+}
+
+char* GetMemory3(int num)
+{
+    char* p = (char*)malloc(sizeof(char) * num);
+    return p;
+}
+</code></pre>
+<p>Test3错误的原因是return 语句返回指向“栈内存”的指针，因为该内存在函数结束时自动消亡</p>
+<p>另外，还有一种容易混淆的但不会保错的示例</p>
+<pre><code class="language-c">void Test5(void)
+{
+    char* str = NULL;
+    str = GetString();
+    free(str);
+}
+
+char* GetString(void)
+{
+    char *p = &quot;hello world&quot;;
+    return p; 
+}
+</code></pre>
+<p>这个运行虽然不会报错，但是p指向的常量，位于静态存储区，生命周期不变，返回的只能是hello world</p>
+<h2 id="动态内存的释放">动态内存的释放</h2>
+<br />
+<h3 id="free释放">free释放</h3>
+<p>free只是把指针所指的内存给释放掉，但并没有把指针本身干掉</p>
+<p>p被 free 以后其地址仍然不变（非 NULL），只是该地址对应的内存是垃圾，p 成了“野指针”。如果此时不把 p 设置为 NULL，会让人误以为 p 是个合法的指针</p>
+<pre><code class="language-c">char *p = (char *) malloc(100);
+strcpy(p, “ hello”);
+free(p); // p 所指的内存被释放，但是 p 所指的地址仍然不变
+if(p != NULL) // 没有起到防错作用
+{
+	strcpy(p, “ world” ); // 出错
+}
+</code></pre>
+<h3 id="局部变量释放">局部变量释放</h3>
+<p>局部变量的指针变量消亡了，并不表示它所指的内存会被自动释放；内存被释放了，并不表示指针会消亡或者成了 NULL 指针</p>
+<h2 id="mallocfree使用">malloc/free使用</h2>
+<br />
+<h3 id="malloc">malloc</h3>
+<p>malloc原型：void * malloc(size_t size);→示例：int *p = (int *) malloc(sizeof(int) * length);</p>
+<ul>
+<li>malloc 返回值的类型是 void * ，所以在调用malloc 时要显式地进行类型转换，将void * 转换成所需要的指针类型</li>
+<li>malloc 函数本身并不识别要申请的内存是什么类型，它只关心内存的总字节数。我们通常记不住 int, float 等数据类型的变量的确切字节数，使用的是关键字sizeof</li>
+</ul>
+<h3 id="free">free</h3>
+<p>free原型：void free( void * memblock );</p>
+<p>为什么free 函数不象 c malloc 函数那样复杂呢？这是因为指针 p p 的类型以及它所指的内存的容量事先都是知道的，语句 free(p) 能正确地释放内存</p>
+<p>如果p是NULL 指针，那么 free对p 无论操作多少次都不会出问题；如果p不是NULL指针，那么free 对 对p连续操作两次就会出现错误</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://hanaeternum.github.io/post/zhan-he-dui-lie/" class="post-title gt-a-link">
+                    栈和队列
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

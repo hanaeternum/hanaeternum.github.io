@@ -1,0 +1,1221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://hanaeternum.github.io</id>
+    <title>Han&apos;s 大吴疆土</title>
+    <updated>2026-01-02T07:41:12.952Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://hanaeternum.github.io"/>
+    <link rel="self" href="https://hanaeternum.github.io/atom.xml"/>
+    <subtitle>为颜如玉，为黄金屋，为名满天下，为功利千秋</subtitle>
+    <logo>https://hanaeternum.github.io/images/avatar.png</logo>
+    <icon>https://hanaeternum.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2026, Han&apos;s 大吴疆土</rights>
+    <entry>
+        <title type="html"><![CDATA[嵌入式操作系统]]></title>
+        <id>https://hanaeternum.github.io/post/qian-ru-shi-cao-zuo-xi-tong/</id>
+        <link href="https://hanaeternum.github.io/post/qian-ru-shi-cao-zuo-xi-tong/">
+        </link>
+        <updated>2026-01-02T06:46:36.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="/post/ji-chu-ren-wu-qie-huan/">基础任务切换</a><br>
+<a href="/post/nei-he-he-xin/">内核核心</a><br>
+<a href="/post/ren-wu-guan-li/">任务管理</a><br>
+<a href="/post/shi-jian-kong-zhi-kuai/">事件控制块</a><br>
+<a href="/post/ji-shu-xin-hao-liang/">计数信号量</a><br>
+<a href="/post/you-xiang/">邮箱</a><br>
+<a href="/post/cun-chu-kuai/">存储块</a><br>
+<a href="/post/shi-jian-biao-zhi-zu/">事件标志组</a><br>
+<a href="/post/hu-chi-xin-hao-liang/">互斥信号量</a><br>
+<a href="/post/ruan-jian-ding-shi-qi/">软件定时器</a><br>
+<a href="/post/xing-neng-ce-liang/">性能测量</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CMake]]></title>
+        <id>https://hanaeternum.github.io/post/cmake/</id>
+        <link href="https://hanaeternum.github.io/post/cmake/">
+        </link>
+        <updated>2025-06-20T11:24:42.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AFcmake">什么是CMake</a></li>
+<li><a href="#cmake%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B">CMake工作流程</a></li>
+<li><a href="#cmake%E7%A4%BA%E4%BE%8Bvscode">CMake示例(vscode)</a>
+<ul>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">准备工作</a></li>
+<li><a href="#c%E8%AF%AD%E8%A8%80">C语言</a></li>
+<li><a href="#cubemxstm32">Cubemx+STM32</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="什么是cmake">什么是CMake</h1>
+<p>CMake是一个开源、跨平台的工具系列，是用来构建、测试和打包软件</p>
+<p>CMake使用平台无关的配置文件来控制软件编译过程，并生成可在您选择的编译器环境中使用项目文件，比如可以生成vs项目文件或者makefile</p>
+<p>有如下优势：</p>
+<p>1.CMake 是一个平台无关的构建系统，可以生成适用于不同平台的原生构建文件，也就是一次编写 CMakeLists.txt，可在多平台上使用</p>
+<p>2.CMake 可以生成不同的构建系统配置文件，包括：</p>
+<ul>
+<li>Makefiles（默认）</li>
+<li>Ninja（更快的构建工具）</li>
+<li>Visual Studio 工程文件</li>
+<li>Xcode 工程文件</li>
+</ul>
+<p>3.CMake 支持模块化构建，可以把项目拆成多个子模块，并通过 add_subdirectory() 管理，同时支持大量模块和第三方扩展</p>
+<ul>
+<li>查找系统库（<code>find_package(OpenGL REQUIRED)</code>）</li>
+<li>自定义宏（<code>macro()</code> / <code>function()</code>）</li>
+<li>导出/导入目标（<code>install()</code>, <code>export()</code>）</li>
+</ul>
+<h1 id="cmake工作流程">CMake工作流程</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/CMake/0.jpg" alt="" loading="lazy"></figure>
+<p>对于本人来说，使用到的构建工具一般是ninja和makefile(嵌入式居多)</p>
+<h1 id="cmake示例vscode">CMake示例(vscode)</h1>
+<br />
+<h2 id="准备工作">准备工作</h2>
+<p><a href="https://cmake.org/download/">CMake下载</a></p>
+<p><a href="https://github.com/ninja-build/ninja/releases/v1.12.1">Ninja下载</a></p>
+<p><a href="https://sourceforge.net/projects/mingw-w64/files/">MinGW下载</a></p>
+<p><a href="https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads">ARMGCC下载</a></p>
+<p>将如上下载好然后创建好环境变量即可，如果觉得麻烦可以试试msys2，这里不过多赘述</p>
+<h2 id="c语言">C语言</h2>
+<p>创建好main.c和CMakelists.txt</p>
+<pre><code>cmake_minimum_required(VERSION 4.0.2)#最低版本
+project(my_hello C) #指定工程名和语言
+
+set(CMAKE_C_STANDARD 99) 
+
+#include_directories(${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin) #设置输出文件路径
+message(STATUS &quot;Collected C source files: ${PROJECT_SOURCE_DIR}&quot;)#打印输出
+
+aux_source_directory(${PROJECT_SOURCE_DIR} SRC_LIST) #自动(不会递归)在收集所有.c文件，并保存到SRC_LIST变量
+message(STATUS &quot;Collected C source files: ${SRC_LIST}&quot;)
+
+add_executable(my_hello ${SRC_LIST})#生成一个可执行文件
+
+</code></pre>
+<p>然后在vscode中选择相应的编译器(这里我之前踩了一个坑：当你修改了路径或者重新装一个新的编译器的时候，需要在红框里面重新扫描，不然出现不了)</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/CMake/image.png" alt="" loading="lazy"></figure>
+<p>然后点击生成即可，生成之后build目录出现makefile，make一下即可</p>
+<h2 id="cubemxstm32">Cubemx+STM32</h2>
+<p>Cubemx需要准备高版本的，不然不能输出CMake版本</p>
+<p>成功后，直接生成就可以运行了</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/CMake/image1.png" alt="" loading="lazy"></figure>
+<p>这里vscode由于没有配置json的原因会显示报错，但不用管(报错请关注终端)</p>
+<p>如果需要把这个报错去掉的话：</p>
+<p>1.找到一个.c或.h文件，点击右下角，选择json</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/CMake/image2.png" alt="" loading="lazy"></figure>
+<p>2.点击cmake\stm32cubemx\CMakelists.txt，将下图的编译时的宏定义，复制到c_cpp_properties.json的define中</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/CMake/image3.png" alt="" loading="lazy"></figure>
+<p>3.在.vscode\c_cpp_properties.json，添加compilerPath(这里不太规范应该使用arm-gcc)</p>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/CMake/image4.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[嵌入式XIP]]></title>
+        <id>https://hanaeternum.github.io/post/qian-ru-shi-xip/</id>
+        <link href="https://hanaeternum.github.io/post/qian-ru-shi-xip/">
+        </link>
+        <updated>2025-06-13T12:46:13.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#xip%E6%A6%82%E5%BF%B5">XIP概念</a></li>
+<li><a href="#%E7%B3%BB%E7%BB%9F%E4%B8%8A%E7%94%B5%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B">系统上电启动流程</a></li>
+<li><a href="#%E5%8A%A0%E8%BD%BD%E5%9C%B0%E5%9D%80%E5%92%8C%E6%89%A7%E8%A1%8C%E5%9C%B0%E5%9D%80">加载地址和执行地址</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0xip">实现XIP</a></li>
+</ul>
+</p>
+<h1 id="xip概念">XIP概念</h1>
+<p>XIP (eXecute In Place)，中文常译为 “原地执行” 或 “就地执行”。它指的是 CPU 能够直接从存储代码的非易失性存储器（通常是 Flash 存储器，如 NOR Flash---为什么是NOR Flash，而不是NAND Flash，NOR Flash 支持随机访问，读写速度快，特别适合直接执行代码。而 NAND Flash 更适合大容量存储，随机访问能力差）中读取指令并执行，而无需事先将代码复制到 RAM中</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%B5%8C%E5%85%A5%E5%BC%8FXIP/0.png" alt="" loading="lazy"></figure>
+<h1 id="系统上电启动流程">系统上电启动流程</h1>
+<p>系统上电会对RAM初始化，初始化的目的是1.初始化堆栈以及存储变量，2.初始化内存控制器，3.设置栈指针SP，4.把主程序从 Flash 搬到 RAM(这一步可以省略，如果省略就是XIP执行，XIP 跑程序虽然比 RAM 慢点，但好处是省钱。很多嵌入式应用，比如智能电表、工业传感器，性能要求不高，但对成本敏感，XIP 就派上用场了)；这部分大多使用汇编(一是C语言依赖栈来存储变量，二是汇编执行效率高)，例如keil或IAR自带的启动文件startup.s</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E5%B5%8C%E5%85%A5%E5%BC%8FXIP/1.png" alt="" loading="lazy"></figure>
+<h1 id="加载地址和执行地址">加载地址和执行地址</h1>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E5%B5%8C%E5%85%A5%E5%BC%8FXIP/2.png" alt="" loading="lazy"></figure>
+<p>1.对于 XIP 代码，加载地址和执行地址是一样的，存在 Flash 里，跑也在 Flash 里<br>
+2.而非 XIP 代码，加载地址在 Flash，执行地址在 SRAM，得靠启动代码或者链接器脚本搬过去<br>
+3.XIP 部分的代码直接在 Flash 里跑，地址不变；而非 XIP 部分，比如某个关键函数，可能被搬到SRAM 里跑，以提高速度<br>
+假设你写了个 C 函数，特别关键，要求执行速度快。你希望它运行在 SRAM 里，而不是 Flash。链接器会把这个函数的加载地址（Flash 里的位置）和执行地址（SRAM 里的位置）分开。开机后，启动代码负责把这个函数从 Flash 搬到 SRAM，然后程序跳转过去执行。这就不属于 XIP，因为加载地址和执行地址不一样<br>
+反过来，如果你的代码直接在 Flash 里跑，地址没变，那就是 XIP。比如，很多 RTOS 的内核代码会选择直接从 Flash 运行，省下 SRAM 给任务栈和动态数据</p>
+<h1 id="实现xip">实现XIP</h1>
+<p>Keil、IAR 或者 GCC，都有办法控制代码的加载和执行地址<br>
+1.链接器命令：用 -RO（只读）和 -RW（读写）选项，指定代码和数据的执行地址。比如在 Keil 里，你可以在 Target 设置里调整这些参数<br>
+2.分散加载文件（Scatter File）：更灵活的方式，通过写散文件（scatter file）精确控制每个段的加载和执行地址。国内很多做复杂项目的工程师都喜欢用散文件，因为它能细粒度地管理内存布局</p>
+<blockquote>
+<p><strong>免责声明</strong><br>
+本文部分内容参考自微信公众号 <strong>【立芯嵌入式】</strong> 的原创文章，版权归原作者所有，本文仅用于学习与交流目的。<br>
+如有不妥之处，烦请原作者联系指正，我将第一时间修改或删除相关内容<br>
+本文仅代表个人观点，不构成任何商业用途。如涉及版权等问题，请联系本人处理。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[2024年终总结]]></title>
+        <id>https://hanaeternum.github.io/post/2024-nian-zhong-zong-jie/</id>
+        <link href="https://hanaeternum.github.io/post/2024-nian-zhong-zong-jie/">
+        </link>
+        <updated>2025-01-23T16:08:01.000Z</updated>
+        <content type="html"><![CDATA[<p>时间如白马过隙，2024就这样结束了，感觉今年收获和身心变化也算蛮大的，特此记录</p>
+<h1 id="一年的概述">一年的概述</h1>
+<p>2024首先由各种各样的比赛准备展开，我比较看重的是大学生智能车竞赛，工作重心也放在那上面，虽说中途蓝桥杯只准备了一个星期居然还拿了省一(虽然没有什么含金量)，但后面蓝桥杯国赛我没怎么准备，只能说梭哈是一种艺术。但是后面两场智能车后面事与愿违了，第一场是在乐山师范比赛，刚开始还是比较有自信的，因为在试车的时候我们的效果还是不错的，但是有点错误的理解规则，不过问题不大，但是自己处于严谨还是想去修改完善，但因为我本人在乐山有住所并且用于模拟比赛的道具没带过来，所以我只能虚空写代码，后面我为了方便测试我将一段初始化代码屏蔽了(因为没有初始化成功会一直循环)，可悲的是后面我忘记解除屏蔽了，倒是车出了很奇怪的状况，加上紧张等元素最后未完赛大败而归，也是深感愧疚；第二场是7月份了，去了重庆邮电大学比赛，也是试车还不错，应该是二等奖，但是比赛的时候由于硬件原因车跑不了，最后保留第一次的成绩为三等奖，队友心态发生了变化，但我没什么感觉，似乎是麻木了，虽然比赛失败了，但是那次出差还是蛮好玩的，和队友吃了火锅，看了《你的名字》……</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/1_(1).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/1_(2).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/1_(3).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/1_(4).jpg" alt="" loading="lazy"></figure>
+<p>后面暑假找了一个实习，是关于安全那一块的，里面学习到了很多东西，比如国家电表，openocd以及SDR等等，更重要的认识了一位前辈，人很不错，我们聊的也很投机，运气不错的是我租的房子刚刚好是在前辈的旁边，每天晚上一起回去边走边聊的感觉真的很好，并且还给了我很多建议，也让我认识到了网络安全的快乐</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/2_(1).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/2_(2).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="7"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/2_(3).jpg" alt="" loading="lazy"></figure>
+<p>后面由于傻逼学校的规定，被迫回去上课和培训，离开了公司开始准备秋招，秋招的道路是坎坷的，刚刚开始还自我良好，后面被一次一次的拒绝，也不由得怀疑起自己来，直到11月底，我能去的不过尔尔，后面有一家做汽车电子的，令我没想到的是，他居然邀请我去厦门线下面试，后面看到公司规模和诚意来说还不错，也就签约跑路了</p>
+<figure data-type="image" tabindex="8"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(1).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="9"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(2).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="10"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(3).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="11"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(4).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="12"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(5).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="13"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(6).jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="14"><img src="https://hanaeternum.github.io/post-images/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/3_(7).jpg" alt="" loading="lazy"></figure>
+<p>再往后就是我的摆烂之旅了，找到工作后看那些文档书籍也看不下去了，后面就开始看动漫摆烂了，也是怠惰啊</p>
+<h1 id="对2025的期望">对2025的期望</h1>
+<ul>
+<li>一想就要从学生变为社畜，还是没缓过来，希望在厦门能够工作顺利</li>
+<li>希望在时间安排上能够自律，写好博客和周月总结</li>
+<li>希望多多运动，身体是革命的本钱</li>
+<li>最后希望我和我在意的大家身体健康，万事如意</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[高质量编程指南V1.0阅读笔记]]></title>
+        <id>https://hanaeternum.github.io/post/gao-zhi-liang-bian-cheng-zhi-nan-v10-yue-du-bi-ji/</id>
+        <link href="https://hanaeternum.github.io/post/gao-zhi-liang-bian-cheng-zhi-nan-v10-yue-du-bi-ji/">
+        </link>
+        <updated>2024-12-04T13:20:28.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84">文件结构</a>
+<ul>
+<li><a href="#%E5%A3%B0%E6%98%8E%E6%96%87%E4%BB%B6">声明文件</a></li>
+<li><a href="#%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6">定义文件</a></li>
+</ul>
+</li>
+<li><a href="#%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99">命名规则</a></li>
+<li><a href="#%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E8%AF%AD%E5%8F%A5">表达式和基本语句</a>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E5%8F%A5">基本语句</a></li>
+<li><a href="#if%E8%AF%AD%E5%8F%A5">if语句</a></li>
+<li><a href="#for%E5%BE%AA%E7%8E%AF%E5%92%8Cswitch%E8%AF%AD%E5%8F%A5">for循环和switch语句</a>
+<ul>
+<li><a href="#for%E5%BE%AA%E7%8E%AF">for循环</a></li>
+<li><a href="#switch%E8%AF%AD%E5%8F%A5">switch语句</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1">函数设计</a>
+<ul>
+<li><a href="#%E5%8F%82%E6%95%B0">参数</a></li>
+<li><a href="#%E5%86%85%E9%83%A8">内部</a></li>
+<li><a href="#%E5%85%B6%E4%BB%96%E5%BB%BA%E8%AE%AE">其他建议</a></li>
+<li><a href="#%E6%96%AD%E8%A8%80">断言</a></li>
+</ul>
+</li>
+<li><a href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86">内存管理</a>
+<ul>
+<li><a href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%86%85%E5%AD%98%E9%94%99%E8%AF%AF%E5%8F%8A%E5%85%B6%E5%AF%B9%E7%AD%96">常见的内存错误及其对策</a></li>
+<li><a href="#%E6%8C%87%E9%92%88%E4%B8%8E%E6%95%B0%E7%BB%84%E7%9A%84%E5%AF%B9%E6%AF%94">指针与数组的对比</a></li>
+<li><a href="#%E6%8C%87%E9%92%88%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E5%86%85%E5%AD%98">指针参数传递内存</a></li>
+<li><a href="#%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E7%9A%84%E9%87%8A%E6%94%BE">动态内存的释放</a>
+<ul>
+<li><a href="#free%E9%87%8A%E6%94%BE">free释放</a></li>
+<li><a href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E9%87%8A%E6%94%BE">局部变量释放</a></li>
+</ul>
+</li>
+<li><a href="#mallocfree%E4%BD%BF%E7%94%A8">malloc/free使用</a>
+<ul>
+<li><a href="#malloc">malloc</a></li>
+<li><a href="#free">free</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+<p>这本书是林锐老师写的，第一版篇幅比较短，算是我第一个认真阅读的专业性比较强的电子书，内容是讲述一些代码规范以及错误</p>
+<h1 id="文件结构">文件结构</h1>
+<br />
+<h2 id="声明文件">声明文件</h2>
+<p>声明文件由三部分组成：</p>
+<ul>
+<li>版权声明和函数功能说明</li>
+<li>预处理块</li>
+<li>函数和类结构声明（只存放声明，不存放定义）</li>
+</ul>
+<pre><code class="language-c">/*
+ * Copyright (C) 2024 EternalChip Co.£¬Ltd. or its affiliates.
+ *
+ * All Rights Reserved.
+ *
+ * File name: xxxx.h
+ *
+ *  @addtogroup  
+ *  @brief       
+ *
+ *  @{
+ *      @file       xxxx.h
+ *      @brief      
+ *      @details    
+ *
+ */
+#ifndef XXXX_H // 防止 xxxx.h 被重复引用
+#define XXXX_H 
+#include &lt;math.h&gt;
+
+#include &quot;myheader.h&quot; // 引用非标准库的头文件
+
+void Function1( ⋯ ); // 全局函数声明
+
+class Box // 类结构声明
+{
+    ...
+};
+#endif
+</code></pre>
+<p>在#include的时候是有讲究的，标准库使用&lt;&gt;（编译器从标准库目录开始搜索），非标准库使用””（编译器从用户的工作目录开始搜索）</p>
+<p>除此以外，尽量不要在头文件出现extern int x;第一是违背了声明文件的初衷，定义应该出现在源文件或定义文件中；第二是污染命名空间和降低代码可读性</p>
+<h2 id="定义文件">定义文件</h2>
+<p>定义文件由三部分组成：</p>
+<ul>
+<li>版权声明和函数功能说明</li>
+<li>头文件引用：分为三个部分，第一个部分是编译器库，例如stdio，string；第二部分是系统库，例如freertos，rtthread；第三部分是自定义库</li>
+<li>程序的实现体</li>
+</ul>
+<pre><code class="language-c">/*
+ * Copyright (C) 2024 EternalChip Co.£¬Ltd. or its affiliates.
+ *
+ * All Rights Reserved.
+ *
+ * File name: xxxx.h
+ *
+ *  @addtogroup
+ *  @brief
+ *
+ *  @{
+ *      @file       xxxx.c
+ *      @brief
+ *      @details
+ *
+ */
+#include &quot;graphics.h&quot; // 引用头文件
+
+int test = 0;
+
+void Function1() // 函数的实现体
+{
+    ⋯ ⋯
+}
+</code></pre>
+<p>代码的占用尽量是1/3-1/2个屏幕，方便他人查看阅读</p>
+<p>实现的时候，如果有for/switch/while这种大型循环的时候，可以在循环体的结尾补一个end of xxx</p>
+<p>打印的时候，出现多变量，按行打印</p>
+<pre><code class="language-c">printf(&quot;1.%d&quot;
+	   &quot;2.%d&quot;
+		,1
+		,2)
+</code></pre>
+<h1 id="命名规则">命名规则</h1>
+<p>命名规则按照windows和linux分类，主要区别是windows大多用的驼峰式，也就是大小写混合，linux用的是小写+_组合，这本书只讲述了windows命名</p>
+<p>1.命名不要出现仅靠大小写区分的相似的标识符，例如x和X，大写i和小写L等</p>
+<p>2.全局函数的名字应当使用“动词”或者“动词＋名词”；类或结构体的成员函数应当只使用“动词”，被省略掉的名词就是对象本身</p>
+<p>3.根据类型不同，命名结构不同</p>
+<ul>
+<li>类名和函数名用大写字母开头的单词组合而成</li>
+<li>变量和参数用小写字母开头的单词组合而成</li>
+<li>常量全用大写的字母，用下划线分割单词</li>
+<li>静态变量加前缀 s_</li>
+<li>如果不得已需要全局变量，则使全局变量加前缀 g_</li>
+<li>类或结构体的数据成员加前缀 m_ ，这样可以避免数据成员与成员函数的参数同名</li>
+<li>防止某一软件库中的一些标识符和其它软件库中的冲突，可以为各种标识符加上能反映软件性质的前缀；例如三维图形标准 OpenGL 的所有库函数均以的所有库函数均以 gl 开头，所有常量（或宏定义）均以 GL 开头</li>
+</ul>
+<h1 id="表达式和基本语句">表达式和基本语句</h1>
+<br />
+<h2 id="基本语句">基本语句</h2>
+<p>1.需要对外公开的常量放在头文件中，不需要对外公开的常量放在定义文件的头部</p>
+<p>2.运算符过多的时候，尽量使用括号括起来，避免使用默认优先级</p>
+<p>3.不要编写太复杂和多用途的表达式，例如d = (a = b+c)+r ;或i = a &gt;= b &amp;&amp; c &lt; d &amp;&amp; c+f &lt;= g+h ;</p>
+<h2 id="if语句">if语句</h2>
+<p>1.不可将布尔变量直接与 TRUE 、FALSE 或者 1 、0 进行比较；因为不同编译器标准不同，例如 Visual C++ 将 将 TRUE 定义为1 ，而 Visual Basic 则将 TRUE 定义为-1</p>
+<p>2.不同类型if语句编写不同</p>
+<ul>
+<li>整型直接与目标值比较：if (value == 0)</li>
+<li>布尔型无需参考值：if(!bool)</li>
+<li>浮点数由于有精度限制，所以不能使用==或!=：if ((x&gt;=-EPSINON) &amp;&amp; (x&lt;=EPSINON))，EPSINON是允许的误差</li>
+<li>指针类型是与NULL比较：if (value == NULL)</li>
+</ul>
+<p>补充：判断语句中，表达式写为 0  != XXX或0 == XXX，方便判断是否误写为赋值语句=</p>
+<h2 id="for循环和switch语句">for循环和switch语句</h2>
+<br />
+<h3 id="for循环">for循环</h3>
+<p>1.在多重循环中，如果有可能，应当将最长的循环放在最内层，最短的循环放在最外层，以减少CPU跨切循环层的次数</p>
+<p>2.for循环变量按半闭半开区间写法，这样方便确定循环次数，例如：for(i = 0; i &lt; N; i++)，次数为N</p>
+<p>3.如果循环体内存在逻辑判断，并且循环次数很大，宜将逻辑判断移到循环体的外面，具体情况按循环次数分</p>
+<pre><code class="language-c">for (i=0; i&lt;N; i++)//循环次数较少
+{
+	if (condition)
+	{
+		DoSomething();
+	}
+	else
+	{
+		DoOtherthing();
+	}
+}
+
+if (condition)//循环次数较多
+{
+	for (i=0; i&lt;N; i++)
+	{
+		DoSomething();
+	}
+}
+else
+{
+	for (i=0; i&lt;N; i++)
+	{
+		DoOtherthing();
+	}
+}
+</code></pre>
+<h3 id="switch语句">switch语句</h3>
+<p>1.每个 e case 语句的结尾不要忘了加 break，否则将导致多个分支重叠</p>
+<p>2.不要忘记最后那个 t default 分支。即使程序真的不需要 default 处理，也应该保留语句default</p>
+<h1 id="函数设计">函数设计</h1>
+<br />
+<h2 id="参数">参数</h2>
+<p>1.参数传入顺序要合理，一般地，应将目的参数放在前面，源参数放在后面</p>
+<p>2.如果参数是指针，且仅作输入用，则应在类型前加 const，以防止该指针在函数体内被意外修改</p>
+<p>3.如果输入参数以值传递的方式传递对象，则宜改用“const &amp;”方式来传递</p>
+<h2 id="内部">内部</h2>
+<p>1.在函数体的“入口处”，对参数的有效性进行检查</p>
+<p>2.在函数体的“出口处”，对 return 语句的正确性和效率进行检查</p>
+<h2 id="其他建议">其他建议</h2>
+<p>1.函数的功能要单一，不要设计多用途的函数</p>
+<p>2.函数体的规模要小，尽量控制在 50 行代码之内</p>
+<p>3.尽量避免函数带有“记忆”功能</p>
+<p>4.不仅要检查输入参数的有效性，还要检查通过其它途径进入函数体内的变量的有效性，例如全局变量、文件句柄等</p>
+<p>5.用于出错处理的返回值一定要清楚</p>
+<h2 id="断言">断言</h2>
+<p>断言assert是需要#include &lt;assert.h&gt;，用法是assert(x)，如果x为0或不合法，那么会终止程序，如果去#define NDEBUG，断言则会失效</p>
+<p>用断言捕捉不应该发生的非法情况。不要混淆非法情况与错误情况之间的区别，后者是必然存在的并且是一定要作出处理的；一般教科书都鼓励程序员们进行防错设计，但要记住这种编程风格可能会隐瞒错误。当进行防错设计时，如果“不可能发生”的事情的确发生了，则要使用断言进行报警</p>
+<h1 id="内存管理">内存管理</h1>
+<br />
+<h2 id="常见的内存错误及其对策">常见的内存错误及其对策</h2>
+<p>内存分配方式有三种</p>
+<ul>
+<li>从<strong>静态存储区域</strong>分配。内存在程序编译的时候就已经分配好，这块内存在程序的整个运行期间都存在。例如全局变量，static 变量</li>
+<li>在<strong>栈</strong>上创建。在执行函数时，函数内局部变量的存储单元都可以在栈上创建，函数执行结束时这些存储单元自动被释放。栈内存分配运算内置于处理器的指令集中，效率很高，但是分配的内存容量有限</li>
+<li>从<strong>堆</strong>上分配，亦称<strong>动态内存分配</strong>。程序在运行的时候用 malloc 或 或 new 申请任意多少的内存，程序员自己负责在何时用申请任意多少的内存，程序员自己负责在何时用 free 或 或 delete 释放内存。动态内存的生存期由我们决定，使用非常灵活，但问题也最多</li>
+</ul>
+<p>1.内存分配未成功，却使用了它；解决办法是在使用内存之前检查指针是否为NULL</p>
+<p>2.内存分配虽然成功，但是尚未初始化就引用它</p>
+<p>3.内存分配成功并且已经初始化，但操作越过了内存的边界，例如指向局部变量，以及循环中数组误操作</p>
+<p>4.忘记了释放内存，造成内存泄露</p>
+<p>5.释放了内存却继续使用它</p>
+<h2 id="指针与数组的对比">指针与数组的对比</h2>
+<p>数组要么在静态存储区被创建（如全局数组），要么在栈上被创建。数组名对应着（而不是指向）一块内存，其地址与容量在生命期内保持不变，只有数组的内容可以改变</p>
+<p>指针可以随时指向任意类型的内存块，它的特征是“可变”，所以我们常用指针来操作动态内存；指针远比数组灵活，但也更危险</p>
+<p>主要区别分为三个</p>
+<p>一个是修改；</p>
+<pre><code class="language-c">    char a[] = &quot;hello&quot;;
+    a[0] = 'X';
+    char* p = &quot;world&quot;;
+    printf(&quot;%s&quot;, p);
+    char* p = &quot;world&quot;;//p指向的是常量字符串
+    p[0] = 'X'; 
+    printf(&quot;%s&quot;, p);
+</code></pre>
+<p>二是复制；指针可以使用=赋值，而数组得使用库函数string中函数赋值</p>
+<p>三是计算内存容量；指针始终与位数有关，32位就是32/8=4字节，数组是按个数*字节数计算的；除此以外，数组在函数会出现数组退化指针</p>
+<h2 id="指针参数传递内存">指针参数传递内存</h2>
+<p>如果函数的参数是一个指针，不要指望用该指针去申请动态内存</p>
+<p>错误示例：</p>
+<pre><code class="language-c">void Test(void)
+{
+    char* str = NULL;
+    GetMemory(str, 100);
+    strcpy(str, &quot;hello&quot;);
+}
+
+void GetMemory(char* p, int num)//str依旧是NULL
+{
+    p = (char*)malloc(sizeof(char) * num);
+}
+</code></pre>
+<p>正确示例：</p>
+<pre><code class="language-c">void Test(void)
+{
+    char* str = NULL;
+    GetMemory(&amp;str, 100);//参数是&amp;str
+    strcpy(str, &quot;hello&quot;);
+}
+
+void GetMemory2(char** p, int num)
+{
+    *p = (char*)malloc(sizeof(char) * num);
+}
+</code></pre>
+<p>毛病出在函数 y GetMemory 中。编译器总是要为函数的每个参数制作临时副本，指针参数p 的副本是 _p ，编译器使 _p = p 。如果函数体内的程序修改了 _p 的内容，就导致参数 p 的内容作相应的修改。这就是指针可以用作输出参数的原因。在本例中， _p 申请了新的内存，只是把p _p 所指的内存地址改变了，但是 p 丝毫未变</p>
+<p>除此以外还有通过返回值来传递动态内存的</p>
+<p>错误示例：</p>
+<pre><code class="language-c">void Test3(void)
+{
+    char* str = NULL;
+    str = GetString();
+    free(str);
+}
+
+char* GetString(void)
+{
+    char p[] = &quot;hello world&quot;;
+    return p; 
+}
+</code></pre>
+<p>正确示例：</p>
+<pre><code class="language-c">void Test4(void)
+{
+    char* str = NULL;
+    str = GetMemory3(100);
+    strcpy(str, &quot;hello&quot;);
+    free(str);
+}
+
+char* GetMemory3(int num)
+{
+    char* p = (char*)malloc(sizeof(char) * num);
+    return p;
+}
+</code></pre>
+<p>Test3错误的原因是return 语句返回指向“栈内存”的指针，因为该内存在函数结束时自动消亡</p>
+<p>另外，还有一种容易混淆的但不会保错的示例</p>
+<pre><code class="language-c">void Test5(void)
+{
+    char* str = NULL;
+    str = GetString();
+    free(str);
+}
+
+char* GetString(void)
+{
+    char *p = &quot;hello world&quot;;
+    return p; 
+}
+</code></pre>
+<p>这个运行虽然不会报错，但是p指向的常量，位于静态存储区，生命周期不变，返回的只能是hello world</p>
+<h2 id="动态内存的释放">动态内存的释放</h2>
+<br />
+<h3 id="free释放">free释放</h3>
+<p>free只是把指针所指的内存给释放掉，但并没有把指针本身干掉</p>
+<p>p被 free 以后其地址仍然不变（非 NULL），只是该地址对应的内存是垃圾，p 成了“野指针”。如果此时不把 p 设置为 NULL，会让人误以为 p 是个合法的指针</p>
+<pre><code class="language-c">char *p = (char *) malloc(100);
+strcpy(p, “ hello”);
+free(p); // p 所指的内存被释放，但是 p 所指的地址仍然不变
+if(p != NULL) // 没有起到防错作用
+{
+	strcpy(p, “ world” ); // 出错
+}
+</code></pre>
+<h3 id="局部变量释放">局部变量释放</h3>
+<p>局部变量的指针变量消亡了，并不表示它所指的内存会被自动释放；内存被释放了，并不表示指针会消亡或者成了 NULL 指针</p>
+<h2 id="mallocfree使用">malloc/free使用</h2>
+<br />
+<h3 id="malloc">malloc</h3>
+<p>malloc原型：void * malloc(size_t size);→示例：int *p = (int *) malloc(sizeof(int) * length);</p>
+<ul>
+<li>malloc 返回值的类型是 void * ，所以在调用malloc 时要显式地进行类型转换，将void * 转换成所需要的指针类型</li>
+<li>malloc 函数本身并不识别要申请的内存是什么类型，它只关心内存的总字节数。我们通常记不住 int, float 等数据类型的变量的确切字节数，使用的是关键字sizeof</li>
+</ul>
+<h3 id="free">free</h3>
+<p>free原型：void free( void * memblock );</p>
+<p>为什么free 函数不象 c malloc 函数那样复杂呢？这是因为指针 p p 的类型以及它所指的内存的容量事先都是知道的，语句 free(p) 能正确地释放内存</p>
+<p>如果p是NULL 指针，那么 free对p 无论操作多少次都不会出问题；如果p不是NULL指针，那么free 对 对p连续操作两次就会出现错误</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[栈和队列]]></title>
+        <id>https://hanaeternum.github.io/post/zhan-he-dui-lie/</id>
+        <link href="https://hanaeternum.github.io/post/zhan-he-dui-lie/">
+        </link>
+        <updated>2024-10-04T08:45:24.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E6%A0%88">栈</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96">初始化</a></li>
+<li><a href="#%E5%85%A5%E6%A0%88">入栈</a></li>
+<li><a href="#%E5%87%BA%E6%A0%88">出栈</a></li>
+<li><a href="#%E5%8F%96%E6%A0%88%E9%A1%B6%E5%85%83%E7%B4%A0">取栈顶元素</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%98%9F%E5%88%97">队列</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA-2">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C-2">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96-2">初始化</a></li>
+<li><a href="#%E6%B1%82%E9%98%9F%E5%88%97%E9%95%BF%E5%BA%A6">求队列长度</a></li>
+<li><a href="#%E5%85%A5%E9%98%9F">入队</a></li>
+<li><a href="#%E5%87%BA%E9%98%9F">出队</a></li>
+<li><a href="#%E5%8F%96%E9%98%9F%E5%A4%B4%E5%85%83%E7%B4%A0">取队头元素</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%98%9F%E5%88%97">双向队列</a></li>
+</ul>
+</li>
+<li><a href="#%E5%B0%8F%E7%BB%93">小结</a></li>
+</ul>
+</p>
+<h1 id="栈">栈</h1>
+<br />
+<h2 id="定义和基础理论">定义和基础理论</h2>
+<p>栈是一种限制插入和删除操作只能在一个位置进行的列表，栈遵循后进先出（LIFO—Last In First Out）的原则，在栈中，每当新元素被添加，它就被放置在栈顶。当元素被移除时，栈顶的元素被取出</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image.png" alt="" loading="lazy"></figure>
+<p>以下是常用的应用场景</p>
+<ul>
+<li>子程序的调用：在跳往子程序前，会先将下个指令的地址存到堆栈中，直到子程序执行完后再将地址取出，以回到原来的程序中</li>
+<li>递归的调用：可以用来在函数调用的时候存储断点，储存下一个指令的地址外，也将参数、区域变量等数据存入栈中</li>
+<li>表达式的转换[中缀表达式转后缀表达式]与求值</li>
+<li>二叉树的遍历</li>
+<li>图形的深度优先搜索法</li>
+</ul>
+<p>定义分为两种栈的定义，一种是顺序栈，一种是链栈</p>
+<pre><code class="language-cpp">#define MAXSIZE 100
+typedef struct
+{
+	SElemType *base;
+	SElemType *top;
+	int stacksize;
+}SqStack;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image1.png" alt="" loading="lazy"></figure>
+<p>base为栈底指针，初始化完成后，栈底指针base始终指向栈底的位置，若base的值为NULL，则表明栈结构不存在。top为栈顶指针，甚初值指向栈底。每当插入新的栈顶元素时，指针top增1；删除栈顶元素时，指针top减1。因此，栈空时，top和base的值相等，都指向栈底；栈非空时，top始终指向栈顶元素的上一个位置；stacksize 指示栈可使用的最大容量，后面算法3.1的初始化操作为顺序栈动态分配MAXSIZE大小的数组空间，将stacksize置为MAXSIZE</p>
+<pre><code class="language-cpp">typedef struct StackNode
+{
+	ElemType data;
+	struct StackNode *next;
+}StackNode, *LinkStack;
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image2.png" alt="" loading="lazy"></figure>
+<p>链栈一般选用单链表来表示；由于栈的主要操作是在栈顶插入删除，显然以链表头部是最方便的，因为在链表那节讲过，链表插入时间消耗在找点上，如果是第一个就不需要消耗大量时间，当然，我们为了操作方便一般不需要设置头结点</p>
+<h2 id="基础操作">基础操作</h2>
+<h3 id="初始化">初始化</h3>
+<p>顺序栈的初始化是为顺序栈动态分配一个预定义大小的数组空间</p>
+<pre><code class="language-cpp">Status InitStack(SqStack &amp;S)
+{
+	S.base = new SElemType[MAXSIZE];
+	if (!S.base) exit (OVERFLOW);
+	S.top = S.base;
+	S.stacksize = MAXSIZE;
+	return OK;
+}
+</code></pre>
+<p>链栈初始化操作是构造一个空栈，因为没有头结点，所以直接将栈顶指针置空即可</p>
+<pre><code class="language-cpp">Status InitStack(LinkStack &amp;S)
+{
+	S = NULL;	
+	return OK;
+}
+</code></pre>
+<h3 id="入栈">入栈</h3>
+<p>出栈对于两种栈来说并没有需要额外注意的，都是在栈顶插入一个新的元素</p>
+<pre><code class="language-cpp">Status Push(SqStack &amp;S, SElemType e)
+{
+	if (S.top - S.base == S.stacksize) return ERROR;
+	*S.top++ = e;
+	return OK;
+}
+</code></pre>
+<pre><code class="language-cpp">Status Push(LinkStack &amp;S, SElemType e)
+{
+	p = new StackNode;
+	p-&gt;data = e;
+	p-&gt;next = S;
+	S = q;
+	return OK;
+}
+</code></pre>
+<h3 id="出栈">出栈</h3>
+<p>出栈就是将栈顶元素删除，两者有所不同主要存在与资源的释放</p>
+<pre><code class="language-cpp">Status Pop(SqStack &amp;S, SElemType &amp;e)
+{
+	if (S.top == S.base) return ERROR;
+	e = *--S.top;
+	return OK;
+}
+</code></pre>
+<pre><code class="language-cpp">Status Pop(LinkStack &amp;S, SElemType &amp;e)
+{
+	if (S == NULL) return ERROR;
+	e = S-&gt;data;
+	p = S;
+	S = S-&gt;next;
+	delete p;
+	return OK;
+}
+</code></pre>
+<h3 id="取栈顶元素">取栈顶元素</h3>
+<p>栈非空的时候，此操作返回当前栈顶元素的值，栈顶指针保证不变</p>
+<pre><code class="language-cpp">SElemType GetTop()
+{
+	if (S.top != S.base)
+		return *(S.top - 1);
+}
+</code></pre>
+<pre><code class="language-cpp">SElemType GetTop()
+{
+	if (S != NULL)
+		return S-&gt;data;
+}
+</code></pre>
+<h1 id="队列">队列</h1>
+<br />
+<h2 id="定义和基础理论-2">定义和基础理论</h2>
+<p>队列的操作跟栈的操作类似，不同的是，删除是在表的头部(即队头进行)；队列遵循的是后进先出（FIFO—First In First Out）</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image3.png" alt="" loading="lazy"></figure>
+<p>队列也有两种存储表示，顺序表示和链式表示；、</p>
+<p>但是当我们使用顺序存储的时候，常会因在最大空间的位置插入新的队尾元素导致数组越界，但实际可用空间并未占满，这种现象被称为”假溢出”；为解决这个问题，把顺序队列变为了一个环状的空间，被称为循环队列；但同时也会引出一个问题，如何区别队列空满的情况，有两种处理情况，一种是少用一个元素空间，队空的条件是Q.front == Q.rear，队满的条件(Q.rear + 1) % MAXQSIZE == Q.front，另外一种是设置一个标志位区别</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image4.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">#define MAXQSIZE 100
+typedef struct 
+{
+	QElemType *base;
+	int front;
+	int rear;
+}sqQueue;
+</code></pre>
+<p>链队基本和链栈一样，只不过为了操作方便会给链队添加一个头结点</p>
+<pre><code class="language-cpp">typedef struct QNode
+{
+	QElemType data;
+	struct QNode *next;
+}QNode, *QueuePtr;
+typedef struct
+{
+	QueuePtr front;
+	QueuePtr rear;
+}LinkQueue;
+</code></pre>
+<h2 id="基础操作-2">基础操作</h2>
+<h3 id="初始化-2">初始化</h3>
+<p>循环队列的初始化就是动态分配一个预定义大小为MAXQSIZE的数组空间</p>
+<pre><code class="language-cpp">Status InitQueue(SqQueue &amp;Q)
+{
+	Q.base = new QElemType[MAXQSIZE];
+	if (!Q.base) exit (OVERFLOW);
+	Q.front = Q.rear;
+	Q.rear = 0;
+	return OK;
+}
+</code></pre>
+<p>链队初始化操作是构造一个只有头结点的空队</p>
+<pre><code class="language-cpp">Status InitQueue(LinkQueue &amp;Q)
+{
+	Q.front = Q.rear = new QNode;
+	Q.front-&gt;next = NULL;
+	return OK;
+}
+</code></pre>
+<h3 id="求队列长度">求队列长度</h3>
+<p>对于非循环队列，尾指针和头指针的差值就是队列长度，但对于循环队列，差值可能为负数，所以最后插值还需要加MAXQSIZE，在求余</p>
+<pre><code class="language-cpp">int QueueLength (SqQueue Q)
+{
+	return (Q.rear - Q.front + MAXQSIZE) % MAXQSIZE;
+}
+</code></pre>
+<h3 id="入队">入队</h3>
+<p>入队是在队尾插入一个新的元素</p>
+<pre><code class="language-cpp">Status EnQueue (SqQueue &amp;Q, QElemType e)
+{
+	if ((Q.rear + 1) % MAXQSIZE == Q.front) return ERROR;
+	Q.base[Q.rear] = e;
+	Q.rear = (Q.rear + 1) % MAXQSIZE;
+	return OK;
+}
+</code></pre>
+<p>和循环队列不同的是，链队在入队之前不需要判断是否满，需要为入队元素动态分配一个空间</p>
+<pre><code class="language-cpp">Status EnQueue (LinkQueue &amp;Q, QElemType e)
+{
+	p = new QNode;
+	p-&gt;data = e;
+	p-&gt;next = NULL;
+	Q.rear-&gt;next = p;
+	Q.rear = p;
+	return OK;
+}
+</code></pre>
+<h3 id="出队">出队</h3>
+<p>出队操作是将队头元素删除</p>
+<pre><code class="language-cpp">Status DeQueue (SqQueue &amp;Q, QElemType &amp;e)
+{
+	if (Q.front == Q.rear) return ERROR;
+	e = Q.base[Q.front];
+	Q.front = (Q.front + 1) % MAXQSIZE;
+	return OK;
+}
+</code></pre>
+<p>和入队类似，我们并不需要判断队列是否为空，不同的是，链队在出队后需要释放队头元素所占的空间；需要注意的是出队操作的时候还需要考虑当队列最后一个元素被删除后，队列尾指针也丢失了，因此需要对队尾指针重新赋值</p>
+<pre><code class="language-cpp">Status DeQueue (LinkQueue &amp;Q, QElemType &amp;e)
+{
+	if(Q.front == Q.rear) return ERROR;
+	p = Q.front-&gt;next;
+	e = p-&gt;data;
+	Q.front-&gt;next = p-&gt;next;
+	if (Q.rear == p) Q.rear = Q.front;
+	delete p;
+	return OK;
+}
+</code></pre>
+<h3 id="取队头元素">取队头元素</h3>
+<p>当队列非空的时候，取出头元素会返回头元素的值，队头指针保持不变</p>
+<pre><code class="language-cpp">QElemType GetHead (SqQueue Q)
+{
+	if (Q.front != Q.rear) return Q.base[Q.front];
+}
+</code></pre>
+<pre><code class="language-cpp">QElemType GetHead(LinkQueue Q)
+{
+	if (Q.front != Q.rear) return Q.front-&gt;next-&gt;data;
+}
+</code></pre>
+<h2 id="双向队列">双向队列</h2>
+<p>在队列中，我们仅能删除头部元素或在尾部添加元素；双向队列（double-ended queue）提供了更高的灵活性，允许在头部和尾部执行元素的添加或删除操作</p>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image5.png" alt="" loading="lazy"></figure>
+<p>双向队列的实现与队列类似，可以选择链表或数组作为底层数据结构</p>
+<h1 id="小结">小结</h1>
+<ul>
+<li>浏览器的前进后退功能本质上是“栈”的体现。当用户访问一个新页面时，该页面会被添加到栈顶；当用户点击后退按钮时，该页面会从栈顶弹出</li>
+<li>撤销（undo）和反撤销（redo）的实现：使用两个栈，栈 A 用于撤销，栈 B 用于反撤销。 每当用户执行一个操作，将这个操作压入栈 A ，并清空栈 B 。 当用户执行“撤销”时，从栈 A 中弹出最近的操作，并将其压入栈 B 。 当用户执行“反撤销”时，从栈 B 中弹出最近的操作，并将其压入栈 A</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[顺序表和链表]]></title>
+        <id>https://hanaeternum.github.io/post/shun-xu-biao-he-lian-biao/</id>
+        <link href="https://hanaeternum.github.io/post/shun-xu-biao-he-lian-biao/">
+        </link>
+        <updated>2024-10-02T09:01:55.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8">顺序表</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96">初始化</a></li>
+<li><a href="#%E5%8F%96%E5%80%BC">取值</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE">查找</a></li>
+<li><a href="#%E6%8F%92%E5%85%A5">插入</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4">删除</a></li>
+</ul>
+</li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</li>
+<li><a href="#%E9%93%BE%E8%A1%A8">链表</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA-2">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C-2">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96-2">初始化</a></li>
+<li><a href="#%E5%8F%96%E5%80%BC-2">取值</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE-2">查找</a></li>
+<li><a href="#%E6%8F%92%E5%85%A5-2">插入</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4-2">删除</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA">创建</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BE%AA%E7%8E%AF%E9%93%BE%E8%A1%A8">循环链表</a></li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8">双向链表</a></li>
+</ul>
+</li>
+<li><a href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8%E7%9A%84%E6%AF%94%E8%BE%83">顺序表和链表的比较</a>
+<ul>
+<li><a href="#%E7%A9%BA%E9%97%B4%E6%80%A7%E8%83%BD">空间性能</a></li>
+<li><a href="#%E6%97%B6%E9%97%B4%E6%80%A7%E8%83%BD">时间性能</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="顺序表">顺序表</h1>
+<br />
+<h2 id="定义和基础理论">定义和基础理论</h2>
+<p>顺序表是在计算机内存中以数组的形式保存的线性表，可见，数组是一种顺序表，但是不能说顺序表是数组；并且顺序表是一种<strong>随机存取</strong>(只要确定存储线性表的起始位置，线性表中任一数据都可随机存取)的存储结构</p>
+<p>一般定义如下，其中ElemType是自定义类型：</p>
+<pre><code class="language-cpp">#define MAXSIZE 100
+typedef struct
+{
+	ElemType *elem;
+	int length;
+}sqList;
+</code></pre>
+<p>初始化完成后，elem指向顺序表的基地址；length则是表示顺序表中当前数据元素的个数</p>
+<h2 id="基础操作">基础操作</h2>
+<h3 id="初始化">初始化</h3>
+<p>本质就是构建一个空的顺序表</p>
+<pre><code class="language-cpp">Status InitList(sqList &amp;L)
+{
+	L.elem = new ElemType[MAXSIZE];
+	if (!L.elem) exit(OVERFLOW);
+	L.length = 0;
+	return OK;
+}
+</code></pre>
+<p>此处是动态创建线性表的存储区域，这种可以有效的利用系统的资源，当不需要的时候可以销毁并释放资源</p>
+<h3 id="取值">取值</h3>
+<p>根据位置序号i，获取顺序表中第i个数据元素的值；由于顺序结构具有随机存取的特点，可以直接通过数组下标定位得到</p>
+<pre><code class="language-cpp">Status GetElem(sqList L, int i, Elemtype &amp;e)
+{
+	if (i &lt; 1 || i &gt; L.length) return ERROR;
+	e = L.elem[i - 1];
+	return OK;
+}
+</code></pre>
+<p>先是判断序号i是否合理，然后直接取出赋值即可；时间复杂度为O(1)</p>
+<h3 id="查找">查找</h3>
+<p>根据指定的元素值e，查找顺序表中第1个与e相等的元素，找到则返回，否则返回0</p>
+<pre><code class="language-cpp">int LocateElem(sqList L, ElemType e)
+{
+	for (i = 0; i &lt; L.length; i++)
+		if (L.elem[i] == e) return i + 1;
+	return 0;
+}
+</code></pre>
+<p>进行查找操作的时候，时间消耗主要在数据的比较上，比较次数决定于被查找元素在顺序表中的位置；时间复杂度为O(n)</p>
+<h3 id="插入">插入</h3>
+<p>在表的第i个位置插入一个新的元素e，使长度为n的线性表变成长度为n + 1的线性表；不难看出，在顺序表中的存储结构发生了变化，这使得i后面的元素都需要往后移动一位</p>
+<pre><code class="language-cpp">Status ListInsert(sqList &amp;L, int i, Elemtype e)
+{
+	if (i &lt; 1 || i &gt; L.length + 1) return ERROR;
+	if (L.length == MAXSIZE) return ERROR;
+	for (j = L.length - 1; j &gt;= i - 1; j--)
+		L.elem[j + 1] = L.elem[j];
+	L.elem[i - 1] = e;
+	++L.length;
+	return OK;
+}
+</code></pre>
+<p>插入操作时间消耗主要是在移动元素上，移动元素的个数取决于插入元素的位置；时间复杂度为O(n)</p>
+<h3 id="删除">删除</h3>
+<p>将表的第i个元素删去，将长度为n的顺序表变为长度为n - 1；也就是，将第i + 1到n的元素全部往前移动一个位置</p>
+<pre><code class="language-cpp">Status ListDelete(sqList &amp;L, int i)
+{
+	if (i &lt; 1 || i &gt; L.length) return ERROR;
+	for (j = i; j &lt;= L.length -1; j++)
+		L.elem[j - 1] = L.elem[j];
+	--L.length;
+	return OK;
+}
+</code></pre>
+<p>跟插入类似，时间消耗主要在移动元素上，个数也取决于删除元素的位置；时间复杂度为O(n)</p>
+<h2 id="总结">总结</h2>
+<p>顺序表可以随机存取表中任一元素，其存储位置可用一个简单、直观的公式表示；但也会有缺点，在做插入删除的时候会移动大量元素，如果元素个数较多，操作会更复杂</p>
+<h1 id="链表">链表</h1>
+<br />
+<h2 id="定义和基础理论-2">定义和基础理论</h2>
+<p>链表不同于顺序表(数组)它的结构像一条链一样链接成一个线性结构，而链表中每一个结点都存在不同的地址中，链表你可以理解为它存储了指向结点(区域)的地址，能够通过这个指针找到对应结点；链表包括两个域</p>
+<ul>
+<li>数据域：存储数据元素信息</li>
+<li>指针域：存储直接后继存储位置</li>
+</ul>
+<p>如果每个结点只包含一个指针域，那么即是线性链表或单链表；根据链表结点所含指针个数、指针指向、指针连接方式，可以将链表分为单链表、循环链表、双向链表等</p>
+<pre><code class="language-cpp">typedef struct LNode
+{
+	ElemType data;//数据域
+	struct LNode *next;//指针域
+}LNode, *LinkList;
+</code></pre>
+<p>LNode和*LinkList本质是一样的，只是为了提高程序的可读性；习惯上使用LinkList定义单链表，强调定义的是单链表的头指针，使用LNode *定义单链表中结点的指针变量；需要强调的是，指针变量和结点变量是两个不同的概念，若定义LinkList p或LNode <em>p，p为指向某结点的指针变量，表示该结点的地址，而</em>p为对应的结点变量，表示该结点的名称</p>
+<p>关于链表，一个很重要的知识点就是头结点问题，为了方便处理，一般是选用带头结点的链表，主要是为了<strong>首元节点</strong>(链表中存储第一个数据元素的结点)和判断非空的处理</p>
+<p>链表与顺序表不同的是，链表采用的是顺序存取的存取结构</p>
+<h2 id="基础操作-2">基础操作</h2>
+<h3 id="初始化-2">初始化</h3>
+<p>构造一个空表</p>
+<pre><code class="language-cpp">Status InitList(LinkList &amp;L)
+{
+	L = new LNode;
+	L-&gt;next = NULL;
+	return OK;
+}
+</code></pre>
+<p>生成新结点作为头结点，用头指针L指向头结点</p>
+<h3 id="取值-2">取值</h3>
+<p>与顺序表不同，由于链表中逻辑相邻的结点并没有存储在物理相邻的单元中 ，所以在链表中获取结点的值不能向顺序表那样随机访问，只能通过链域逐个结点向下访问</p>
+<pre><code class="language-cpp">Status GetElem(LinkList L, int i, Elemtype &amp;e)
+{
+	p = L-&gt;next;
+	j = 1;
+	while(p &amp;&amp;j &lt; i)
+	{
+		p = p-&gt;next;
+		++j;
+	}
+	if (!p || j &gt; i) return ERROR;
+	e = p-&gt;data;
+	return OK;
+}
+</code></pre>
+<p>由于存取结构不一样，所以会比顺序表在时间复杂度会更高，为O(n)</p>
+<h3 id="查找-2">查找</h3>
+<p>从链表的首元结点出发，依次将结点值和给定值e比较，返回查找结果</p>
+<pre><code class="language-cpp">LNode *LocateElem(LinkList L, ElemType e)
+{
+	p = L-&gt;next;
+	while(p &amp;&amp; p-&gt;data != e)
+		p = p-&gt;next;
+	return p;
+}
+</code></pre>
+<p>执行时间与待查找的值e有关，时间复杂度为O(n)</p>
+<h3 id="插入-2">插入</h3>
+<p>将值为e的新结点插入到表的第i个结点的位置上</p>
+<p>插入步骤大概是，先生成一个结点p，将其数据域Data4置为e，然后将p结点指针域指向<strong>Data2的指针域</strong>(这里为了方便理解和匹配下图，实际怎么称呼是不合理的)，最后将Data1的指针域指向p结点的指针域</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">Status ListInsert(LinkList)
+{
+	p = L;
+	j = 0;
+	while(p &amp;&amp; (j &lt; i - 1))
+	{
+		p = p-&gt;next;
+		++j;
+	}
+	if (!p || j &gt; i - 1) return ERROR;
+	s = new LNode;
+	s-&gt;data = e;
+	s-&gt;next = p-&gt;next;
+	p-&gt;next = s;
+	return OK;
+}
+</code></pre>
+<p>和顺序表一样，如果表中有n个结点，则插入操作中合法的插入位置有n + 1个，当i= n + 1时，新结点则插在链表尾部；虽然不需要想顺序表的插入那么大量移动元素，但是平均时间复杂度仍然为O(n)，这是因为想在i处插入，就必须找到i - 1个结点</p>
+<h3 id="删除-2">删除</h3>
+<p>删除单链表中指定位置的元素，同插入元素一样，首先应该找到该位置的前驱结点；</p>
+<p>大致步骤是，首先是查找第i - 1个结点，找到之后保存一下，以便释放，然后改变指针域，也就是直接跳过即可，最后释放资源</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image1.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">Status ListDelete(LinkList &amp;L, int i)
+{
+	p = L;
+	j = 0;
+	while((p-&gt;next) &amp;&amp; (j &lt; i - 1))
+	{
+		p = p-&gt;next;
+		++j;
+	}
+	if (!(p-&gt;next) || (j &gt; i - 1)) return ERROR;
+	q = p-&gt;next;
+	p-&gt;next = q-&gt;next;
+	delete q;
+	return OK;
+}
+</code></pre>
+<p>和顺序表一样，删除中合法位置有n个；类似插入算法，时间复杂度为O(n)</p>
+<h3 id="创建">创建</h3>
+<p>创建链表按照位置分为前插法和后插法</p>
+<p>前插法是通过将新结点逐个插入链表的头部来创建链表，每次申请一个新结点，读入相应的数据元素值，然后将新结点插入到新结点之后</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image2.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">void CreateLiist (LinkList &amp;L, int n)
+{
+	L = new LNode;
+	L-&gt;next = NULL;
+	for (i = 0; i &lt; n;  ++i)
+	{
+		p = new LNode;
+		cin&gt;&gt;p-&gt;data;
+		p-&gt;next=L-&gt;next;
+		l-&gt;next=p;
+	}
+}
+</code></pre>
+<p>后插法是通过将新结点逐个插入到链表的尾部俩创建链表；与前插法相同的是，每次申请一个新结点，读入相应的数据元素值；不同的是，为了新结点能够插入到表尾，需要增加一个尾指针r指向链表的尾结点</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image3.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">void CreateList_R(LinkList &amp;L, int n)
+{
+	L = new LNode;
+	L-&gt;next = NULL;
+	r = L;
+	for (i = 0; i &lt; n; ++i)
+	{
+		p = new LNode;
+		cin&gt;&gt;p-&gt;data;
+		p-&gt;next = NULL;
+		r-&gt;next = p;
+		r = p;
+	}
+}
+</code></pre>
+<p><strong>头插法：</strong></p>
+<ul>
+<li>插入速度快（不需要遍历旧链表）</li>
+<li>头结点每次插入都会变化，头结点永远是最新的元素</li>
+<li>遍历时是按照插入相反的顺序进行</li>
+<li>由于头结点不断在变化，所以需要额外的维护头结点的引用，否则找不到头结点，链表就废了</li>
+</ul>
+<p><strong>尾插法：</strong></p>
+<ul>
+<li>插入速度慢（需要遍历旧链表到最后一个元素）</li>
+<li>头结点永远固定不变</li>
+<li>遍历时是按照插入相同的顺序进行</li>
+</ul>
+<h2 id="循环链表">循环链表</h2>
+<p>循环链表是一种链式的存储结构，与单链表不同的是，循环链表的最后一个结点的指针是指向该循环链表的第一个结点或者头结点，从而构成一个环形的链</p>
+<p>循环链表的运算与单链表的运算基本一致，所不同的有以下几点：</p>
+<ul>
+<li>在建立一个循环链表时，必须使其最后一个结点的指针指向表头结点，而不是像单链表那样置为NULL。此种情况还使用于在最后一个结点后插入一个新的结点</li>
+<li>在判断是否到表尾时，是判断该结点指针域的值是否是表头结点，当指针域等于表头指针时，说明已到表尾。而非像单链表那样判断链域值是否为NULL</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image4.png" alt="" loading="lazy"></figure>
+<h2 id="双向链表">双向链表</h2>
+<p>双向链表也叫双链表，它的每个数据结点都有两个指针，分别指向前驱结点和后继节点，同时有一个数据域来保存数据</p>
+<ul>
+<li>链表节点(list_node)带有<strong>prev</strong>和<strong>next</strong>两个指针，这意味着，可以从表头到表尾或表尾到表头两个方向遍历或迭代链表</li>
+<li>链表本身(list)和队列(queue)类似，维护<strong>head</strong>和<strong>tail</strong>两个指针，这意味着，在表头或者表尾的插入的复杂度为O(1)，而单链表在表尾执行插入操作时，需要从表头遍历到表尾后插入，复杂度为O(n)</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8/image5.png" alt="" loading="lazy"></figure>
+<h1 id="顺序表和链表的比较">顺序表和链表的比较</h1>
+<br />
+<h2 id="空间性能">空间性能</h2>
+<p>顺序表的存储空间必须预先分配，元素个数扩充受限制，容易造成存储空间浪费或空间溢出，而链表不需要为其预先分配空间，即只要空间允许，链表元素个数可以无限制</p>
+<p>除了存储空间，其次就是<strong>存储密度(<strong>数据元素本身占用存储量/结点结果占用存储量</strong>)</strong>；链表的每个结点除了设置数据域用来存储数据元素外，还要额外设置指针域，用来存储指示元素之后逻辑关系的指针，即链表存储密度小于1，而顺序表存储密度等于1</p>
+<h2 id="时间性能">时间性能</h2>
+<p>顺序表是由数组实现的，它是一种随机存取结构，指定任意一个位置序号i，都可以在O(1)时间内直接存取该位置上的元素，即取值操作的效率高；而链表是一种顺序存取结构，按位置访问链表中第i个元素时，只能从表头开始依次向后遍历链表，直到找到第i个位置上的元素，时间复杂度为0(n)，即取值操作的效率低。基于此，若线性表的主要操作是和元素位置紧密相关的这类取值操作，很少做插入或删除时，宜采用顺序表作为存储结构<br>
+对于链表，在确定插入或删除的位置后，插入或删除操作无需移动数据，只需要修改指针，时间复杂度为0(1)。而对于顺序表，进行插入或删除时，平均要移动表中近一半的结点，时间复杂度为0(n)。尤其是当每个结点的信息量较大时，移动结点的时间开销就相当可观。基于此，对于频繁进行插入或删除操作的线性表，宜采用链表作为存储结构</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[map文件浅析]]></title>
+        <id>https://hanaeternum.github.io/post/map-wen-jian-qian-xi/</id>
+        <link href="https://hanaeternum.github.io/post/map-wen-jian-qian-xi/">
+        </link>
+        <updated>2024-09-24T11:39:41.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#map%E6%96%87%E4%BB%B6%E7%AE%80%E4%BB%8B">map文件简介</a>
+<ul>
+<li><a href="#%E5%86%85%E5%AE%B9">内容</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
+<li><a href="#%E6%A6%82%E5%BF%B5">概念</a></li>
+</ul>
+</li>
+<li><a href="#map%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E8%AF%A6%E8%A7%A3">map文件内容详解</a>
+<ul>
+<li><a href="#section-cross-references%E6%A8%A1%E5%9D%97-%E6%AE%B5%E5%85%A5%E5%8F%A3%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8">Section Cross References—模块、段(入口)交叉引用</a></li>
+<li><a href="#removing-unused-input-sections-from-the-image%E7%A7%BB%E9%99%A4%E6%9C%AA%E8%B0%83%E7%94%A8%E6%A8%A1%E5%9D%97">Removing Unused input sections from the image—移除未调用模块</a></li>
+<li><a href="#image-symbol-table%E6%98%A0%E5%B0%84%E7%AC%A6%E5%8F%B7%E8%A1%A8">Image Symbol Table—映射符号表</a></li>
+<li><a href="#memory-map-of-the-image%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E5%88%86%E5%B8%83">Memory Map of the image—内存（映射）分布</a></li>
+<li><a href="#image-component-sizes%E5%AD%98%E5%82%A8%E7%BB%84%E6%88%90%E5%A4%A7%E5%B0%8F">Image component sizes—存储组成大小</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="map文件简介">map文件简介</h1>
+<br />
+<h2 id="内容">内容</h2>
+<p>首先我们需要了解map文件是什么，map文件是通过编译器编译之后，集程序、数据及IO空间的一种映射文件；一般出现内存越界或溢出，又或者是代码优化的情况，首先想到的就是分析map文件，通过map文件可以知道函数大小，入口地址等一些重要信息，总共分为五大类</p>
+<ul>
+<li>Section Cross References：模块、段(入口)交叉引用</li>
+<li>Removing Unused input sections from the image：移除未调用模块</li>
+<li>Image Symbol Table：映射符号表</li>
+<li>Memory Map of the image：内存（映射）分布</li>
+<li>Image component sizes：存储组成大小</li>
+</ul>
+<h2 id="配置">配置</h2>
+<p>其次就是配置，由于笔者这里大多数是使用keil，所有就展示的keil的配置（虽然大概率就是已经配置好的）；路径是先点击魔法棒，然后Listing选项卡中，最后在Linker Listing：map.map勾选即可</p>
+<ul>
+<li>Memory Map：内存映射</li>
+<li>Callgraph：图像映射</li>
+<li>Symbols：符号</li>
+<li>Cross Reference：交叉引用</li>
+<li>Size Info：大小信息</li>
+<li>Totals Info：统计信息</li>
+<li>Unused Section Info：未调用模块信息</li>
+<li>Veneers Info：装饰信息</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178211830.png" alt="" loading="lazy"></figure>
+<p>最后的map文件可以在~\xxx\MDK-ARM\xxx中找到</p>
+<h2 id="概念">概念</h2>
+<p>最后是关于map文件基本概念</p>
+<ul>
+<li>段（section）：描述映像文件的代码和数据块</li>
+<li>RO：Read-Only的缩写，包括RO-data（只读数据）和RO-code（代码）</li>
+<li>RW：Read-Write的缩写，主要是RW-data，RW-data由程序初始化初始值</li>
+<li>ZI：Zero-initialized的缩写，主要是ZI-data，由编译器初始化为0</li>
+<li>.text：与RO-code同义</li>
+<li>.constdata：与RO-data同义</li>
+<li>.bss：与ZI-data同义</li>
+<li>.data：与RW-data同义</li>
+</ul>
+<h1 id="map文件内容详解">map文件内容详解</h1>
+<br />
+<h2 id="section-cross-references模块-段入口交叉引用">Section Cross References—模块、段(入口)交叉引用</h2>
+<p>当我们打开map文件的时候，第一大块就是Section Cross References，主要内容是是各个源文件生成的模块、段（定义的入口）之间相互引用的关系</p>
+<p>例如： main.o(i.SystemClock_Config) refers to stm32f1xx_hal_rcc.o(i.HAL_RCC_OscConfig) for HAL_RCC_OscConfig，意思是main模块中SystemClock_Config引用了 stm32f1xx_hal_rcc模块中HAL_RCC_OscConfig函数</p>
+<p>需要注意的是，在map文件中i指的是独立函数，是一种编译器优化编译的一种方式，可以精确地控制每个函数的位置，或者删除没用的函数，通俗来讲也就是可以在map文件看到更多信息以及更精准的定位</p>
+<h2 id="removing-unused-input-sections-from-the-image移除未调用模块">Removing Unused input sections from the image—移除未调用模块</h2>
+<p>在代码中没有被调用的模块会在map文件生成列表，最后会在这部分显现出来</p>
+<p>例如：Removing stm32f1xx_hal_rcc_ex.o(i.HAL_RCCEx_GetPeriphCLKConfig), (44 bytes).，意思是删除了stm32f1xx_hal_rcc_ex模块的HAL_RCCEx_GetPeriphCLKConfig函数，大小是44字节</p>
+<p>除此以外，最后会有一个汇总，删除了180个模块，共计7710字节</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178225036.png" alt="" loading="lazy"></figure>
+<h2 id="image-symbol-table映射符号表">Image Symbol Table—映射符号表</h2>
+<p>这部分分为两块，一块是Local Symbols，主要静态函数，变量以及常量；另外一块是Global Symbols，主要是外部函数和全局变量</p>
+<ul>
+<li>Symbol Name：符号的名称以及路径</li>
+<li>Value：地址</li>
+<li>Type：符号的类型，常见的大概是四种
+<ul>
+<li>Number</li>
+<li>Section</li>
+<li>Thumb Code</li>
+<li>Data</li>
+</ul>
+</li>
+<li>Size：大小，单位是字节</li>
+<li>Object(Section)：表示符号所在的目标文件及其对应的段<br>
+我们从这部分可以看出一些函数或变量的地址</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178244939.png" alt="" loading="lazy"></figure>
+<h2 id="memory-map-of-the-image内存映射分布">Memory Map of the image—内存（映射）分布</h2>
+<p>在执行映像之前，必须将已初始化的RW数据从ROM中复制到RAM中的执行地址并创建ZI Section(初始化为0的变量区)</p>
+<p>这里引用rtthread文档中的内存分布图</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178253126.png" alt="" loading="lazy"></figure>
+<p>STM32 在上电启动之后默认从 Flash 启动，启动之后会将 RW 段中的 RW-data（初始化的全局变量）搬运到 RAM 中，但不会搬运 RO 段，即 CPU 的执行代码从 Flash 中读取，另外根据编译器给出的 ZI 地址和大小分配出 ZI 段，并将这块 RAM 区域清零</p>
+<ul>
+<li>Exec Addr：执行地址，即当程序运行时，该段在内存中将被加载到的地址</li>
+<li>Load Addr：加载地址，即当程序从存储器（如 Flash）加载到内存时，该段最初加载到的地址，由上图可以知道，启动之后RO是不会变的，但RW是会移动到RAM里面，所以在RO中Exec Addr和Load Addr是一致的，但RW会不一样且Load Addr比Exec Addr大</li>
+<li>Size：段的大小，以字节为单位</li>
+<li>Type：段的类型
+<ul>
+<li><strong>Code</strong>：表示可执行代码</li>
+<li><strong>Data</strong>：表示数据段，包括已初始化的全局变量等</li>
+<li><strong>RO Data</strong>：只读数据，如常量、字符串字面值等</li>
+</ul>
+</li>
+<li>Attr：段的属性，在RO中Attr都是RO，在RW中Attr都是RW</li>
+<li>Idx：索引号，表示该段在符号表中的索引位置，通常用于区分符号表中的不同段</li>
+<li>E Section Name：段的名称</li>
+<li>Object：目标文件</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178266676.png" alt="" loading="lazy"></figure>
+<h2 id="image-component-sizes存储组成大小">Image component sizes—存储组成大小</h2>
+<ul>
+<li>Code (inc. data)：代码部分（即可执行指令）及其包含的任何初始化数据的总大小，包括.text段和任何被标记为只读的初始化数据（如.rodata段）</li>
+<li>RO Data：只读数据的总大小。这部分通常包括常量字符串、枚举、常量数组等，存储在.rodata段中</li>
+<li>RW Data：可读可写数据的总大小。这部分包含已初始化的全局变量和静态变量，存储在.data段中</li>
+<li>ZI Data：零初始化数据的总大小。这部分通常包含未初始化的全局变量和静态变量，存储在.bss段中</li>
+<li>Debug：表示与调试相关的数据占用空间，包括调试符号、调试信息</li>
+<li>Object Name：目标文件的名称</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178294122.png" alt="" loading="lazy"></figure>
+<p>RAM=RW=1.62KB</p>
+<p>ROM=ROM = 2.44KB</p>
+<figure data-type="image" tabindex="7"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178282500.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+</feed>

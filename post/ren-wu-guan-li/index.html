@@ -1,0 +1,381 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>任务管理 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    任务管理
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%94%A4%E9%86%92%E4%B8%8E%E6%8C%82%E8%B5%B7">任务的唤醒与挂起</a></li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E5%88%A0%E9%99%A4">任务删除</a>
+<ul>
+<li><a href="#%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4">强制删除</a></li>
+<li><a href="#%E8%AE%BE%E7%BD%AE%E5%88%A0%E9%99%A4%E6%A0%87%E5%BF%97%E8%87%AA%E4%B8%BB%E5%88%A0%E9%99%A4">设置删除标志——自主删除</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81">任务状态</a></li>
+</ul>
+</p>
+<h1 id="任务的唤醒与挂起">任务的唤醒与挂起</h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 连接结点
+    tNode linkNode;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+    // 被挂起的次数
+    uint32_t suspendCount;
+ }tTask;
+</code></pre>
+<p>在tTask中新增挂起次数，用于合理控制挂起和唤醒，具体思路可以见调度锁处</p>
+<pre><code class="language-c">void tTaskSuspend (tTask * task) 
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 不允许对已经进入延时状态的任务挂起
+    if (!(task-&gt;state &amp; TINYOS_TASK_STATE_DELAYED)) 
+    {
+        // 增加挂起计数，仅当该任务被执行第一次挂起操作时，才考虑是否
+        // 要执行任务切换操作
+        if (++task-&gt;suspendCount &lt;= 1)
+        {
+            // 设置挂起标志
+            task-&gt;state |= TINYOS_TASK_STATE_SUSPEND;
+            // 挂起方式很简单，就是将其从就绪队列中移除，这样调度器就不会发现他
+            // 也就没法切换到该任务运行
+            tTaskSchedUnRdy(task);
+            // 当然，这个任务可能是自己，那么就切换到其它任务
+            if (task == currentTask)
+            {
+                tTaskSched();
+            }
+        }
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+void tTaskWakeUp (tTask * task)
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+     // 检查任务是否处于挂起状态
+    if (task-&gt;state &amp; TINYOS_TASK_STATE_SUSPEND)
+    {
+        // 递减挂起计数，如果为0了，则清除挂起标志，同时设置进入就绪状态
+        if (--task-&gt;suspendCount == 0) 
+        {
+            // 清除挂起标志
+            task-&gt;state &amp;= ~TINYOS_TASK_STATE_SUSPEND;
+            // 同时将任务放回就绪队列中
+            tTaskSchedRdy(task);
+            // 唤醒过程中，可能有更高优先级的任务就绪，执行一次任务调度
+            tTaskSched();
+        }
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>tTaskSuspend中，先对任务进行判断是否处于延时，然后对挂起任务的计数加加，第一次挂起的时候会判断当前任务是否是自己，是则切换任务</p>
+<p>tTaskWakeUp中，这个函数比tTaskSuspend思路简单一点，只需要对挂起任务的计数减减，当减到0的时候，将任务加入到任务队列中，再开启调度</p>
+<h1 id="任务删除">任务删除</h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 连接结点
+    tNode linkNode;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+    // 被挂起的次数
+    uint32_t suspendCount;
+    // 任务被删除时调用的清理函数
+    void (*clean) (void * param);
+    // 传递给清理函数的参数
+    void * cleanParam;
+    // 请求删除标志，非0表示请求删除
+    uint8_t requestDeleteFlag;
+ }tTask;
+ void tTaskSetCleanCallFunc (tTask * task, void (*clean)(void * param), void * param) 
+{
+    task-&gt;clean = clean;
+    task-&gt;cleanParam = param;
+}
+</code></pre>
+<p>tTask新增clean清理函数，清理函数的参数和requestDeleteFlag删除标志</p>
+<p>tTaskSetCleanCallFunc中，是设置任务删除调用的清理函数，具体用法如下，其中task1DestroyFunc就是清理函数</p>
+<pre><code class="language-c">tTaskSetCleanCallFunc(currentTask, task1DestroyFunc, (void *)0);
+</code></pre>
+<p>tTaskinit中作出以下修改，clean置0的初始化的目的是我们可以不采用清理函数</p>
+<pre><code class="language-c">    task-&gt;clean = (void(*)(void *))0;                   // 设置清理函数
+    task-&gt;cleanParam = (void *)0;                       // 设置传递给清理函数的参数
+    task-&gt;requestDeleteFlag = 0;                        // 请求删除标记
+</code></pre>
+<p>总共有两种删除方式，一种是强制删除，另外一种是设置删除标志</p>
+<h2 id="强制删除">强制删除</h2>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86/0.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">void tTaskForceDelete (tTask * task) 
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+     // 如果任务处于延时状态，则从延时队列中删除
+    if (task-&gt;state &amp; TINYOS_TASK_STATE_DELAYED) 
+    {
+        tTimeTaskRemove(task);
+    }
+		// 如果任务不处于挂起状态，那么就是就绪态，从就绪表中删除
+    else if (!(task-&gt;state &amp; TINYOS_TASK_STATE_SUSPEND))
+    {
+        tTaskSchedRemove(task);
+    }
+    // 删除时，如果有设置清理函数，则调用清理函数
+    if (task-&gt;clean) 
+    {
+        task-&gt;clean(task-&gt;cleanParam);
+    }
+    // 如果删除的是自己，那么需要切换至另一个任务，所以执行一次任务调度
+    if (currentTask == task) 
+    {
+        tTaskSched();
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>tTaskForceDelete逻辑比较简单，在所有队列中移除，调用清理回调函数，最好再判断切换</p>
+<h2 id="设置删除标志自主删除">设置删除标志——自主删除</h2>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86/1.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">void tTaskRequestDelete (tTask * task)
+{
+   // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 设置清除删除标记
+    task-&gt;requestDeleteFlag = 1;
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+uint8_t tTaskIsRequestedDelete (void)
+{
+    uint8_t delete;
+   // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 获取请求删除标记
+    delete = currentTask-&gt;requestDeleteFlag;
+    // 退出临界区
+    tTaskExitCritical(status); 
+    return delete;
+}
+void tTaskDeleteSelf (void)
+{
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 任务在调用该函数时，必须是处于就绪状态，不可能处于延时或挂起等其它状态
+    // 所以，只需要从就绪队列中移除即可
+    tTaskSchedRemove(currentTask);
+    // 删除时，如果有设置清理函数，则调用清理函数
+    if (currentTask-&gt;clean)
+    {
+        currentTask-&gt;clean(currentTask-&gt;cleanParam);
+    }
+    // 接下来，肯定是切换到其它任务去运行
+    tTaskSched();
+    // 退出临界区
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>tTaskIsRequestedDelete是处于任务或者定时器之类的周期运行中；重点集中在tTaskDeleteSelf上，这个函数是放在任务中，这样状态处于就绪态，操作更为简单，任务也必定需要切换为其他任务</p>
+<h1 id="任务状态">任务状态</h1>
+<pre><code class="language-c">typedef struct _tTaskInfo {
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+    // 被挂起的次数
+    uint32_t suspendCount;
+}tTaskInfo;
+</code></pre>
+<p>新增tTaskInfo结构体，用于储存任务状态</p>
+<pre><code class="language-c">void tTaskGetInfo (tTask * task, tTaskInfo * info)
+{
+   // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    info-&gt;delayTicks = task-&gt;delayTicks;                // 延时信息
+    info-&gt;prio = task-&gt;prio;                            // 任务优先级
+    info-&gt;state = task-&gt;state;                          // 任务状态
+    info-&gt;slice = task-&gt;slice;                          // 剩余时间片
+    info-&gt;suspendCount = task-&gt;suspendCount;            // 被挂起的次数
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>做状态查询的目的是避免过多使用全局变量，这种思路在大多项目都采用</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

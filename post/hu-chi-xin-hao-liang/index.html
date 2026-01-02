@@ -1,0 +1,415 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>互斥信号量 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    互斥信号量
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">互斥信号量的原理和创建</a></li>
+<li><a href="#%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E7%AD%89%E5%BE%85%E5%92%8C%E9%80%9A%E7%9F%A5">互斥信号量的等待和通知</a></li>
+<li><a href="#%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">互斥信号量的删除和状态查询</a></li>
+</ul>
+</p>
+<h1 id="互斥信号量的原理和创建">互斥信号量的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/1.png" alt="" loading="lazy"></figure>
+<p>对于解决多任务共享资源冲突的问题，大致有三种解决办法，一种是关中断，这种一般冲突的是中断；第二种是调度锁，缺点和第一种一样，如果资源占用时间太长的话，会影响实时性；第三种是计数信号量，如上图，如果在嵌套的时候，同时使用了信号量并且与该信号量一样，那会被卡死，同样如果任何任务都能notify，那么安全性就会大大降低，对线程管理还说，也会有优先级反转的问题</p>
+<p>下图是优先级反转的框图，大致是低优先级占有资源，高优先级意图访问资源，但是中间有中优先级任务，这就导致了优先级最高的任务，反而最后运行</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/2.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/3.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/4.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/5.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">typedef struct  _tMutex
+{
+    // 事件控制块
+    tEvent event;
+    // 已被锁定的次数
+    uint32_t lockedCount;
+    // 拥有者
+    tTask * owner;
+    // 拥有者原始的优先级
+    uint32_t ownerOriginalPrio;
+}tMutex;
+</code></pre>
+<p>对于互斥量的构造来说，比较复杂，相比信号量来说，多了owner和ownerOriginalPrio，分别用于确定拥有者和优先级继承的</p>
+<pre><code class="language-c">void tMutexInit (tMutex * mutex)
+{
+    tEventInit(&amp;mutex-&gt;event, tEventTypeMutex);
+    mutex-&gt;lockedCount = 0;
+    mutex-&gt;owner = (tTask *)0;
+    mutex-&gt;ownerOriginalPrio = TINYOS_PRO_COUNT;
+}
+</code></pre>
+<p>初始化比较简单，对每个构造进行初始化信息即可</p>
+<h1 id="互斥信号量的等待和通知">互斥信号量的等待和通知</h1>
+<figure data-type="image" tabindex="7"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/6.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="8"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/7.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="9"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/8.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="10"><img src="https://hanaeternum.github.io/post-images/%E4%BA%92%E6%96%A5%E4%BF%A1%E5%8F%B7%E9%87%8F/9.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">uint32_t tMutexWait (tMutex * mutex, uint32_t waitTicks)
+{
+    uint32_t status = tTaskEnterCritical();
+    if (mutex-&gt;lockedCount &lt;= 0)
+    {
+        // 如果没有锁定，则使用当前任务锁定
+        mutex-&gt;owner = currentTask;
+        mutex-&gt;ownerOriginalPrio = currentTask-&gt;prio;
+        mutex-&gt;lockedCount++;
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    else
+    {
+        // 信号量已经被锁定
+        if (mutex-&gt;owner == currentTask)
+        {
+            // 如果是信号量的拥有者再次wait，简单增加计数
+            mutex-&gt;lockedCount++;
+            tTaskExitCritical(status);
+            return tErrorNoError;
+        }
+        else
+        {
+            // 如果是信号量拥有者之外的任务wait，则要检查下是否需要使用
+            // 优先级继承方式处理
+            if (currentTask-&gt;prio &lt; mutex-&gt;owner-&gt;prio)
+            {
+                tTask * owner = mutex-&gt;owner;
+                // 如果当前任务的优先级比拥有者优先级更高，则使用优先级继承
+                // 提升原拥有者的优先
+                if (owner-&gt;state == TINYOS_TASK_STATE_RDY)
+                {
+                    // 任务处于就绪状态时，更改任务在就绪表中的位置
+                    tTaskSchedUnRdy(owner);
+                    owner-&gt;prio = currentTask-&gt;prio;
+                    tTaskSchedRdy(owner);
+                }
+                else
+                {
+                    // 其它状态，只需要修改优先级
+                    owner-&gt;prio = currentTask-&gt;prio;
+                }
+            }
+            // 当前任务进入等待队列中
+            tEventWait(&amp;mutex-&gt;event, currentTask, (void *)0, tEventTypeMutex, waitTicks);
+            tTaskExitCritical(status);
+            // 执行调度， 切换至其它任务
+            tTaskSched();
+            return currentTask-&gt;waitEventResult;
+        }
+    }
+}
+uint32_t tMutexNoWaitGet (tMutex * mutex)
+{
+    uint32_t status = tTaskEnterCritical();
+
+    if (mutex-&gt;lockedCount &lt;= 0)
+    {
+        // 如果没有锁定，则使用当前任务锁定
+        mutex-&gt;owner = currentTask;
+        mutex-&gt;ownerOriginalPrio = currentTask-&gt;prio;
+        mutex-&gt;lockedCount++;
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    else
+    {
+        // 信号量已经被锁定
+        if (mutex-&gt;owner == currentTask)
+        {
+            // 如果是信号量的拥有者再次wait，简单增加计数
+            mutex-&gt;lockedCount++;
+            tTaskExitCritical(status);
+            return tErrorNoError;
+        }
+        tTaskExitCritical(status);
+        return tErrorResourceUnavaliable;
+    }
+}
+uint32_t tMutexNotify (tMutex * mutex)
+{
+    uint32_t status = tTaskEnterCritical();
+
+    if (mutex-&gt;lockedCount &lt;= 0)
+    {
+        // 锁定计数为0，信号量未被锁定，直接退出
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    if (mutex-&gt;owner != currentTask)
+    {
+        // 不是拥有者释放，认为是非法
+        tTaskExitCritical(status);
+        return tErrorOwner;
+    }
+    if (--mutex-&gt;lockedCount &gt; 0)
+    {
+        // 减1后计数仍不为0, 直接退出，不需要唤醒等待的任务
+        tTaskExitCritical(status);
+        return tErrorNoError;
+    }
+    // 是否有发生优先级继承
+    if (mutex-&gt;ownerOriginalPrio != mutex-&gt;owner-&gt;prio)
+    {
+        // 有发生优先级继承，恢复拥有者的优先级
+        if (mutex-&gt;owner-&gt;state == TINYOS_TASK_STATE_RDY)
+        {
+            // 任务处于就绪状态时，更改任务在就绪表中的位置
+            tTaskSchedUnRdy(mutex-&gt;owner);
+            currentTask-&gt;prio = mutex-&gt;ownerOriginalPrio;
+            tTaskSchedRdy(mutex-&gt;owner);
+        }
+        else
+        {
+            // 其它状态，只需要修改优先级
+            currentTask-&gt;prio = mutex-&gt;ownerOriginalPrio;
+        }
+    }
+
+    // 检查是否有任务等待
+    if (tEventWaitCount(&amp;mutex-&gt;event) &gt; 0)
+    {
+        // 如果有的话，则直接唤醒位于队列首部（最先等待）的任务
+        tTask * task = tEventWakeUp(&amp;mutex-&gt;event, (void *)0, tErrorNoError);
+        mutex-&gt;owner = task;
+        mutex-&gt;ownerOriginalPrio = task-&gt;prio;
+        mutex-&gt;lockedCount++;
+        // 如果这个任务的优先级更高，就执行调度，切换过去
+        if (task-&gt;prio &lt; currentTask-&gt;prio)
+        {
+            tTaskSched();
+        }
+    }
+    tTaskExitCritical(status);
+    return tErrorNoError;
+}
+
+</code></pre>
+<p>tMutexWait中，大致逻辑是先对计数判断，非正即未锁定，那么就使用当前任务锁定，如果已经被锁定了那么就执行下一步判断，也就是当前任务是信号量的拥有者还是其他，是信号量的拥有者的话就简单加加一下，是其它任务的话，就需要当前任务的优先级比拥有者优先级更高，则使用优先级继承，插入等待队列中，这里有一个细节，<strong>由于我们修改了拥有者的优先级，那么如果拥有者处于就绪态，我们就需要更改其位置</strong></p>
+<p>tMutexNoWaitGet中，与tMutexWait类似，不同的是，tMutexNoWaitGet并没有相关等待队列的功能，当然也不会有优先级继承</p>
+<p>tMutexNotify中，前面是一些判断，主要是合法判断，比如计数为0即未锁定，则直接退出，以及只能通过拥有者释放等，后面就是优先级继承的操作，先是恢复优先级，仿照tMutexWait中，处于就绪态就更改位置，方便运行；最后就是取出任务运行</p>
+<h1 id="互斥信号量的删除和状态查询">互斥信号量的删除和状态查询</h1>
+<pre><code class="language-c">typedef struct  _tMutexInfo
+{
+    // 等待的任务数量
+    uint32_t taskCount;
+    // 拥有者任务的优先级
+    uint32_t ownerPrio;
+    // 继承优先级
+    uint32_t inheritedPrio;
+    // 当前信号量的拥有者
+    tTask * owner;
+    // 锁定次数
+    uint32_t lockedCount;
+}tMutexInfo;
+
+uint32_t tMutexDestroy (tMutex * mutex)
+{
+    uint32_t count = 0;
+    uint32_t status = tTaskEnterCritical();
+    // 信号量是否已经被锁定，未锁定时没有任务等待，不必处理
+    if (mutex-&gt;lockedCount &gt; 0)
+    {
+        // 是否有发生优先级继承?如果发生，需要恢复拥有者的原优先级
+        if (mutex-&gt;ownerOriginalPrio != mutex-&gt;owner-&gt;prio)
+        {
+            // 有发生优先级继承，恢复拥有者的优先级
+            if (mutex-&gt;owner-&gt;state == TINYOS_TASK_STATE_RDY)
+            {
+                // 任务处于就绪状态时，更改任务在就绪表中的位置
+                tTaskSchedUnRdy(mutex-&gt;owner);
+                mutex-&gt;owner-&gt;prio = mutex-&gt;ownerOriginalPrio;
+                tTaskSchedRdy(mutex-&gt;owner);
+            }
+            else
+            {
+                // 其它状态，只需要修改优先级
+                mutex-&gt;owner-&gt;prio = mutex-&gt;ownerOriginalPrio;
+            }
+        }
+        // 然后，清空事件控制块中的任务
+        count = tEventRemoveAll(&amp;mutex-&gt;event, (void *)0, tErrorDel);
+        // 清空过程中可能有任务就绪，执行一次调度
+        if (count &gt; 0)
+        {
+            tTaskSched();
+        }
+    }
+
+    tTaskExitCritical(status);
+    return count;
+}
+void tMutexGetInfo (tMutex * mutex, tMutexInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 拷贝需要的信息
+    info-&gt;taskCount = tEventWaitCount(&amp;mutex-&gt;event);
+    info-&gt;ownerPrio = mutex-&gt;ownerOriginalPrio;
+    if (mutex-&gt;owner != (tTask *)0)
+    {
+        info-&gt;inheritedPrio = mutex-&gt;owner-&gt;prio;
+    }
+    else
+    {
+        info-&gt;inheritedPrio = TINYOS_PRO_COUNT;
+    }
+    info-&gt;owner = mutex-&gt;owner;
+    info-&gt;lockedCount = mutex-&gt;lockedCount;
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>新增tMutexInfo结构体，在tMutexGetInfo获取想要的信息，例如等待任务数量，原本优先级和继承优先级等</p>
+<p>删除函数tMutexDestroy比起其他会更复杂一些，因为删除的内容不止是等待列表，还有互斥量的持有者，也需要考虑优先级继承的问题</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

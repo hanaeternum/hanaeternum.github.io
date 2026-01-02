@@ -1,0 +1,239 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>CMake | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    CMake
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-06-20 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AFcmake">什么是CMake</a></li>
+<li><a href="#cmake%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B">CMake工作流程</a></li>
+<li><a href="#cmake%E7%A4%BA%E4%BE%8Bvscode">CMake示例(vscode)</a>
+<ul>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">准备工作</a></li>
+<li><a href="#c%E8%AF%AD%E8%A8%80">C语言</a></li>
+<li><a href="#cubemxstm32">Cubemx+STM32</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="什么是cmake">什么是CMake</h1>
+<p>CMake是一个开源、跨平台的工具系列，是用来构建、测试和打包软件</p>
+<p>CMake使用平台无关的配置文件来控制软件编译过程，并生成可在您选择的编译器环境中使用项目文件，比如可以生成vs项目文件或者makefile</p>
+<p>有如下优势：</p>
+<p>1.CMake 是一个平台无关的构建系统，可以生成适用于不同平台的原生构建文件，也就是一次编写 CMakeLists.txt，可在多平台上使用</p>
+<p>2.CMake 可以生成不同的构建系统配置文件，包括：</p>
+<ul>
+<li>Makefiles（默认）</li>
+<li>Ninja（更快的构建工具）</li>
+<li>Visual Studio 工程文件</li>
+<li>Xcode 工程文件</li>
+</ul>
+<p>3.CMake 支持模块化构建，可以把项目拆成多个子模块，并通过 add_subdirectory() 管理，同时支持大量模块和第三方扩展</p>
+<ul>
+<li>查找系统库（<code>find_package(OpenGL REQUIRED)</code>）</li>
+<li>自定义宏（<code>macro()</code> / <code>function()</code>）</li>
+<li>导出/导入目标（<code>install()</code>, <code>export()</code>）</li>
+</ul>
+<h1 id="cmake工作流程">CMake工作流程</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/CMake/0.jpg" alt="" loading="lazy"></figure>
+<p>对于本人来说，使用到的构建工具一般是ninja和makefile(嵌入式居多)</p>
+<h1 id="cmake示例vscode">CMake示例(vscode)</h1>
+<br />
+<h2 id="准备工作">准备工作</h2>
+<p><a href="https://cmake.org/download/">CMake下载</a></p>
+<p><a href="https://github.com/ninja-build/ninja/releases/v1.12.1">Ninja下载</a></p>
+<p><a href="https://sourceforge.net/projects/mingw-w64/files/">MinGW下载</a></p>
+<p><a href="https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads">ARMGCC下载</a></p>
+<p>将如上下载好然后创建好环境变量即可，如果觉得麻烦可以试试msys2，这里不过多赘述</p>
+<h2 id="c语言">C语言</h2>
+<p>创建好main.c和CMakelists.txt</p>
+<pre><code>cmake_minimum_required(VERSION 4.0.2)#最低版本
+project(my_hello C) #指定工程名和语言
+
+set(CMAKE_C_STANDARD 99) 
+
+#include_directories(${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin) #设置输出文件路径
+message(STATUS &quot;Collected C source files: ${PROJECT_SOURCE_DIR}&quot;)#打印输出
+
+aux_source_directory(${PROJECT_SOURCE_DIR} SRC_LIST) #自动(不会递归)在收集所有.c文件，并保存到SRC_LIST变量
+message(STATUS &quot;Collected C source files: ${SRC_LIST}&quot;)
+
+add_executable(my_hello ${SRC_LIST})#生成一个可执行文件
+
+</code></pre>
+<p>然后在vscode中选择相应的编译器(这里我之前踩了一个坑：当你修改了路径或者重新装一个新的编译器的时候，需要在红框里面重新扫描，不然出现不了)</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/CMake/image.png" alt="" loading="lazy"></figure>
+<p>然后点击生成即可，生成之后build目录出现makefile，make一下即可</p>
+<h2 id="cubemxstm32">Cubemx+STM32</h2>
+<p>Cubemx需要准备高版本的，不然不能输出CMake版本</p>
+<p>成功后，直接生成就可以运行了</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/CMake/image1.png" alt="" loading="lazy"></figure>
+<p>这里vscode由于没有配置json的原因会显示报错，但不用管(报错请关注终端)</p>
+<p>如果需要把这个报错去掉的话：</p>
+<p>1.找到一个.c或.h文件，点击右下角，选择json</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/CMake/image2.png" alt="" loading="lazy"></figure>
+<p>2.点击cmake\stm32cubemx\CMakelists.txt，将下图的编译时的宏定义，复制到c_cpp_properties.json的define中</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/CMake/image3.png" alt="" loading="lazy"></figure>
+<p>3.在.vscode\c_cpp_properties.json，添加compilerPath(这里不太规范应该使用arm-gcc)</p>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/CMake/image4.png" alt="" loading="lazy"></figure>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://hanaeternum.github.io/post/qian-ru-shi-xip/" class="post-title gt-a-link">
+                    嵌入式XIP
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>栈和队列 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    栈和队列
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-10-04 ·
+                    </time>
+                    
+                        <a href="https://hanaeternum.github.io/tag/suan-fa/" class="post-tags">
+                            # 算法
+                        </a>
+                    
+                        <a href="https://hanaeternum.github.io/tag/c-yu-yan/" class="post-tags">
+                            # C语言
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E6%A0%88">栈</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96">初始化</a></li>
+<li><a href="#%E5%85%A5%E6%A0%88">入栈</a></li>
+<li><a href="#%E5%87%BA%E6%A0%88">出栈</a></li>
+<li><a href="#%E5%8F%96%E6%A0%88%E9%A1%B6%E5%85%83%E7%B4%A0">取栈顶元素</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%98%9F%E5%88%97">队列</a>
+<ul>
+<li><a href="#%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA-2">定义和基础理论</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C-2">基础操作</a>
+<ul>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96-2">初始化</a></li>
+<li><a href="#%E6%B1%82%E9%98%9F%E5%88%97%E9%95%BF%E5%BA%A6">求队列长度</a></li>
+<li><a href="#%E5%85%A5%E9%98%9F">入队</a></li>
+<li><a href="#%E5%87%BA%E9%98%9F">出队</a></li>
+<li><a href="#%E5%8F%96%E9%98%9F%E5%A4%B4%E5%85%83%E7%B4%A0">取队头元素</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%98%9F%E5%88%97">双向队列</a></li>
+</ul>
+</li>
+<li><a href="#%E5%B0%8F%E7%BB%93">小结</a></li>
+</ul>
+</p>
+<h1 id="栈">栈</h1>
+<br />
+<h2 id="定义和基础理论">定义和基础理论</h2>
+<p>栈是一种限制插入和删除操作只能在一个位置进行的列表，栈遵循后进先出（LIFO—Last In First Out）的原则，在栈中，每当新元素被添加，它就被放置在栈顶。当元素被移除时，栈顶的元素被取出</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image.png" alt="" loading="lazy"></figure>
+<p>以下是常用的应用场景</p>
+<ul>
+<li>子程序的调用：在跳往子程序前，会先将下个指令的地址存到堆栈中，直到子程序执行完后再将地址取出，以回到原来的程序中</li>
+<li>递归的调用：可以用来在函数调用的时候存储断点，储存下一个指令的地址外，也将参数、区域变量等数据存入栈中</li>
+<li>表达式的转换[中缀表达式转后缀表达式]与求值</li>
+<li>二叉树的遍历</li>
+<li>图形的深度优先搜索法</li>
+</ul>
+<p>定义分为两种栈的定义，一种是顺序栈，一种是链栈</p>
+<pre><code class="language-cpp">#define MAXSIZE 100
+typedef struct
+{
+	SElemType *base;
+	SElemType *top;
+	int stacksize;
+}SqStack;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image1.png" alt="" loading="lazy"></figure>
+<p>base为栈底指针，初始化完成后，栈底指针base始终指向栈底的位置，若base的值为NULL，则表明栈结构不存在。top为栈顶指针，甚初值指向栈底。每当插入新的栈顶元素时，指针top增1；删除栈顶元素时，指针top减1。因此，栈空时，top和base的值相等，都指向栈底；栈非空时，top始终指向栈顶元素的上一个位置；stacksize 指示栈可使用的最大容量，后面算法3.1的初始化操作为顺序栈动态分配MAXSIZE大小的数组空间，将stacksize置为MAXSIZE</p>
+<pre><code class="language-cpp">typedef struct StackNode
+{
+	ElemType data;
+	struct StackNode *next;
+}StackNode, *LinkStack;
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image2.png" alt="" loading="lazy"></figure>
+<p>链栈一般选用单链表来表示；由于栈的主要操作是在栈顶插入删除，显然以链表头部是最方便的，因为在链表那节讲过，链表插入时间消耗在找点上，如果是第一个就不需要消耗大量时间，当然，我们为了操作方便一般不需要设置头结点</p>
+<h2 id="基础操作">基础操作</h2>
+<h3 id="初始化">初始化</h3>
+<p>顺序栈的初始化是为顺序栈动态分配一个预定义大小的数组空间</p>
+<pre><code class="language-cpp">Status InitStack(SqStack &amp;S)
+{
+	S.base = new SElemType[MAXSIZE];
+	if (!S.base) exit (OVERFLOW);
+	S.top = S.base;
+	S.stacksize = MAXSIZE;
+	return OK;
+}
+</code></pre>
+<p>链栈初始化操作是构造一个空栈，因为没有头结点，所以直接将栈顶指针置空即可</p>
+<pre><code class="language-cpp">Status InitStack(LinkStack &amp;S)
+{
+	S = NULL;	
+	return OK;
+}
+</code></pre>
+<h3 id="入栈">入栈</h3>
+<p>出栈对于两种栈来说并没有需要额外注意的，都是在栈顶插入一个新的元素</p>
+<pre><code class="language-cpp">Status Push(SqStack &amp;S, SElemType e)
+{
+	if (S.top - S.base == S.stacksize) return ERROR;
+	*S.top++ = e;
+	return OK;
+}
+</code></pre>
+<pre><code class="language-cpp">Status Push(LinkStack &amp;S, SElemType e)
+{
+	p = new StackNode;
+	p-&gt;data = e;
+	p-&gt;next = S;
+	S = q;
+	return OK;
+}
+</code></pre>
+<h3 id="出栈">出栈</h3>
+<p>出栈就是将栈顶元素删除，两者有所不同主要存在与资源的释放</p>
+<pre><code class="language-cpp">Status Pop(SqStack &amp;S, SElemType &amp;e)
+{
+	if (S.top == S.base) return ERROR;
+	e = *--S.top;
+	return OK;
+}
+</code></pre>
+<pre><code class="language-cpp">Status Pop(LinkStack &amp;S, SElemType &amp;e)
+{
+	if (S == NULL) return ERROR;
+	e = S-&gt;data;
+	p = S;
+	S = S-&gt;next;
+	delete p;
+	return OK;
+}
+</code></pre>
+<h3 id="取栈顶元素">取栈顶元素</h3>
+<p>栈非空的时候，此操作返回当前栈顶元素的值，栈顶指针保证不变</p>
+<pre><code class="language-cpp">SElemType GetTop()
+{
+	if (S.top != S.base)
+		return *(S.top - 1);
+}
+</code></pre>
+<pre><code class="language-cpp">SElemType GetTop()
+{
+	if (S != NULL)
+		return S-&gt;data;
+}
+</code></pre>
+<h1 id="队列">队列</h1>
+<br />
+<h2 id="定义和基础理论-2">定义和基础理论</h2>
+<p>队列的操作跟栈的操作类似，不同的是，删除是在表的头部(即队头进行)；队列遵循的是后进先出（FIFO—First In First Out）</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image3.png" alt="" loading="lazy"></figure>
+<p>队列也有两种存储表示，顺序表示和链式表示；、</p>
+<p>但是当我们使用顺序存储的时候，常会因在最大空间的位置插入新的队尾元素导致数组越界，但实际可用空间并未占满，这种现象被称为”假溢出”；为解决这个问题，把顺序队列变为了一个环状的空间，被称为循环队列；但同时也会引出一个问题，如何区别队列空满的情况，有两种处理情况，一种是少用一个元素空间，队空的条件是Q.front == Q.rear，队满的条件(Q.rear + 1) % MAXQSIZE == Q.front，另外一种是设置一个标志位区别</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image4.png" alt="" loading="lazy"></figure>
+<pre><code class="language-cpp">#define MAXQSIZE 100
+typedef struct 
+{
+	QElemType *base;
+	int front;
+	int rear;
+}sqQueue;
+</code></pre>
+<p>链队基本和链栈一样，只不过为了操作方便会给链队添加一个头结点</p>
+<pre><code class="language-cpp">typedef struct QNode
+{
+	QElemType data;
+	struct QNode *next;
+}QNode, *QueuePtr;
+typedef struct
+{
+	QueuePtr front;
+	QueuePtr rear;
+}LinkQueue;
+</code></pre>
+<h2 id="基础操作-2">基础操作</h2>
+<h3 id="初始化-2">初始化</h3>
+<p>循环队列的初始化就是动态分配一个预定义大小为MAXQSIZE的数组空间</p>
+<pre><code class="language-cpp">Status InitQueue(SqQueue &amp;Q)
+{
+	Q.base = new QElemType[MAXQSIZE];
+	if (!Q.base) exit (OVERFLOW);
+	Q.front = Q.rear;
+	Q.rear = 0;
+	return OK;
+}
+</code></pre>
+<p>链队初始化操作是构造一个只有头结点的空队</p>
+<pre><code class="language-cpp">Status InitQueue(LinkQueue &amp;Q)
+{
+	Q.front = Q.rear = new QNode;
+	Q.front-&gt;next = NULL;
+	return OK;
+}
+</code></pre>
+<h3 id="求队列长度">求队列长度</h3>
+<p>对于非循环队列，尾指针和头指针的差值就是队列长度，但对于循环队列，差值可能为负数，所以最后插值还需要加MAXQSIZE，在求余</p>
+<pre><code class="language-cpp">int QueueLength (SqQueue Q)
+{
+	return (Q.rear - Q.front + MAXQSIZE) % MAXQSIZE;
+}
+</code></pre>
+<h3 id="入队">入队</h3>
+<p>入队是在队尾插入一个新的元素</p>
+<pre><code class="language-cpp">Status EnQueue (SqQueue &amp;Q, QElemType e)
+{
+	if ((Q.rear + 1) % MAXQSIZE == Q.front) return ERROR;
+	Q.base[Q.rear] = e;
+	Q.rear = (Q.rear + 1) % MAXQSIZE;
+	return OK;
+}
+</code></pre>
+<p>和循环队列不同的是，链队在入队之前不需要判断是否满，需要为入队元素动态分配一个空间</p>
+<pre><code class="language-cpp">Status EnQueue (LinkQueue &amp;Q, QElemType e)
+{
+	p = new QNode;
+	p-&gt;data = e;
+	p-&gt;next = NULL;
+	Q.rear-&gt;next = p;
+	Q.rear = p;
+	return OK;
+}
+</code></pre>
+<h3 id="出队">出队</h3>
+<p>出队操作是将队头元素删除</p>
+<pre><code class="language-cpp">Status DeQueue (SqQueue &amp;Q, QElemType &amp;e)
+{
+	if (Q.front == Q.rear) return ERROR;
+	e = Q.base[Q.front];
+	Q.front = (Q.front + 1) % MAXQSIZE;
+	return OK;
+}
+</code></pre>
+<p>和入队类似，我们并不需要判断队列是否为空，不同的是，链队在出队后需要释放队头元素所占的空间；需要注意的是出队操作的时候还需要考虑当队列最后一个元素被删除后，队列尾指针也丢失了，因此需要对队尾指针重新赋值</p>
+<pre><code class="language-cpp">Status DeQueue (LinkQueue &amp;Q, QElemType &amp;e)
+{
+	if(Q.front == Q.rear) return ERROR;
+	p = Q.front-&gt;next;
+	e = p-&gt;data;
+	Q.front-&gt;next = p-&gt;next;
+	if (Q.rear == p) Q.rear = Q.front;
+	delete p;
+	return OK;
+}
+</code></pre>
+<h3 id="取队头元素">取队头元素</h3>
+<p>当队列非空的时候，取出头元素会返回头元素的值，队头指针保持不变</p>
+<pre><code class="language-cpp">QElemType GetHead (SqQueue Q)
+{
+	if (Q.front != Q.rear) return Q.base[Q.front];
+}
+</code></pre>
+<pre><code class="language-cpp">QElemType GetHead(LinkQueue Q)
+{
+	if (Q.front != Q.rear) return Q.front-&gt;next-&gt;data;
+}
+</code></pre>
+<h2 id="双向队列">双向队列</h2>
+<p>在队列中，我们仅能删除头部元素或在尾部添加元素；双向队列（double-ended queue）提供了更高的灵活性，允许在头部和尾部执行元素的添加或删除操作</p>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/image5.png" alt="" loading="lazy"></figure>
+<p>双向队列的实现与队列类似，可以选择链表或数组作为底层数据结构</p>
+<h1 id="小结">小结</h1>
+<ul>
+<li>浏览器的前进后退功能本质上是“栈”的体现。当用户访问一个新页面时，该页面会被添加到栈顶；当用户点击后退按钮时，该页面会从栈顶弹出</li>
+<li>撤销（undo）和反撤销（redo）的实现：使用两个栈，栈 A 用于撤销，栈 B 用于反撤销。 每当用户执行一个操作，将这个操作压入栈 A ，并清空栈 B 。 当用户执行“撤销”时，从栈 A 中弹出最近的操作，并将其压入栈 B 。 当用户执行“反撤销”时，从栈 B 中弹出最近的操作，并将其压入栈 A</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://hanaeternum.github.io/post/shun-xu-biao-he-lian-biao/" class="post-title gt-a-link">
+                    顺序表和链表
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>map文件浅析 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    map文件浅析
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-09-24 ·
+                    </time>
+                    
+                        <a href="https://hanaeternum.github.io/tag/qian-ru-shi/" class="post-tags">
+                            # 嵌入式
+                        </a>
+                    
+                        <a href="https://hanaeternum.github.io/tag/dan-pian-ji/" class="post-tags">
+                            # 单片机
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#map%E6%96%87%E4%BB%B6%E7%AE%80%E4%BB%8B">map文件简介</a>
+<ul>
+<li><a href="#%E5%86%85%E5%AE%B9">内容</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
+<li><a href="#%E6%A6%82%E5%BF%B5">概念</a></li>
+</ul>
+</li>
+<li><a href="#map%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E8%AF%A6%E8%A7%A3">map文件内容详解</a>
+<ul>
+<li><a href="#section-cross-references%E6%A8%A1%E5%9D%97-%E6%AE%B5%E5%85%A5%E5%8F%A3%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8">Section Cross References—模块、段(入口)交叉引用</a></li>
+<li><a href="#removing-unused-input-sections-from-the-image%E7%A7%BB%E9%99%A4%E6%9C%AA%E8%B0%83%E7%94%A8%E6%A8%A1%E5%9D%97">Removing Unused input sections from the image—移除未调用模块</a></li>
+<li><a href="#image-symbol-table%E6%98%A0%E5%B0%84%E7%AC%A6%E5%8F%B7%E8%A1%A8">Image Symbol Table—映射符号表</a></li>
+<li><a href="#memory-map-of-the-image%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E5%88%86%E5%B8%83">Memory Map of the image—内存（映射）分布</a></li>
+<li><a href="#image-component-sizes%E5%AD%98%E5%82%A8%E7%BB%84%E6%88%90%E5%A4%A7%E5%B0%8F">Image component sizes—存储组成大小</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="map文件简介">map文件简介</h1>
+<br />
+<h2 id="内容">内容</h2>
+<p>首先我们需要了解map文件是什么，map文件是通过编译器编译之后，集程序、数据及IO空间的一种映射文件；一般出现内存越界或溢出，又或者是代码优化的情况，首先想到的就是分析map文件，通过map文件可以知道函数大小，入口地址等一些重要信息，总共分为五大类</p>
+<ul>
+<li>Section Cross References：模块、段(入口)交叉引用</li>
+<li>Removing Unused input sections from the image：移除未调用模块</li>
+<li>Image Symbol Table：映射符号表</li>
+<li>Memory Map of the image：内存（映射）分布</li>
+<li>Image component sizes：存储组成大小</li>
+</ul>
+<h2 id="配置">配置</h2>
+<p>其次就是配置，由于笔者这里大多数是使用keil，所有就展示的keil的配置（虽然大概率就是已经配置好的）；路径是先点击魔法棒，然后Listing选项卡中，最后在Linker Listing：map.map勾选即可</p>
+<ul>
+<li>Memory Map：内存映射</li>
+<li>Callgraph：图像映射</li>
+<li>Symbols：符号</li>
+<li>Cross Reference：交叉引用</li>
+<li>Size Info：大小信息</li>
+<li>Totals Info：统计信息</li>
+<li>Unused Section Info：未调用模块信息</li>
+<li>Veneers Info：装饰信息</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178211830.png" alt="" loading="lazy"></figure>
+<p>最后的map文件可以在~\xxx\MDK-ARM\xxx中找到</p>
+<h2 id="概念">概念</h2>
+<p>最后是关于map文件基本概念</p>
+<ul>
+<li>段（section）：描述映像文件的代码和数据块</li>
+<li>RO：Read-Only的缩写，包括RO-data（只读数据）和RO-code（代码）</li>
+<li>RW：Read-Write的缩写，主要是RW-data，RW-data由程序初始化初始值</li>
+<li>ZI：Zero-initialized的缩写，主要是ZI-data，由编译器初始化为0</li>
+<li>.text：与RO-code同义</li>
+<li>.constdata：与RO-data同义</li>
+<li>.bss：与ZI-data同义</li>
+<li>.data：与RW-data同义</li>
+</ul>
+<h1 id="map文件内容详解">map文件内容详解</h1>
+<br />
+<h2 id="section-cross-references模块-段入口交叉引用">Section Cross References—模块、段(入口)交叉引用</h2>
+<p>当我们打开map文件的时候，第一大块就是Section Cross References，主要内容是是各个源文件生成的模块、段（定义的入口）之间相互引用的关系</p>
+<p>例如： main.o(i.SystemClock_Config) refers to stm32f1xx_hal_rcc.o(i.HAL_RCC_OscConfig) for HAL_RCC_OscConfig，意思是main模块中SystemClock_Config引用了 stm32f1xx_hal_rcc模块中HAL_RCC_OscConfig函数</p>
+<p>需要注意的是，在map文件中i指的是独立函数，是一种编译器优化编译的一种方式，可以精确地控制每个函数的位置，或者删除没用的函数，通俗来讲也就是可以在map文件看到更多信息以及更精准的定位</p>
+<h2 id="removing-unused-input-sections-from-the-image移除未调用模块">Removing Unused input sections from the image—移除未调用模块</h2>
+<p>在代码中没有被调用的模块会在map文件生成列表，最后会在这部分显现出来</p>
+<p>例如：Removing stm32f1xx_hal_rcc_ex.o(i.HAL_RCCEx_GetPeriphCLKConfig), (44 bytes).，意思是删除了stm32f1xx_hal_rcc_ex模块的HAL_RCCEx_GetPeriphCLKConfig函数，大小是44字节</p>
+<p>除此以外，最后会有一个汇总，删除了180个模块，共计7710字节</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178225036.png" alt="" loading="lazy"></figure>
+<h2 id="image-symbol-table映射符号表">Image Symbol Table—映射符号表</h2>
+<p>这部分分为两块，一块是Local Symbols，主要静态函数，变量以及常量；另外一块是Global Symbols，主要是外部函数和全局变量</p>
+<ul>
+<li>Symbol Name：符号的名称以及路径</li>
+<li>Value：地址</li>
+<li>Type：符号的类型，常见的大概是四种
+<ul>
+<li>Number</li>
+<li>Section</li>
+<li>Thumb Code</li>
+<li>Data</li>
+</ul>
+</li>
+<li>Size：大小，单位是字节</li>
+<li>Object(Section)：表示符号所在的目标文件及其对应的段<br>
+我们从这部分可以看出一些函数或变量的地址</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178244939.png" alt="" loading="lazy"></figure>
+<h2 id="memory-map-of-the-image内存映射分布">Memory Map of the image—内存（映射）分布</h2>
+<p>在执行映像之前，必须将已初始化的RW数据从ROM中复制到RAM中的执行地址并创建ZI Section(初始化为0的变量区)</p>
+<p>这里引用rtthread文档中的内存分布图</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178253126.png" alt="" loading="lazy"></figure>
+<p>STM32 在上电启动之后默认从 Flash 启动，启动之后会将 RW 段中的 RW-data（初始化的全局变量）搬运到 RAM 中，但不会搬运 RO 段，即 CPU 的执行代码从 Flash 中读取，另外根据编译器给出的 ZI 地址和大小分配出 ZI 段，并将这块 RAM 区域清零</p>
+<ul>
+<li>Exec Addr：执行地址，即当程序运行时，该段在内存中将被加载到的地址</li>
+<li>Load Addr：加载地址，即当程序从存储器（如 Flash）加载到内存时，该段最初加载到的地址，由上图可以知道，启动之后RO是不会变的，但RW是会移动到RAM里面，所以在RO中Exec Addr和Load Addr是一致的，但RW会不一样且Load Addr比Exec Addr大</li>
+<li>Size：段的大小，以字节为单位</li>
+<li>Type：段的类型
+<ul>
+<li><strong>Code</strong>：表示可执行代码</li>
+<li><strong>Data</strong>：表示数据段，包括已初始化的全局变量等</li>
+<li><strong>RO Data</strong>：只读数据，如常量、字符串字面值等</li>
+</ul>
+</li>
+<li>Attr：段的属性，在RO中Attr都是RO，在RW中Attr都是RW</li>
+<li>Idx：索引号，表示该段在符号表中的索引位置，通常用于区分符号表中的不同段</li>
+<li>E Section Name：段的名称</li>
+<li>Object：目标文件</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178266676.png" alt="" loading="lazy"></figure>
+<h2 id="image-component-sizes存储组成大小">Image component sizes—存储组成大小</h2>
+<ul>
+<li>Code (inc. data)：代码部分（即可执行指令）及其包含的任何初始化数据的总大小，包括.text段和任何被标记为只读的初始化数据（如.rodata段）</li>
+<li>RO Data：只读数据的总大小。这部分通常包括常量字符串、枚举、常量数组等，存储在.rodata段中</li>
+<li>RW Data：可读可写数据的总大小。这部分包含已初始化的全局变量和静态变量，存储在.data段中</li>
+<li>ZI Data：零初始化数据的总大小。这部分通常包含未初始化的全局变量和静态变量，存储在.bss段中</li>
+<li>Debug：表示与调试相关的数据占用空间，包括调试符号、调试信息</li>
+<li>Object Name：目标文件的名称</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178294122.png" alt="" loading="lazy"></figure>
+<p>RAM=RW=1.62KB</p>
+<p>ROM=ROM = 2.44KB</p>
+<figure data-type="image" tabindex="7"><img src="https://hanaeternum.github.io/post-images/map%E6%96%87%E4%BB%B6%E6%B5%85%E6%9E%90/1727178282500.png" alt="" loading="lazy"></figure>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

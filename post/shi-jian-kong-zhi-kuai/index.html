@@ -1,0 +1,318 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>事件控制块 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    事件控制块
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">事件控制块的原理和创建</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85%E4%B8%8E%E9%80%9A%E7%9F%A5">事件等待与通知</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E7%9A%84%E6%B8%85%E7%A9%BA%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">事件控制块的清空和状态查询</a>
+<ul>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E6%B8%85%E7%A9%BA">事件控制块清空</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">事件控制块状态查询</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<p><strong>我们需要了解事件控制块一般是不需要直接使用的，是作为信号量，消息队列等的底层</strong></p>
+<h1 id="事件控制块的原理和创建">事件控制块的原理和创建</h1>
+<pre><code class="language-c">typedef enum  _tEventType {   
+    tEventTypeUnknown   = 0, 				// 未知类型
+ }tEventType;
+// Event控制结构
+typedef struct _tEvent {
+    tEventType type;						// Event类型
+    tList waitList;							// 任务等待列表
+}tEvent;
+</code></pre>
+<p>增加tEvent结构体，目前存放等待列表和Event类型</p>
+<pre><code class="language-c">    // 任务正在等待的事件类型
+    struct _tEvent * waitEvent;
+    // 等待事件的消息存储位置
+    void * eventMsg;
+    // 等待事件的结果
+    uint32_t waitEventResult;
+</code></pre>
+<p>在tTask加入以上内容，用于保存事件内容状态</p>
+<pre><code class="language-c">void tEventInit (tEvent * event, tEventType type)
+{
+	event-&gt;type = type;
+	tListInit(&amp;event-&gt;waitList);
+}
+</code></pre>
+<p>初始化主要是对类型初始化，以及等待列表</p>
+<h1 id="事件等待与通知">事件等待与通知</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97/1.png" alt="" loading="lazy"></figure>
+<p>这里相比之前，又引入了新的任务状态，也就是等待状态，由事件控制块管理</p>
+<pre><code class="language-c">void tEventWait (tEvent * event, tTask * task, void * msg, uint32_t state, uint32_t timeout)
+{
+  // 进入临界区
+   uint32_t status = tTaskEnterCritical();
+  task-&gt;state |= state;         // 标记任务处于等待某种事件的状态
+  task-&gt;waitEvent = event;        // 设置任务等待的事件结构
+  task-&gt;eventMsg = msg;         // 设置任务等待事件的消息存储位置 
+                      // 因有时候需要接受消息，所以需要接受区
+  task-&gt;waitEventResult = tErrorNoError;  // 清空事件的等待结果
+  // 将任务从就绪队列中移除
+  tTaskSchedUnRdy(task);
+  // 将任务插入到等待队列中
+  tListAddLast(&amp;event-&gt;waitList, &amp;task-&gt;linkNode);
+  // 如果发现有设置超时，在同时插入到延时队列中
+  // 当时间到达时，由延时处理机制负责将任务从延时列表中移除，同时从事件列表中移除
+  if (timeout) 
+  {
+    tTimeTaskWait(task, timeout);
+  }
+  // 退出临界区
+    tTaskExitCritical(status); 
+}
+tTask * tEventWakeUp (tEvent * event, void * msg, uint32_t result)
+{
+    tNode  * node;
+    tTask  * task = (tTask * )0;
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 取出等待队列中的第一个结点
+    if((node = tListRemoveFirst(&amp;event-&gt;waitList)) != (tNode *)0)
+    {                        
+      // 转换为相应的任务结构                                          
+        task = (tTask *)tNodeParent(node, tTask, linkNode);
+        // 设置收到的消息、结构，清除相应的等待标志位
+        task-&gt;waitEvent = (tEvent *)0;
+        task-&gt;eventMsg = msg;
+        task-&gt;waitEventResult = result;
+        task-&gt;state &amp;= ~TINYOS_TASK_WAIT_MASK;
+        // 任务申请了超时等待，这里检查下，将其从延时队列中移除
+        if (task-&gt;delayTicks != 0)
+        { 
+            tTimeTaskWakeUp(task);
+        }
+        // 将任务加入就绪队列
+        tTaskSchedRdy(task);        
+    }  
+    // 退出临界区
+    tTaskExitCritical(status); 
+    return task;         
+}
+void tEventRemoveTask (tTask * task, void * msg, uint32_t result)
+{     
+ 	  // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+	 // 将任务从所在的等待队列中移除
+	 // 注意，这里没有检查waitEvent是否为空。既然是从事件中移除，那么认为就不可能为空
+	 tListRemove(&amp;task-&gt;waitEvent-&gt;waitList, &amp;task-&gt;linkNode);
+  	// 设置收到的消息、结构，清除相应的等待标志位
+    task-&gt;waitEvent = (tEvent *)0;
+    task-&gt;eventMsg = msg;
+   	task-&gt;waitEventResult = result;
+	 task-&gt;state &amp;= ~TINYOS_TASK_WAIT_MASK;
+	// 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>分为三个函数，可以通俗的理解为挂起事件控制块，唤醒事件控制块和删除事件</p>
+<p>tEventWait主要内容是先设置状态和传给task参数，然后移除就绪队列，添加进入等待队列中，最后再查看是否有超时参数，有则加入延时队列，至于调度，由于这些是用于底层的，所以以上函数并不会出现调度函数，调度处理主要是在更细致的控制块中</p>
+<p>tEventWakeUp中，首先取出等待列表中的任务，直接移出延时队列，加入就绪队列</p>
+<p>tEventRemoveTask中，删除的是一个任务正在等待的事件，最后再设置标志位等参数</p>
+<h1 id="事件控制块的清空和状态查询">事件控制块的清空和状态查询</h1>
+<h2 id="事件控制块清空">事件控制块清空</h2>
+<pre><code class="language-c">uint32_t tEventRemoveAll (tEvent * event, void * msg, uint32_t result)
+{
+    tNode  * node;
+    uint32_t count;
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    // 获取等待中的任务数量
+    count = tListCount(&amp;event-&gt;waitList);
+    // 遍历所有等待中的任务
+    while ((node = tListRemoveFirst(&amp;event-&gt;waitList)) != (tNode *)0)
+    {                                                                   
+        // 转换为相应的任务结构                                          
+        tTask * task = (tTask *)tNodeParent(node, tTask, linkNode);
+        // 设置收到的消息、结构，清除相应的等待标志位
+        task-&gt;waitEvent = (tEvent *)0;
+        task-&gt;eventMsg = msg;
+        task-&gt;waitEventResult = result;
+        task-&gt;state &amp;= ~TINYOS_TASK_WAIT_MASK;
+        // 任务申请了超时等待，这里检查下，将其从延时队列中移除
+        if (task-&gt;delayTicks != 0)
+        { 
+            tTimeTaskWakeUp(task);
+        }
+        // 将任务加入就绪队列
+        tTaskSchedRdy(task);        
+    }  
+    // 退出临界区
+    tTaskExitCritical(status); 
+    return  count;
+}
+</code></pre>
+<p>不难看出，tEventRemoveAll相比tEventRemoveTask多了一个while循环，直到event中等待列表删除干净，也就是tListRemoveFirst返回0即可</p>
+<h2 id="事件控制块状态查询">事件控制块状态查询</h2>
+<pre><code class="language-c">uint32_t tEventWaitCount (tEvent * event)
+{  
+    uint32_t count = 0;
+    // 进入临界区
+    uint32_t status = tTaskEnterCritical();
+    count = tListCount(&amp;event-&gt;waitList);  
+    // 退出临界区
+    tTaskExitCritical(status);     
+    return count;
+} 
+</code></pre>
+<p>对于事件控制块所需要的只有等待列表中任务数量，所以只需要查询等待列表中任务数量</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,619 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>内核核心 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    内核核心
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4">临界区保护</a></li>
+<li><a href="#%E8%B0%83%E5%BA%A6%E9%94%81%E4%BF%9D%E6%8A%A4">调度锁保护</a></li>
+<li><a href="#%E4%BD%8D%E5%9B%BE%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">位图数据结构</a></li>
+<li><a href="#%E5%A4%9A%E4%BC%98%E5%85%88%E7%BA%A7%E4%BB%BB%E5%8A%A1">多优先级任务</a></li>
+<li><a href="#%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><strong>双向链表数据结构</strong></a>
+<ul>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E5%AE%9A%E4%B9%89">链表节点的定义</a></li>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96">链表节点的初始化</a></li>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E5%9F%BA%E7%A1%80%E5%8A%9F%E8%83%BD">链表节点的基础功能</a></li>
+<li><a href="#%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9%E7%9A%84%E6%8F%92%E5%85%A5%E5%88%A0%E9%99%A4">链表节点的插入删除</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%BB%E5%8A%A1%E5%BB%B6%E6%97%B6%E9%98%9F%E5%88%97">任务延时队列</a></li>
+<li><a href="#%E5%90%8C%E4%BC%98%E5%85%88%E7%BA%A7%E6%97%B6%E9%97%B4%E7%89%87%E8%BF%90%E8%A1%8C"><strong>同优先级时间片运行</strong></a></li>
+</ul>
+</p>
+<h1 id="临界区保护">临界区保护</h1>
+<pre><code class="language-c">uint32_t tTaskEnterCritical (void) 
+{
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();        // CPSID I
+    return primask;
+}
+void tTaskExitCritical (uint32_t status) {
+    __set_PRIMASK(status);
+}
+</code></pre>
+<p>关于临界区保护问题，最重要的是PRIMASK寄存器，这些是为了保证我们临界区之内的操作是原子操作</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/0.png" alt="" loading="lazy"></figure>
+<p>进入临界区的时候使用tTaskEnterCritical ，它将返回当前的PRIMASK</p>
+<p>退出临界区的时候使用tTaskExitCritical ，传入的参数即tTaskEnterCritical 的返回值，恢复之前的PRIMASK</p>
+<h1 id="调度锁保护">调度锁保护</h1>
+<pre><code class="language-c">void tTaskSchedInit (void)
+{
+    schedLockCount = 0;
+}
+void tTaskSchedDisable (void) 
+{
+    uint32_t status = tTaskEnterCritical();
+    if (schedLockCount &lt; 255) 
+    {
+        schedLockCount++;
+    }
+    tTaskExitCritical(status);
+}
+void tTaskSchedEnable (void) 
+{
+    uint32_t status = tTaskEnterCritical();
+    if (schedLockCount &gt; 0) 
+    {
+        if (--schedLockCount == 0) 
+        {
+            tTaskSched(); 
+        }
+    }
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>调度锁功能</p>
+<ul>
+<li>上锁时，禁止任务进行切换。无论何种情况。例如时间片用完，也不切换任务</li>
+<li>解锁时，允许任务切换</li>
+</ul>
+<p>调度锁在临界区的基础上加入了调度锁计数变量，这里采用的是uint8而不是简单的bool，是因为调度锁之间会有嵌套，如果简单的使用bool，内层函数的调度会过早开启调度；除此以外，使用计数器可以提供更细粒度的调度控制。例如，在执行多个临界操作时，可以多次禁用调度，然后在所有操作完成后再一次性启用调度</p>
+<p>但此代码任然存在bug，必须严格按照调度锁的使用规范——先禁用后允许，直接使用允许也不会开启任务调度</p>
+<h1 id="位图数据结构">位图数据结构</h1>
+<pre><code class="language-c">void tBitmapInit (tBitmap * bitmap) 
+{
+	bitmap-&gt;bitmap = 0;
+}
+uint32_t tBitmapPosCount (void) 
+{
+	return 32;
+}
+void tBitmapSet (tBitmap * bitmap, uint32_t pos)
+{
+	bitmap-&gt;bitmap |= 1 &lt;&lt; pos;
+}
+void tBitmapClear (tBitmap * bitmap, uint32_t pos)
+{
+	bitmap-&gt;bitmap &amp;= ~(1 &lt;&lt; pos);
+}
+uint32_t tBitmapGetFirstSet (tBitmap * bitmap) 
+{
+	static const uint8_t quickFindTable[] =     
+	{
+	    /* 00 */ 0xff, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 10 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 20 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 30 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 40 */ 6,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 50 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 60 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 70 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 80 */ 7,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* 90 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* A0 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* B0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* C0 */ 6,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* D0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* E0 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	    /* F0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+	};
+
+	if (bitmap-&gt;bitmap &amp; 0xff)
+    {
+        return quickFindTable[bitmap-&gt;bitmap &amp; 0xff];         
+    }
+    else if (bitmap-&gt;bitmap &amp; 0xff00)
+    {
+        return quickFindTable[(bitmap-&gt;bitmap &gt;&gt; 8) &amp; 0xff] + 8;        
+    }
+    else if (bitmap-&gt;bitmap &amp; 0xff0000)
+    {
+        return quickFindTable[(bitmap-&gt;bitmap &gt;&gt; 16) &amp; 0xff] + 16;        
+    }
+    else if (bitmap-&gt;bitmap &amp; 0xFF000000)
+    {
+        return quickFindTable[(bitmap-&gt;bitmap &gt;&gt; 24) &amp; 0xFF] + 24;
+    }
+    else
+    {
+        return tBitmapPosCount();
+    }
+}
+</code></pre>
+<p>需要重视的是tBitmapGetFirstSet函数，该函数采用的是<strong>查表算法</strong></p>
+<p>表为quickFindTable，每8位作为一个查询段，查到在这个段里面通过计算锁定到表内，最后得到优先级</p>
+<h1 id="多优先级任务">多优先级任务</h1>
+<pre><code class="language-c">tTask * tTaskHighestReady (void) 
+{
+    uint32_t highestPrio = tBitmapGetFirstSet(&amp;taskPrioBitmap);
+    return taskTable[highestPrio];
+}
+void tTaskSched (void) 
+{   
+    tTask * tempTask;
+    uint32_t status = tTaskEnterCritical();
+    // 如何调度器已经被上锁，则不进行调度，直接退
+    if (schedLockCount &gt; 0) 
+    {
+        tTaskExitCritical(status);
+        return;
+    }
+    // 找到优先级最高的任务，如果其优先级比当前任务的还高，那么就切换到这个任务
+    tempTask = tTaskHighestReady();
+    if (tempTask != currentTask) 
+    {
+        nextTask = tempTask;
+        tTaskSwitch();   
+    }
+    // 退出临界区
+    tTaskExitCritical(status); 
+}
+</code></pre>
+<p>修改调度算法，我们创建一个taskTable（优先级为0，就存在数组0号位置）数组保存每个任务优先级，以及在任务初始化的时候，在位图上置1；在调度算法中，我们首先需要判断调度锁是否上锁，然后通过tTaskHighestReady（其实是位图中的查表算法找到首先被置1的位），返回值即是task指针，最后判断是否是当前任务，是则不管，否则就切换最高优先级</p>
+<pre><code class="language-c">void tTaskSchedRdy (tTask * task)
+{
+    taskTable[task-&gt;prio] = task;
+    tBitmapSet(&amp;taskPrioBitmap, task-&gt;prio);
+}
+void tTaskSchedUnRdy (tTask * task)
+{
+    taskTable[task-&gt;prio] = (tTask *)0;
+    tBitmapClear(&amp;taskPrioBitmap, task-&gt;prio);
+}
+</code></pre>
+<p>这两个函数分别是设置就绪任务和移除就绪任务的</p>
+<p>大致思路是有一个bitmap，将我们任务优先级那位设置为1就是就绪，否则就是移除</p>
+<p>这里会存在一个问题——一个优先级只能有一个任务</p>
+<h1 id="双向链表数据结构"><strong>双向链表数据结构</strong></h1>
+<pre><code class="language-c">#define tNodeParent(node, parent, name) (parent *)((uint32_t)node - (uint32_t)&amp;((parent *)0)-&gt;name)
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/1.png" alt="" loading="lazy"></figure>
+<p>这个宏tNodeparent的作用是通过结构体中的一个成员变量（node）的地址，来计算出其所在结构体的起始地址。这样就能通过该成员变量，反向获取包含它的父结构体的指针</p>
+<p>这一部分暂时还没使用到</p>
+<h2 id="链表节点的定义">链表节点的定义</h2>
+<pre><code class="language-c">// tinyOS链表的结点类型
+typedef struct _tNode
+{
+	// 该结点的前一个结点
+    struct _tNode * preNode;
+
+    // 该结点的后一个结点
+    struct _tNode * nextNode;
+}tNode;
+// tinyOS链表类型
+typedef struct _tList
+{   
+	// 该链表的头结点
+    tNode headNode;
+
+    // 该链表中所有结点数量
+    uint32_t nodeCount;
+}tList;
+</code></pre>
+<p>初始化比较简单，链表包含两个成员，一个头结点，一个结点数量；而结点包含前结点和后结点</p>
+<p>总体来说大致是如下结构</p>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/2.png" alt="" loading="lazy"></figure>
+<h2 id="链表节点的初始化">链表节点的初始化</h2>
+<pre><code class="language-c">#define firstNode   headNode.nextNode
+#define lastNode    headNode.preNode
+void tNodeInit (tNode * node)
+{
+    node-&gt;nextNode = node;
+    node-&gt;preNode = node;
+}
+
+void tListInit (tList * list)
+{
+		list-&gt;firstNode = &amp;(list-&gt;headNode);
+    list-&gt;lastNode = &amp;(list-&gt;headNode);
+    list-&gt;nodeCount = 0;
+}
+</code></pre>
+<p>在tNodeInit中，这种初始化是较为合理的，在没有连接到其他结点时，可以被安全地操作</p>
+<p>在tListInit中，初始化方法基本跟tNodeInit类似，将前结点和后结点的指针都指向自己</p>
+<h2 id="链表节点的基础功能">链表节点的基础功能</h2>
+<pre><code class="language-c">uint32_t tListCount (tList * list)
+{
+	return list-&gt;nodeCount;
+}
+tNode * tListFirst (tList * list)
+{
+    tNode * node = (tNode *)0;
+	
+	if (list-&gt;nodeCount != 0) 
+	{
+		node = list-&gt;firstNode;
+	}    
+    return  node;
+}
+tNode * tListLast (tList * list)
+{
+    tNode * node = (tNode *)0;
+	
+	if (list-&gt;nodeCount != 0) 
+	{
+		node = list-&gt;lastNode;
+	}    
+    return  node;
+}
+tNode * tListPre (tList * list, tNode * node)
+{
+	if (node-&gt;preNode == node) 
+	{
+		return (tNode *)0;
+	} 
+	else 
+	{
+		return node-&gt;preNode;
+	}
+}
+tNode * tListNext (tList * list, tNode * node)
+{
+	if (node-&gt;nextNode == node) 
+	{
+		return (tNode *)0;
+	}
+	else 
+	{
+		return node-&gt;nextNode;
+	}
+}
+</code></pre>
+<h2 id="链表节点的插入删除">链表节点的插入删除</h2>
+<pre><code class="language-c">void tListRemoveAll (tList * list)
+{
+    uint32_t count;
+    tNode * nextNode;
+    // 遍历所有的结点
+	  nextNode = list-&gt;firstNode;
+    for (count = list-&gt;nodeCount; count != 0; count-- )
+    {
+    	// 先纪录下当前结点，和下一个结点
+    	// 必须纪录下一结点位置，因为在后面的代码中当前结点的next会被重置
+        tNode * currentNode = nextNode;
+        nextNode = nextNode-&gt;nextNode;
+        // 重置结点自己的信息
+        currentNode-&gt;nextNode = currentNode;
+        currentNode-&gt;preNode = currentNode;
+    }
+    list-&gt;firstNode = &amp;(list-&gt;headNode);
+    list-&gt;lastNode = &amp;(list-&gt;headNode);
+    list-&gt;nodeCount = 0;
+}
+void tListAddFirst (tList * list, tNode * node)
+{
+    node-&gt;preNode = list-&gt;firstNode-&gt;preNode;
+    node-&gt;nextNode = list-&gt;firstNode;
+    list-&gt;firstNode-&gt;preNode = node;
+    list-&gt;firstNode = node;
+    list-&gt;nodeCount++;
+}
+void tListAddLast (tList * list, tNode * node)
+{
+		node-&gt;nextNode = &amp;(list-&gt;headNode);
+    node-&gt;preNode = list-&gt;lastNode;
+    list-&gt;lastNode-&gt;nextNode = node;
+    list-&gt;lastNode = node;
+    list-&gt;nodeCount++;
+}
+tNode * tListRemoveFirst (tList * list)
+{
+    tNode * node = (tNode *)0;
+	if( list-&gt;nodeCount != 0 )
+    {
+        node = list-&gt;firstNode;
+        node-&gt;nextNode-&gt;preNode = &amp;(list-&gt;headNode);
+        list-&gt;firstNode = node-&gt;nextNode;
+        list-&gt;nodeCount--;
+    }
+    return  node;
+}
+void tListInsertAfter (tList * list, tNode * nodeAfter, tNode * nodeToInsert)
+{
+    nodeToInsert-&gt;preNode = nodeAfter;
+    nodeToInsert-&gt;nextNode = nodeAfter-&gt;nextNode;
+    nodeAfter-&gt;nextNode-&gt;preNode = nodeToInsert;
+    nodeAfter-&gt;nextNode = nodeToInsert;
+    list-&gt;nodeCount++;
+}
+void tListRemove (tList * list, tNode * node)
+{
+    node-&gt;preNode-&gt;nextNode = node-&gt;nextNode;
+    node-&gt;nextNode-&gt;preNode = node-&gt;preNode;
+    list-&gt;nodeCount--;
+}
+</code></pre>
+<h1 id="任务延时队列">任务延时队列</h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+ }tTask;
+</code></pre>
+<p>在tTask结构体中新增state和delayNode</p>
+<p>大致思路如下，每个任务的delayNode都加入在延时列表中</p>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/3.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">void tTimeTaskWait (tTask * task, uint32_t ticks)
+{
+    task-&gt;delayTicks = ticks;
+    tListAddLast(&amp;tTaskDelayedList, &amp;(task-&gt;delayNode)); 
+    task-&gt;state |= TINYOS_TASK_STATE_DELAYED;
+}
+</code></pre>
+<p>增加tTimeTaskWait ，功能是将任务加入延时队列，采用的是尾插法插入列表，这里不需要考虑基于延时时间大小的顺序问题，在下方tTaskSystemTickHandler中会对所有tick减减，优先级问题会在tick减完之后，开启调度的函数中考虑</p>
+<pre><code class="language-c">void tTaskSystemTickHandler () 
+{
+    tNode * node;
+    // 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改
+    uint32_t status = tTaskEnterCritical();
+    // 检查所有任务的delayTicks数，如果不0的话，减1。
+    for (node = tTaskDelayedList.headNode.nextNode; node != &amp;(tTaskDelayedList.headNode); node = node-&gt;nextNode)
+    {
+        tTask * task = tNodeParent(node, tTask, delayNode);
+        if (--task-&gt;delayTicks == 0) 
+        {
+            // 将任务从延时队列中移除
+            tTimeTaskWakeUp(task);
+            // 将任务恢复到就绪状态
+            tTaskSchedRdy(task);            
+        }
+    }
+     // 退出临界区
+    tTaskExitCritical(status); 
+    // 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度。
+    tTaskSched();
+}
+</code></pre>
+<p>在tTaskSystemTickHandler函数中，将遍历tTaskTable改为遍历tTaskDelayedList，也就是延时队列</p>
+<p>这里需要理解深刻的是，在当前版本是有两个数据表的，一个是延时队列，一个是就绪表，前者会将任务从就绪表里面增删，进而影响后者</p>
+<h1 id="同优先级时间片运行"><strong>同优先级时间片运行</strong></h1>
+<pre><code class="language-c">typedef struct _tTask {
+    tTaskStack * stack;
+    // 连接结点
+    tNode linkNode;
+    // 任务延时计数器
+    uint32_t delayTicks;
+    // 延时结点：通过delayNode就可以将tTask放置到延时队列中
+    tNode delayNode;
+    // 任务的优先级
+    uint32_t prio;
+    // 任务当前状态
+    uint32_t state;
+    // 当前剩余的时间片
+    uint32_t slice;
+ }tTask;
+</code></pre>
+<p>在tTask结构体中新增linkNode和slice</p>
+<p>思路大致如下，对于每一个优先级，我们会维护一个列表，这个列表在源码是taskTable数组</p>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83/4.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">tTask *tTaskHighestReady()
+{
+	uint32_t highestPrio = tBitmapGetFirstSet(&amp;taskPrioBitmap);
+	tNode *node = tListFirst(&amp;taskTable[highestPrio]);
+	return (tTask *)tNodeParent(node, tTask, linkNode);
+}
+void tTaskSchedRdy (tTask * task)
+{
+    tListAddLast(&amp;taskTable[task-&gt;prio], &amp;(task-&gt;linkNode));
+    tBitmapSet(&amp;taskPrioBitmap, task-&gt;prio);
+}
+void tTaskSchedUnRdy (tTask * task)
+{
+    tListRemove(&amp;taskTable[task-&gt;prio], &amp;(task-&gt;linkNode));
+    // 队列中可能存在多个任务。只有当没有任务时，才清除位图标记
+    if (tListCount(&amp;taskTable[task-&gt;prio]) == 0)
+    {
+        tBitmapClear(&amp;taskPrioBitmap, task-&gt;prio);
+    }
+}
+void tTaskSystemTickHandler (void)
+{
+    tNode * node;    
+    // 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改
+    uint32_t status = tTaskEnterCritical();    
+    // 检查所有任务的delayTicks数，如果不0的话，减1。
+    for (node = tTaskDelayedList.headNode.nextNode; node != &amp;(tTaskDelayedList.headNode); node = node-&gt;nextNode)
+    {
+        tTask * task = tNodeParent(node, tTask, delayNode);
+        if (--task-&gt;delayTicks == 0) 
+        {
+            // 将任务从延时队列中移除
+            tTimeTaskWakeUp(task);
+            // 将任务恢复到就绪状态
+            tTaskSchedRdy(task);            
+        }
+    }
+    // 检查下当前任务的时间片是否已经到了
+    if (--currentTask-&gt;slice == 0)
+    {
+        // 如果当前任务中还有其它任务的话，那么切换到下一个任务
+        // 方法是将当前任务从队列的头部移除，插入到尾部
+        // 这样后面执行tTaskSched()时就会从头部取出新的任务取出新的任务作为当前任务运行
+        if (tListCount(&amp;taskTable[currentTask-&gt;prio]) &gt; 0)
+        {
+            tListRemoveFirst(&amp;taskTable[currentTask-&gt;prio]);
+            tListAddLast(&amp;taskTable[currentTask-&gt;prio], &amp;(currentTask-&gt;linkNode));
+            // 重置计数器
+            currentTask-&gt;slice = TINYOS_SLICE_MAX;
+        }
+    }
+     // 退出临界区
+    tTaskExitCritical(status); 
+    // 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度
+    tTaskSched();
+}
+</code></pre>
+<p>在tTaskHighestReady中，相比之前的版本，增加了查列表首结点的函数，在我们的任务队列中，采用的是同一优先级，先进入的先出来</p>
+<p>tTaskSchedRdy和tTaskSchedUnRdy，需要注意的是tTaskSchedUnRdy，它需要判断这个优先级里面</p>
+<p>没有任务，才会去清除bitmap</p>
+<p>在tTaskSystemTickHandler 中，新增任务队列增删，但和延时队列有所不同的是，他并不会将他完全删除，而是先删除后添加，添加到队列末尾</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>嵌入式XIP | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    嵌入式XIP
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-06-13 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#xip%E6%A6%82%E5%BF%B5">XIP概念</a></li>
+<li><a href="#%E7%B3%BB%E7%BB%9F%E4%B8%8A%E7%94%B5%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B">系统上电启动流程</a></li>
+<li><a href="#%E5%8A%A0%E8%BD%BD%E5%9C%B0%E5%9D%80%E5%92%8C%E6%89%A7%E8%A1%8C%E5%9C%B0%E5%9D%80">加载地址和执行地址</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0xip">实现XIP</a></li>
+</ul>
+</p>
+<h1 id="xip概念">XIP概念</h1>
+<p>XIP (eXecute In Place)，中文常译为 “原地执行” 或 “就地执行”。它指的是 CPU 能够直接从存储代码的非易失性存储器（通常是 Flash 存储器，如 NOR Flash---为什么是NOR Flash，而不是NAND Flash，NOR Flash 支持随机访问，读写速度快，特别适合直接执行代码。而 NAND Flash 更适合大容量存储，随机访问能力差）中读取指令并执行，而无需事先将代码复制到 RAM中</p>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E5%B5%8C%E5%85%A5%E5%BC%8FXIP/0.png" alt="" loading="lazy"></figure>
+<h1 id="系统上电启动流程">系统上电启动流程</h1>
+<p>系统上电会对RAM初始化，初始化的目的是1.初始化堆栈以及存储变量，2.初始化内存控制器，3.设置栈指针SP，4.把主程序从 Flash 搬到 RAM(这一步可以省略，如果省略就是XIP执行，XIP 跑程序虽然比 RAM 慢点，但好处是省钱。很多嵌入式应用，比如智能电表、工业传感器，性能要求不高，但对成本敏感，XIP 就派上用场了)；这部分大多使用汇编(一是C语言依赖栈来存储变量，二是汇编执行效率高)，例如keil或IAR自带的启动文件startup.s</p>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E5%B5%8C%E5%85%A5%E5%BC%8FXIP/1.png" alt="" loading="lazy"></figure>
+<h1 id="加载地址和执行地址">加载地址和执行地址</h1>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E5%B5%8C%E5%85%A5%E5%BC%8FXIP/2.png" alt="" loading="lazy"></figure>
+<p>1.对于 XIP 代码，加载地址和执行地址是一样的，存在 Flash 里，跑也在 Flash 里<br>
+2.而非 XIP 代码，加载地址在 Flash，执行地址在 SRAM，得靠启动代码或者链接器脚本搬过去<br>
+3.XIP 部分的代码直接在 Flash 里跑，地址不变；而非 XIP 部分，比如某个关键函数，可能被搬到SRAM 里跑，以提高速度<br>
+假设你写了个 C 函数，特别关键，要求执行速度快。你希望它运行在 SRAM 里，而不是 Flash。链接器会把这个函数的加载地址（Flash 里的位置）和执行地址（SRAM 里的位置）分开。开机后，启动代码负责把这个函数从 Flash 搬到 SRAM，然后程序跳转过去执行。这就不属于 XIP，因为加载地址和执行地址不一样<br>
+反过来，如果你的代码直接在 Flash 里跑，地址没变，那就是 XIP。比如，很多 RTOS 的内核代码会选择直接从 Flash 运行，省下 SRAM 给任务栈和动态数据</p>
+<h1 id="实现xip">实现XIP</h1>
+<p>Keil、IAR 或者 GCC，都有办法控制代码的加载和执行地址<br>
+1.链接器命令：用 -RO（只读）和 -RW（读写）选项，指定代码和数据的执行地址。比如在 Keil 里，你可以在 Target 设置里调整这些参数<br>
+2.分散加载文件（Scatter File）：更灵活的方式，通过写散文件（scatter file）精确控制每个段的加载和执行地址。国内很多做复杂项目的工程师都喜欢用散文件，因为它能细粒度地管理内存布局</p>
+<blockquote>
+<p><strong>免责声明</strong><br>
+本文部分内容参考自微信公众号 <strong>【立芯嵌入式】</strong> 的原创文章，版权归原作者所有，本文仅用于学习与交流目的。<br>
+如有不妥之处，烦请原作者联系指正，我将第一时间修改或删除相关内容<br>
+本文仅代表个人观点，不构成任何商业用途。如涉及版权等问题，请联系本人处理。</p>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://hanaeternum.github.io/post/2024-nian-zhong-zong-jie/" class="post-title gt-a-link">
+                    2024年终总结
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

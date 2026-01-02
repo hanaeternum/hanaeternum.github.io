@@ -1,0 +1,348 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>事件标志组 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    事件标志组
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">事件标志组的原理和创建</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84%E7%9A%84%E7%AD%89%E5%BE%85%E5%92%8C%E9%80%9A%E7%9F%A5">事件标志组的等待和通知</a></li>
+<li><a href="#%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E6%9F%A5%E8%AF%A2">事件标志组的删除和查询</a></li>
+</ul>
+</p>
+<h1 id="事件标志组的原理和创建">事件标志组的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/0.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/1.png" alt="" loading="lazy"></figure>
+<p>事件标志组主要是用于中断ISR和任务之间传递多个标志，当然这些标志可以有很多操作，例如基础的与或非，然后触发相应的任务</p>
+<pre><code class="language-c">typedef struct _tFlagGroup
+{
+	// 事件控制块
+    tEvent event;
+    // 当前事件标志
+    uint32_t flags;
+}tFlagGroup;
+
+void tFlagGroupInit (tFlagGroup * flagGroup, uint32_t flags)
+{
+	tEventInit(&amp;flagGroup-&gt;event, tEventTypeFlagGroup);
+	flagGroup-&gt;flags = flags;
+}
+</code></pre>
+<p>新增事件控制块结构体，如上图，里面有一个事件控制块和事件标志—32位的</p>
+<p>初始化也只初始化这两个部分，一个是事件标志，一个是事件控制块</p>
+<h1 id="事件标志组的等待和通知">事件标志组的等待和通知</h1>
+<figure data-type="image" tabindex="3"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/2.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/3.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/4.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="6"><img src="https://hanaeternum.github.io/post-images/%E4%BA%8B%E4%BB%B6%E6%A0%87%E5%BF%97%E7%BB%84/5.png" alt="" loading="lazy"></figure>
+<p>对于等待来说，任务去比较事件标志，即任务是因，如果匹配就清除继续执行，否则就插入等待队列</p>
+<p>对于通知来说，由于事件标志我们可能会对它进行操作，所以会有通知操作，逻辑就是遍历等待队列，找出符合的任务，取出开启调度</p>
+<pre><code class="language-c">#define	TFLAGGROUP_CLEAR		(0x0 &lt;&lt; 0)
+#define	TFLAGGROUP_SET			(0x1 &lt;&lt; 0)
+#define	TFLAGGROUP_ANY			(0x0 &lt;&lt; 1)
+#define	TFLAGGROUP_ALL			(0x1 &lt;&lt; 1)
+
+#define TFLAGGROUP_SET_ALL		(TFLAGGROUP_SET | TFLAGGROUP_ALL)
+#define	TFLAGGROUP_SET_ANY		(TFLAGGROUP_SET | TFLAGGROUP_ANY)
+#define TFLAGGROUP_CLEAR_ALL	(TFLAGGROUP_CLEAR | TFLAGGROUP_ALL)
+#define TFLAGGROUP_CLEAR_ANY	(TFLAGGROUP_CLEAR | TFLAGGROUP_ANY)
+
+static uint32_t tFlagGroupCheckAndConsume (tFlagGroup * flagGroup, uint32_t type, uint32_t * flags)
+{
+  uint32_t srcFlags = *flags;
+	uint32_t isSet = type &amp; TFLAGGROUP_SET;
+	uint32_t isAll = type &amp; TFLAGGROUP_ALL;
+	uint32_t isConsume = type &amp; TFLAGGROUP_CONSUME;
+	// 有哪些类型的标志位出现
+	// flagGroup-&gt;flags &amp; flags：计算出哪些位为1
+	// ~flagGroup-&gt;flags &amp; flags:计算出哪位为0
+	uint32_t calcFlag = isSet ? (flagGroup-&gt;flags &amp; srcFlags) : (~flagGroup-&gt;flags &amp; srcFlags);
+	// 所有标志位出现, 或者做任意标志位出现，满足条件
+	if (((isAll != 0) &amp;&amp; (calcFlag == srcFlags)) || ((isAll == 0) &amp;&amp; (calcFlag != 0)))
+	{
+		// 是否消耗掉标志位
+		if (isConsume)
+		{
+			if (isSet)
+			{
+				// 清除为1的标志位，变成0
+				flagGroup-&gt;flags &amp;= ~srcFlags;
+			}
+			else 
+			{
+				// 清除为0的标志位，变成1
+				flagGroup-&gt;flags |= srcFlags;
+			}
+		}
+		*flags = calcFlag;
+		return tErrorNoError;
+	}
+	*flags = calcFlag;
+	return tErrorResourceUnavaliable;
+}
+</code></pre>
+<p>在宏定义中，我们需要注意的是CLEAR和SET，ANY和ALL是一组的，所以不必在意CLEAR和ANY的值是一样的</p>
+<p>tFlagGroupCheckAndConsume函数是一个中间过渡函数，主要是用于检查并消耗掉事件标志；大致逻辑是先是对标志的判断，例如是否消耗，是任意触发还是全部触发等，然后对其进行相应的操作，在操作的时候我们需要理解isSet，它会对我们的事件标志作出更改，也就是置0或置1，最后返回值，匹配返回tErrorNoError，否则返回tErrorResourceUnavaliable</p>
+<pre><code class="language-c">uint32_t tFlagGroupWait (tFlagGroup * flagGroup, uint32_t waitType, uint32_t requestFlag,
+						uint32_t * resultFlag, uint32_t waitTicks)
+{
+    uint32_t result;
+    uint32_t flags = requestFlag;
+    uint32_t status = tTaskEnterCritical();
+    result = tFlagGroupCheckAndConsume(flagGroup, waitType, &amp;flags);
+    if (result != tErrorNoError)
+    {
+	    // 如果事件标志不满足条件，则插入到等待队列中
+			currentTask-&gt;waitFlagsType = waitType;
+			currentTask-&gt;eventFlags = requestFlag;
+			tEventWait(&amp;flagGroup-&gt;event, currentTask, (void *)0,  tEventTypeFlagGroup, waitTicks);
+      tTaskExitCritical(status);
+		// 再执行一次事件调度，以便于切换到其它任务
+			tTaskSched();
+      *resultFlag = currentTask-&gt;eventFlags;
+      result = currentTask-&gt;waitEventResult;
+	}
+    else
+    {
+        *resultFlag = flags;
+        tTaskExitCritical(status);
+    }
+
+	return result;
+}
+uint32_t tFlagGroupNoWaitGet (tFlagGroup * flagGroup, uint32_t waitType, uint32_t requestFlag, uint32_t * resultFlag)
+{
+    uint32_t flags = requestFlag;
+    uint32_t status = tTaskEnterCritical();
+    uint32_t result = tFlagGroupCheckAndConsume(flagGroup, waitType, &amp;flags);
+		tTaskExitCritical(status);
+		*resultFlag = flags;
+		return status;
+}
+void tFlagGroupNotify (tFlagGroup * flagGroup, uint8_t isSet, uint32_t flags)
+{
+    tList *waitList;
+    tNode * node;
+    tNode * nextNode;
+    uint8_t sched = 0;
+    uint32_t status = tTaskEnterCritical();
+    if (isSet) {
+        flagGroup-&gt;flags |= flags;     // 置1事件
+    } else {
+        flagGroup-&gt;flags &amp;= ~flags;    // 清0事件
+    }
+    // 遍历所有的等待任务, 获取满足条件的任务，加入到待移除列表中
+    waitList = &amp;flagGroup-&gt;event.waitList;
+    for (node = waitList-&gt;headNode.nextNode; node != &amp;(waitList-&gt;headNode); node = nextNode) {
+        uint32_t result;
+        tTask *task = tNodeParent(node, tTask, linkNode);
+        uint32_t flags = task-&gt;eventFlags;
+        nextNode = node-&gt;nextNode;
+        // 检查标志
+        result = tFlagGroupCheckAndConsume(flagGroup, task-&gt;waitFlagsType, &amp;flags);
+        if (result == tErrorNoError) {
+            // 唤醒任务
+            task-&gt;eventFlags = flags;
+            tEventWakeUpTask(&amp;flagGroup-&gt;event, task, (void *)0, tErrorNoError);
+            sched = 1;
+        }
+    }
+    // 如果有任务就绪，则执行一次调度
+    if (sched)
+    {
+        tTaskSched();
+    }
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>tFlagGroupWait中，首先是用tFlagGroupCheckAndConsume进行了判断，如果符合，那么就给requestFlag附上处理后的值—因为根据需求可能会作出清除处理，如果不符合，那么插入等待队列中，开启调度</p>
+<p>tFlagGroupNoWaitGet是一个查询函数，也可以理解为不阻塞的requestFlag</p>
+<p>tFlagGroupNotify中，首先是对我们的事件标志作出修改，也就是上文提到的置0或置1，然后就是遍历，找到相应的任务，取出并开启调度</p>
+<p>这里需要优化的是遍历这部分，试试能不能找出更快的算法</p>
+<h1 id="事件标志组的删除和查询">事件标志组的删除和查询</h1>
+<pre><code class="language-c">typedef struct _tFlagGroupInfo
+{
+    // 当前的事件标志
+    uint32_t flags;
+    // 当前等待的任务计数
+    uint32_t taskCount;
+}tFlagGroupInfo;
+
+void tFlagGroupGetInfo (tFlagGroup * flagGroup, tFlagGroupInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 拷贝需要的信息
+    info-&gt;flags = flagGroup-&gt;flags;
+    info-&gt;taskCount = tEventWaitCount(&amp;flagGroup-&gt;event);
+    tTaskExitCritical(status);
+}
+
+uint32_t tFlagGroupDestroy (tFlagGroup * flagGroup)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 清空事件控制块中的任务
+    uint32_t count = tEventRemoveAll(&amp;flagGroup-&gt;event, (void *)0, tErrorDel);
+    tTaskExitCritical(status);
+    // 清空过程中可能有任务就绪，执行一次调度
+    if (count &gt; 0)
+    {
+        tTaskSched();
+    }
+    return count;
+}
+</code></pre>
+<p>新增一个tFlagGroupInfo查询状态的结构体，我们需要的信息就只有事件标志和等待任务数量</p>
+<p>在tFlagGroupDestroy中我们同样也只需要取出等待队列并调度即可</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

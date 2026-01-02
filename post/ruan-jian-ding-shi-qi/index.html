@@ -1,0 +1,397 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>软件定时器 | Han&#39;s 大吴疆土</title>
+
+<link rel="shortcut icon" href="https://hanaeternum.github.io/favicon.ico?v=1767339667470">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://hanaeternum.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Han&#39;s 大吴疆土
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="https://hanaeternum.github.io/post/you-lian" class="menu gt-a-link">
+                            友链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1767339667470" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    软件定时器
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%9B%E5%BB%BA">软件定时器的原理和创建</a></li>
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2">软件定时器的启动和停止</a></li>
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2">软件定时器的删除和状态查询</a></li>
+</ul>
+</p>
+<h1 id="软件定时器的原理和创建">软件定时器的原理和创建</h1>
+<figure data-type="image" tabindex="1"><img src="https://hanaeternum.github.io/post-images/%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8/0.png" alt="" loading="lazy"></figure>
+<p>由于硬件定时器资源有限，所以引出软件定时器</p>
+<p>实现方式分为两种，一种是通过任务实现，一种是直接搭载在系统时钟节拍上</p>
+<p>这里需要注意的是在软件定时器中因实现方式不同，分为了软件定时器和硬件定时器，前者是通过任务实现，后者是在时钟节拍上运行即硬件定时器</p>
+<pre><code class="language-c">typedef struct _tTimer
+{
+    // 链表结点
+    tNode linkNode;
+    // 初次启动延后的ticks数
+    uint32_t startDelayTicks;
+    // 周期定时时的周期tick数
+    uint32_t durationTicks;
+    // 当前定时递减计数值
+    uint32_t delayTicks;
+    // 定时回调函数
+    void (*timerFunc) (void * arg);
+    // 传递给回调函数的参数
+    void * arg;
+    // 定时器配置参数
+    uint32_t config;
+    // 定时器状态
+    tTimerState state;
+}tTimer;
+
+void tTimerInit (tTimer * timer, uint32_t delayTicks, uint32_t durationTicks,
+                 void (*timerFunc) (void * arg), void * arg, uint32_t config)
+{
+    tNodeInit(&amp;timer-&gt;linkNode);
+    timer-&gt;startDelayTicks = delayTicks;
+    timer-&gt;durationTicks = durationTicks;
+    timer-&gt;timerFunc = timerFunc;
+    timer-&gt;arg = arg;
+    timer-&gt;config = config;
+    // 如果初始启动延时为0，则使用周期值
+    if (delayTicks == 0)
+    {
+        timer-&gt;delayTicks = durationTicks;
+    }
+    else
+    {
+        timer-&gt;delayTicks = timer-&gt;startDelayTicks;
+    }
+    timer-&gt;state = tTimerCreated;
+}
+</code></pre>
+<p>这里的定时器支持设置初始值和周期，这两个可以不一样</p>
+<h1 id="软件定时器的启动和停止">软件定时器的启动和停止</h1>
+<pre><code class="language-c">static tList tTimerHardList;
+// &quot;软&quot;定时器列表
+static tList tTimerSoftList;
+// 用于访问软定时器列表的信号量
+static tSem tTimerProtectSem;
+// 用于软定时器任务与中断同步的计数信号量
+static tSem tTimerTickSem;
+void tTimerStart (tTimer * timer)
+{
+    switch (timer-&gt;state)
+    {
+        case tTimerCreated:
+        case tTimerStopped:
+            timer-&gt;delayTicks = timer-&gt;startDelayTicks ? timer-&gt;startDelayTicks : timer-&gt;durationTicks;
+            timer-&gt;state = tTimerStarted;
+            // 根据定时器类型加入相应的定时器列表
+            if (timer-&gt;config &amp; TIMER_CONFIG_TYPE_HARD)
+            {
+                // 硬定时器，在时钟节拍中断中处理，所以使用critical来防护
+                uint32_t status = tTaskEnterCritical();
+                // 加入硬定时器列表
+                tListAddLast(&amp;tTimerHardList, &amp;timer-&gt;linkNode);
+                tTaskExitCritical(status);
+            }
+            else
+            {
+                // 软定时器，先获取信号量。以处理此时定时器任务此时同时在访问软定时器列表导致的冲突问题
+                tSemWait(&amp;tTimerProtectSem, 0);
+                tListAddLast(&amp;tTimerSoftList, &amp;timer-&gt;linkNode);
+                tSemNotify(&amp;tTimerProtectSem);
+            }
+            break;
+        default:
+            break;
+    }
+}
+void tTimerStop (tTimer * timer)
+{
+    switch (timer-&gt;state)
+    {
+        case tTimerStarted:
+        case tTimerRunning:
+            // 如果已经启动，判断定时器类型，然后从相应的延时列表中移除
+            if (timer-&gt;config &amp; TIMER_CONFIG_TYPE_HARD)
+            {
+                // 硬定时器，在时钟节拍中断中处理，所以使用critical来防护
+                uint32_t status = tTaskEnterCritical();
+                // 从硬定时器列表中移除
+                tListRemove(&amp;tTimerHardList, &amp;timer-&gt;linkNode);
+                tTaskExitCritical(status);
+            }
+            else
+            {
+                // 软定时器，先获取信号量。以处理此时定时器任务此时同时在访问软定时器列表导致的冲突问题
+                tSemWait(&amp;tTimerProtectSem, 0);
+                tListRemove(&amp;tTimerSoftList, &amp;timer-&gt;linkNode);
+                tSemNotify(&amp;tTimerProtectSem);
+            }
+            timer-&gt;state = tTimerStopped;
+            break;
+        default:
+            break;
+    }
+}
+</code></pre>
+<p>这些全局变量前两个是列表的创建，后面是为了保护定时器所以创建了信号量，这里需要注意的是为什么软件定时器需要信号量，主要是因为工作环境不一样</p>
+<ul>
+<li>硬件定时器：在中断上下文中运行，操作的定时器列表不会与其他任务并发访问，因此只需要</li>
+</ul>
+<p>界区保护，不需要信号量</p>
+<ul>
+<li>软件定时器：在任务上下文中运行，可能与其他任务并发访问定时器列表，因此需要使用信号量</li>
+</ul>
+<p>来保证对列表的互斥访问，防止竞争条件。</p>
+<p>tTimerStart和tTimerStop逻辑大致一样，这里使用case语句的原因是因为后期如果想在TimerCreated的时候修改比较方便；逻辑就是先赋值信息，然后根据定时器类型操作，如果是硬件定时器就使用关中断的方式插入列表，如果是软件定时器，使用信号量的方式插入列表；停止的话，就是把插入改为移除</p>
+<pre><code class="language-c">static void tTimerCallFuncList (tList * timerList)
+{
+    tNode * node;   
+    // 检查所有任务的delayTicks数，如果不0的话，减1。
+    for (node = timerList-&gt;headNode.nextNode; node != &amp;(timerList-&gt;headNode); node = node-&gt;nextNode)
+    {
+        tTimer * timer = tNodeParent(node, tTimer, linkNode);
+        // 如果延时已到，则调用定时器处理函数
+        if ((timer-&gt;delayTicks == 0) || (--timer-&gt;delayTicks == 0))
+        {
+            // 切换为正在运行状态
+            timer-&gt;state = tTimerRunning;
+            // 调用定时器处理函数
+            timer-&gt;timerFunc(timer-&gt;arg);
+            // 切换为已经启动状态
+            timer-&gt;state = tTimerStarted;
+            if (timer-&gt;durationTicks &gt; 0)
+            {
+                // 如果是周期性的，则重复延时计数值
+                timer-&gt;delayTicks = timer-&gt;durationTicks;
+            }
+            else
+            {
+                // 否则，是一次性计数器，中止定时器
+                tListRemove(timerList, &amp;timer-&gt;linkNode);
+                timer-&gt;state = tTimerStopped;
+            }
+        }
+    }
+}
+static tTask tTimeTask;
+static tTaskStack tTimerTaskStack[TINYOS_TIMERTASK_STACK_SIZE];
+static void tTimerSoftTask (void * param)
+{
+    for (;;)
+    {
+        // 等待系统节拍发送的中断事件信号
+        tSemWait(&amp;tTimerTickSem, 0);
+        // 获取软定时器列表的访问权限
+        tSemWait(&amp;tTimerProtectSem, 0);
+        // 处理软定时器列表
+        tTimerCallFuncList(&amp;tTimerSoftList);
+        // 释放定时器列表访问权限
+        tSemNotify(&amp;tTimerProtectSem);
+    }
+}
+void tTimerModuleTickNotify (void)
+{
+    uint32_t status = tTaskEnterCritical();
+    // 处理硬定时器列表
+    tTimerCallFuncList(&amp;tTimerHardList);
+    tTaskExitCritical(status);
+    // 通知软定时器节拍变化
+    tSemNotify(&amp;tTimerTickSem);
+}
+void tTimerModuleInit (void)
+{
+    tListInit(&amp;tTimerHardList);
+    tListInit(&amp;tTimerSoftList);
+    tSemInit(&amp;tTimerProtectSem, 1, 1);
+    tSemInit(&amp;tTimerTickSem, 0, 0);
+#if TINYOS_TIMERTASK_PRIO &gt;= (TINYOS_PRO_COUNT - 1)
+    #error &quot;The proprity of timer task must be greater then (TINYOS_PRO_COUNT - 1)&quot;
+#endif
+    tTaskInit(&amp;tTimeTask, tTimerSoftTask, (void *)0,
+        TINYOS_TIMERTASK_PRIO, &amp;tTimerTaskStack[TINYOS_TIMERTASK_STACK_SIZE]);
+}
+</code></pre>
+<p>tTimerCallFuncList是一个辅助函数，可以看到函数那里有一个static—只允许本文件调用，主要功能是遍历指定的定时器列表，调用各个定时器处理函数，主要逻辑是遍历，然后调用处理函数，赋值相关信息等</p>
+<p>tTimerSoftTask是软件定时器的任务，里面也使用了信号量进行安全操作，需要注意的是，这里的信号量是wait了tTimerTickSem和tTimerProtectSem，前者是保护tTimerModuleTickNotify，后者是保护这个任务</p>
+<p>tTimerModuleTickNotify中对软件定时器和硬件定时器分别进行通知调用</p>
+<p>tTimerModuleInit就是对模块的初始化，包括初始化信号量和任务</p>
+<h1 id="软件定时器的删除和状态查询">软件定时器的删除和状态查询</h1>
+<pre><code class="language-c">typedef struct _tTimerInfo
+{
+    // 初次启动延后的ticks数
+    uint32_t startDelayTicks;
+    // 周期定时时的周期tick数
+    uint32_t durationTicks;
+    // 定时回调函数
+    void (*timerFunc) (void * arg);
+    // 传递给回调函数的参数
+    void * arg;
+    // 定时器配置参数
+    uint32_t config;
+    // 定时器状态
+    tTimerState state;
+}tTimerInfo;
+
+void tTimerDestroy (tTimer * timer)
+{
+    tTimerStop(timer);
+    timer-&gt;state = tTimerDestroyed;
+}
+
+void tTimerGetInfo (tTimer * timer, tTimerInfo * info)
+{
+    uint32_t status = tTaskEnterCritical();
+    info-&gt;startDelayTicks = timer-&gt;startDelayTicks;
+    info-&gt;durationTicks = timer-&gt;durationTicks;
+    info-&gt;timerFunc = timer-&gt;timerFunc;
+    info-&gt;arg = timer-&gt;arg;
+    info-&gt;config = timer-&gt;config;
+    info-&gt;state = timer-&gt;state;
+    tTaskExitCritical(status);
+}
+</code></pre>
+<p>新增tTimerInfo信息查询结构体，使用tTimerGetInfo把相关信息赋值</p>
+<p>删除比较简单，就使用tTimerStop即可</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">为颜如玉，为黄金屋，为名满天下，为功利千秋</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/hanaeternum" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://hanaeternum.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
